@@ -9,12 +9,12 @@ import (
 	"github.com/modoki-paas/modoki-k8s/daemon/store"
 )
 
-type CommandArg struct {
+type commandArg struct {
 	DSN  string
 	Help bool
 }
 
-func (arg *CommandArg) Init() {
+func (arg *commandArg) Init() {
 	flag.StringVar(&arg.DSN, "db", "", "database source name")
 	flag.BoolVar(&arg.Help, "help", false, "show usage")
 
@@ -28,7 +28,7 @@ func (arg *CommandArg) Init() {
 }
 
 func main() {
-	carg := &CommandArg{}
+	carg := &commandArg{}
 	carg.Init()
 
 	d, err := sqlx.Open("mysql", carg.DSN)
