@@ -11,14 +11,12 @@ modokid:
 .PHONY: all
 all: modokid docker
 
-.PHONY: docker-push
-docker-push:
-	docker push $(DOCKER_IMAGE)
-
 .PHONY: docker
 docker:
 	docker build -t $(DOCKER_IMAGE) .
 
+.PHONY: docker-push
+docker-push:
 	if [ "$(CIRCLE_BRANCH)" = "master" ]; then docker push $(DOCKER_IMAGE); fi
 
 	docker tag $(DOCKER_IMAGE) $(DOCKER_IMAGE):$(CIRCLE_SHA1)
