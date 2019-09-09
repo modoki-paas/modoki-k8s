@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"net/http"
 	"os"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -38,4 +39,8 @@ func main() {
 	}
 
 	store.NewDB(d)
+
+	http.ListenAndServe(":80", http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
+		rw.Write([]byte("Hello, modoki world!"))
+	}))
 }

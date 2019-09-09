@@ -1,0 +1,21 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: modoki-ingress
+  namespace: modoki
+  annotations:
+    kubernetes.io/ingress.class: "nginx"    
+
+spec:
+  tls:
+  - hosts:
+    - apps.tsuzu.xyz
+    secretName: apps-tsuzu-xyz-tls
+  rules:
+  - host: apps.tsuzu.xyz
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: modoki
+          servicePort: 80

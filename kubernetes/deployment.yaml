@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: modoki-deployment
+  namespace: modoki
+  labels:
+    app: modoki
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: modoki
+  template:
+    metadata:
+      labels:
+        app: modoki
+    spec:
+      containers:
+      - name: modoki
+        image: modokipaas/modoki-k8s
+        ports:
+        - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: modoki-svc
+  namespace: modoki
+spec:
+  selector:
+    app: modoki
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
