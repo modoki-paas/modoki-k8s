@@ -3,11 +3,14 @@ GO111MODULE = on
 
 .DEFAULT_GOAL := modokid
 
-modokid:
+modokid: 
 	go build -o modokid $(wildcard ./daemon/*.go)
 
+.PHONY: all
+all: modokid docker
+
 .PHONY: docker
-docker:
+docker: 
 	docker build -t $(DOCKER_IMAGE) .
 
 .PHONY: generate
