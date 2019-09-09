@@ -9,4 +9,4 @@ jobs:
     steps:
       - setup_remote_docker
       - checkout
-      - run: make all
+      - run: make ci
