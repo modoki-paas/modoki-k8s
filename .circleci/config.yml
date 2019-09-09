@@ -7,5 +7,6 @@ jobs:
       - image: circleci/golang:1.13
     working_directory: /go/src/github.com/modoki-paas/modoki-k8s
     steps:
+      - setup_remote_docker
       - checkout
       - run: make all
