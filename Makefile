@@ -19,9 +19,7 @@ docker-push:
 docker:
 	docker build -t $(DOCKER_IMAGE) .
 
-	if [ "$(CIRCLE_BRANCH)" = "master" ]; then
-		docker push $(DOCKER_IMAGE)
-	fi
+	if [ "$(CIRCLE_BRANCH)" = "master" ]; then docker push $(DOCKER_IMAGE); fi
 
 	docker tag $(DOCKER_IMAGE) $(DOCKER_IMAGE):$(CIRCLE_SHA1)
 	docker push $(DOCKER_IMAGE):$(CIRCLE_SHA1)
