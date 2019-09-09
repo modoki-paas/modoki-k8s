@@ -17,6 +17,7 @@ spec:
     spec:
       containers:
       - name: modoki
+        imagePullPolicy: Always
         image: modokipaas/modoki-k8s
         ports:
         - containerPort: 80
