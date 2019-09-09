@@ -27,7 +27,7 @@ spec:
   secretName: apps-tsuzu-xyz-tls
   issuerRef:
     name: letsencrypt-staging
-  commonName: '*.apps.tsuzu.xtz'
+  commonName: '*.apps.tsuzu.xyz'
   dnsNames:
   - apps.tsuzu.xyz
   acme:
