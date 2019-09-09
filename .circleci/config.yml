@@ -1,0 +1,11 @@
+version: 2
+jobs:
+  build:
+    environment:
+      - GO111MODULE: "on"
+    docker:
+      - image: circleci/golang:1.13
+    working_directory: /go/src/github.com/modoki-paas/modoki-k8s
+    steps:
+      - checkout
+      - run: make all
