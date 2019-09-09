@@ -1,5 +1,6 @@
 PROTOC = protoc
 GO111MODULE = on
+DOCKER_IMAGE = modokipaas/modoki-k8s
 
 .DEFAULT_GOAL := modokid
 
