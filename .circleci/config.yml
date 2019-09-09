@@ -10,4 +10,4 @@ jobs:
       - setup_remote_docker
       - checkout
       - run: echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin
-      - run: make ci
+      - run: make all
