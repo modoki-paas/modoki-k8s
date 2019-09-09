@@ -19,7 +19,7 @@ docker-push:
 docker:
 	docker build -t $(DOCKER_IMAGE) .
 
-	if [ $(CIRCLE_BRANCH) = "master" ]; then
+	if [ "$(CIRCLE_BRANCH)" = "master" ]; then
 		docker push $(DOCKER_IMAGE)
 	fi
 
