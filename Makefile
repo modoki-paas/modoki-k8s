@@ -10,13 +10,6 @@ modokid:
 .PHONY: all
 all: modokid docker
 
-.PHONY: ci
-ci: docker-login all docker-push
-
-.PHONY: docker-login
-docker-login:
-	docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD}
-
 .PHONY: docker-push
 docker-push:
 	docker push $(DOCKER_IMAGE)
@@ -24,6 +17,13 @@ docker-push:
 .PHONY: docker
 docker:
 	docker build -t $(DOCKER_IMAGE) .
+
+	if [$(CIRCLE_BRANCH) = "master]; then
+		docker push $(DOCKER_IMAGE)
+	fi
+
+	docker tag $(DOCKER_IMAGE) $(DOCKER_IMAGE):$(CIRCLE_SHA1)
+	docker push $(DOCKER_IMAGE):$(CIRCLE_SHA1)
 
 .PHONY: generate
 generate: clean
