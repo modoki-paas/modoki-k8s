@@ -1,0 +1,40 @@
+syntax = "proto3";
+package modoki;
+
+option go_package = "/service";
+
+import "google/protobuf/any.proto";
+
+message ServiceSpec {
+  string name = 1;
+  string image = 2;
+  repeated string command = 3;
+  repeated string args = 4;
+
+  map<string, google.protobuf.Any> options = 10;
+}
+
+enum ServiceStatus {
+  Deploying = 0;
+  Running = 1;
+  Terminated = 2;
+  Error = 3;
+}
+
+message ServiceState {
+  ServiceState state = 1;
+  string stateMessage = 2;
+
+  map<string, google.protobuf.Any> options = 10;
+}
+
+message ServiceCreateRequest { ServiceSpec spec = 1; }
+
+message ServiceCreateResponse {
+  string id = 1;
+  ServiceSpec spec = 2;
+}
+
+service Service {
+  rpc Create(ServiceCreateRequest) returns (ServiceCreateResponse);
+}
