@@ -2,12 +2,16 @@ package main
 
 import (
 	"flag"
-	"net/http"
+	"log"
+	"net"
 	"os"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
 	"github.com/modoki-paas/modoki-k8s/daemon/store"
+	api "github.com/modoki-paas/modoki-k8s/api"
+	"github.com/modoki-paas/modoki-k8s/daemon/handler"
+	"google.golang.org/grpc"
 )
 
 type commandArg struct {
@@ -40,7 +44,14 @@ func main() {
 
 	store.NewDB(d)
 
-	http.ListenAndServe(":80", http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
-		rw.Write([]byte("Hello, modoki world!"))
-	}))
+	listener, err := net.Listen("tcp", ":80")
+	if err != nil {
+		log.Fatalf("failed to listen on :80: %v", err)
+	}
+	server := grpc.NewServer()
+	api.RegisterServiceServer(server, &handler.ServiceServer{})
+
+	if err := server.Serve(listener); err != nil {
+		log.Fatalf("failed to start server on :80: %v", err)
+	}
 }
