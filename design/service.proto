@@ -11,6 +11,7 @@ message ServiceSpec {
   string image = 2;
   repeated string command = 3;
   repeated string args = 4;
+  int32 owner = 5;
 
   map<string, google.protobuf.Any> options = 10;
 }
