@@ -6,3 +6,5 @@ CREATE TABLE users (
     created_at timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 );
+
+ALTER TABLE users ADD INDEX name_index(name);
