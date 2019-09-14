@@ -28,4 +28,4 @@ generate: clean
 
 .PHONY: clean
 clean:
-	rm ./api/*.pb.go
+	rm ./api/*.pb.go || true
