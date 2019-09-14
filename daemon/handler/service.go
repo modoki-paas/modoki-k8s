@@ -7,6 +7,7 @@ import (
 )
 
 type ServiceServer struct {
+	Context *ServerContext
 }
 
 func (s *ServiceServer) Create(ctx context.Context, req *api.ServiceCreateRequest) (*api.ServiceCreateResponse, error) {

@@ -6,5 +6,5 @@ import (
 
 // ServerContext contains accessor used by handlers
 type ServerContext struct {
-	store *store.Store
+	DB *store.DB
 }

@@ -8,9 +8,9 @@ import (
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
-	"github.com/modoki-paas/modoki-k8s/daemon/store"
 	api "github.com/modoki-paas/modoki-k8s/api"
 	"github.com/modoki-paas/modoki-k8s/daemon/handler"
+	"github.com/modoki-paas/modoki-k8s/daemon/store"
 	"google.golang.org/grpc"
 )
 
@@ -42,14 +42,18 @@ func main() {
 		panic(err)
 	}
 
-	store.NewDB(d)
+	db := store.NewDB(d)
+
+	sctx := &handler.ServerContext{
+		DB: db,
+	}
 
 	listener, err := net.Listen("tcp", ":80")
 	if err != nil {
 		log.Fatalf("failed to listen on :80: %v", err)
 	}
 	server := grpc.NewServer()
-	api.RegisterServiceServer(server, &handler.ServiceServer{})
+	api.RegisterServiceServer(server, &handler.ServiceServer{Context: sctx})
 
 	if err := server.Serve(listener); err != nil {
 		log.Fatalf("failed to start server on :80: %v", err)
