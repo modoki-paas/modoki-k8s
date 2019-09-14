@@ -5,6 +5,7 @@ DOCKER_BUILDKIT = 1
 
 .DEFAULT_GOAL := modokid
 
+.PHONY: modokid
 modokid: 
 	go build -o modokid $(wildcard ./daemon/*.go)
 
