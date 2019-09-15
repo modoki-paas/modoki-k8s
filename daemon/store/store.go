@@ -98,3 +98,11 @@ func (d *DB) User() *userStore {
 func (d *DB) Service() *serviceStore {
 	return newServiceStore(d.db)
 }
+
+func (d *DB) UserGroupRelation() *userGroupRelationsStore {
+	return newUserGroupRelationsStore(d.db)
+}
+
+func (d *DB) Token() *tokensStore {
+	return newTokensStore(d.db)
+}
