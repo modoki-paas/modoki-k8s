@@ -5,4 +5,4 @@ CREATE TABLE user_group_relations (
     permission JSON
 );
 
-ALTER TABLE services ADD INDEX group_user_index(group_id, user_id);
+ALTER TABLE user_group_relations ADD INDEX group_user_index(group_id, user_id);

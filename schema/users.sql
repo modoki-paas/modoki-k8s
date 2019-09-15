@@ -1,6 +1,6 @@
 CREATE TABLE users (
     id INTEGER NOT NULL PRIMARY KEY,
-    type ENUM("user", "group"),
+    type ENUM("user", "organization"),
     name VARCHAR(128) NOT NULL UNIQUE,
     password VARCHAR(128),
     created_at timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
