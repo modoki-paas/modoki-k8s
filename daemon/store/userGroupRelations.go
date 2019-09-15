@@ -2,7 +2,7 @@ package store
 
 import "time"
 
-type User struct {
+type UserGroupRelation struct {
 	ID        int       `db:"id"`
 	UserType  string    `db:"type"`
 	Name      string    `db:"name"`
@@ -11,10 +11,11 @@ type User struct {
 	UpdatedAt time.Time `db:"updated_at"`
 }
 
-type userStore struct {
+type userGroupRelationsStore struct {
 	db *dbContext
 }
 
-func newUserStore(db *dbContext) *userStore {
-	return &userStore{db: db}
+func newUserGroupRelationsStore(db *dbContext) *userGroupRelationsStore {
+	return &userGroupRelationsStore{db: db}
 }
+
