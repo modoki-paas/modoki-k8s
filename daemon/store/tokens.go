@@ -1,6 +1,11 @@
 package store
 
-import "time"
+import (
+	"context"
+	"time"
+
+	"golang.org/x/xerrors"
+)
 
 type TokenPermission struct {
 }
@@ -21,4 +26,17 @@ type tokensStore struct {
 
 func newTokensStore(db *dbContext) *tokensStore {
 	return &tokensStore{db: db}
+}
+
+func (s *tokensStore) GetFromToken(token string) (*Token, error) {
+	var ts Token
+	err := s.db.db.
+		QueryRowxContext(context.Background(), "SELECT * FROM tokens WHERE token=?", token).
+		StructScan(&ts)
+
+	if err != nil {
+		return nil, xerrors.Errorf("failed to scan: %v", err)
+	}
+
+	return &ts, nil
 }
