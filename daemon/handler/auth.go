@@ -6,6 +6,8 @@ import (
 
 	"strings"
 
+	"database/sql"
+
 	"github.com/modoki-paas/modoki-k8s/daemon/store"
 	"golang.org/x/xerrors"
 	"google.golang.org/grpc"
@@ -14,8 +16,15 @@ import (
 	"google.golang.org/grpc/status"
 )
 
+type contextKey string
+
+const (
+	TokenContext contextKey = "token-context"
+	UserContext  contextKey = "user-context"
+)
+
 type Authorizer interface {
-	Authorize(ctx context.Context, id int, route string) error
+	Authorize(ctx context.Context, route string) error
 }
 
 type AuthorizerInterceptor struct {
@@ -39,15 +48,41 @@ func (ai *AuthorizerInterceptor) getTokenFromHeader(ctx context.Context) (string
 	return key, nil
 }
 
-func (ai *AuthorizerInterceptor) getIDFromToken(ctx context.Context) (int, error) {
+func (ai *AuthorizerInterceptor) addUserTokenContext(ctx context.Context) (context.Context, error) {
+	var user *store.User
+	var tk *store.Token
 
+	token, err := ai.getTokenFromHeader(ctx)
+
+	if err == nil {
+		user, tk, err = ai.db.User().GetUserFromToken(token)
+
+		if xerrors.Is(err, sql.ErrNoRows) {
+			// unauthorized
+			user = nil
+			tk = nil
+		} else {
+			return nil, xerrors.Errorf("failed to get user and token from db: %v", err)
+		}
+	}
+
+	ctx = context.WithValue(ctx, TokenContext, tk)
+	ctx = context.WithValue(ctx, UserContext, user)
+
+	return ctx, nil
 }
 
 // UnaryServerInterceptor はリクエストごとの認可を行う、unary サーバーインターセプターを返す。
 func UnaryServerInterceptor(db *store.DB) grpc.UnaryServerInterceptor {
-	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
+	ai := &AuthorizerInterceptor{db}
 
-		var err error
+	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
+		ctx, err := ai.addUserTokenContext(ctx)
+
+		if err != nil {
+			return nil, xerrors.Errorf("failed to add user and token data to context: %v", err)
+		}
+
 		if srv, ok := info.Server.(Authorizer); ok {
 			err = srv.Authorize(ctx, info.FullMethod)
 		} else {
