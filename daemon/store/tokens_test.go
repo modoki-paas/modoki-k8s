@@ -35,22 +35,22 @@ func TestGetFromToken(t *testing.T) {
 		}
 
 		if tk.ID != ret.ID {
-			t.Error("invalid id: want %v got %v", tk.ID, ret.ID)
+			t.Errorf("invalid id: want %v got %v", tk.ID, ret.ID)
 		}
 		if tk.Token != ret.Token {
-			t.Error("invalid token: want %v got %v", tk.Token, ret.Token)
+			t.Errorf("invalid token: want %v got %v", tk.Token, ret.Token)
 		}
 		if tk.Organization != ret.Organization {
-			t.Error("invalid org: want %v got %v", tk.Organization, ret.Organization)
+			t.Errorf("invalid org: want %v got %v", tk.Organization, ret.Organization)
 		}
 		if tk.Author != ret.Author {
-			t.Error("invalid author: want %v got %v", tk.Author, ret.Author)
+			t.Errorf("invalid author: want %v got %v", tk.Author, ret.Author)
 		}
 		if ret.CreatedAt == (time.Time{}) {
-			t.Error("invalid created_at", tk.CreatedAt)
+			t.Errorf("invalid created_at", tk.CreatedAt)
 		}
 		if ret.UpdatedAt == (time.Time{}) {
-			t.Error("invalid updated_at", tk.UpdatedAt)
+			t.Errorf("invalid updated_at", tk.UpdatedAt)
 		}
 	})
 }
