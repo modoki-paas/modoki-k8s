@@ -5,6 +5,13 @@ jobs:
       - GO111MODULE: "on"
     docker:
       - image: circleci/golang:1.13
+      - image: circleci/mysql:8.0.4
+        environment:
+          MYSQL_ROOT_PASSWORD: password
+          MYSQL_DATABASE: testdb
+          MYSQL_USER: user
+          MYSQL_PASSWORD: password
+
     working_directory: /go/src/github.com/modoki-paas/modoki-k8s
     steps:
       - setup_remote_docker
