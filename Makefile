@@ -10,11 +10,15 @@ modokid:
 	go build -o modokid $(wildcard ./daemon/*.go)
 
 .PHONY: all
-all: modokid docker
+all: modokid docker test
 
 .PHONY: docker
 docker:
 	docker build -t $(DOCKER_IMAGE) .
+
+.PHONY: test
+test:
+	go test -race -v ./...
 
 .PHONY: docker-push
 docker-push:

@@ -2,9 +2,8 @@ package testutil
 
 import (
 	"io/ioutil"
-	"testing"
-
 	"path/filepath"
+	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/jmoiron/sqlx"
@@ -30,8 +29,12 @@ func NewSQLConn(t *testing.T) *sqlx.DB {
 		t.Fatalf("failed to connect to external db for test: %v", err)
 	}
 
-	dbx.Exec("DROP DATABSE IF EXISTS testdb")
-	dbx.Exec("CREATE DATABASE testdb")
+	if _, err := dbx.Exec("DROP DATABSE IF EXISTS testdb"); err != nil {
+		t.Fatalf("failed to delete database: %v", err)
+	}
+	if _, err := dbx.Exec("CREATE DATABASE testdb"); err != nil {
+		t.Fatalf("failed to delete database: %v", err)
+	}
 
 	createTable(t, dbx)
 
