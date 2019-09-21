@@ -25,7 +25,7 @@ func TestGetFromToken(t *testing.T) {
 		_, err := store.Token().NewToken(tk)
 
 		if err != nil {
-			t.Errorf("failed to register new token: %v", err)
+			t.Fatalf("failed to register new token: %v", err)
 		}
 
 		ret, err := store.Token().GetFromToken("token")

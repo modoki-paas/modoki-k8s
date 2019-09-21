@@ -36,6 +36,13 @@ func NewSQLConn(t *testing.T) *sqlx.DB {
 	if _, err := dbx.Exec("CREATE DATABASE testdb"); err != nil {
 		t.Fatalf("failed to delete database: %v", err)
 	}
+	dbx.Close()
+
+	dbx, err = sqlx.Connect("mysql", "root:password@tcp(127.0.0.1)/testdb?parseTime=true&multiStatements=true")
+
+	if err != nil {
+		t.Fatalf("failed to connect to external db for test: %v", err)
+	}
 
 	createTable(t, dbx)
 
