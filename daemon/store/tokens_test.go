@@ -31,7 +31,7 @@ func TestGetFromToken(t *testing.T) {
 		ret, err := store.Token().GetFromToken("token")
 
 		if err != nil {
-			t.Errorf("failed to retrieve token: %v", err)
+			t.Fatalf("failed to retrieve token: %v", err)
 		}
 
 		if tk.ID != ret.ID {
