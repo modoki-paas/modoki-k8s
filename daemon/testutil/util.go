@@ -30,7 +30,7 @@ func NewSQLConn(t *testing.T) *sqlx.DB {
 		t.Fatalf("failed to connect to external db for test: %v", err)
 	}
 
-	if _, err := dbx.Exec("DROP DATABSE IF EXISTS testdb"); err != nil {
+	if _, err := dbx.Exec("DROP DATABASE IF EXISTS testdb"); err != nil {
 		t.Fatalf("failed to delete database: %v", err)
 	}
 	if _, err := dbx.Exec("CREATE DATABASE testdb"); err != nil {
