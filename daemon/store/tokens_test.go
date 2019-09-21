@@ -47,10 +47,10 @@ func TestGetFromToken(t *testing.T) {
 			t.Errorf("invalid author: want %v got %v", tk.Author, ret.Author)
 		}
 		if ret.CreatedAt == (time.Time{}) {
-			t.Errorf("invalid created_at", tk.CreatedAt)
+			t.Errorf("invalid created_at: %v", tk.CreatedAt)
 		}
 		if ret.UpdatedAt == (time.Time{}) {
-			t.Errorf("invalid updated_at", tk.UpdatedAt)
+			t.Errorf("invalid updated_at: %v", tk.UpdatedAt)
 		}
 	})
 }
