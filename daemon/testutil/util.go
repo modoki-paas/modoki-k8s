@@ -56,6 +56,7 @@ func createTable(t *testing.T, dbx *sqlx.DB) {
 		t.Fatalf("failed to open sql files: %v", err)
 	}
 	for i := range sqls {
+		t.Logf("running %s", sqls[i])
 		b, err := ioutil.ReadFile(sqls[i])
 
 		if err != nil {
