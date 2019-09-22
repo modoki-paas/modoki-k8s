@@ -1,5 +1,5 @@
 CREATE TABLE users (
-    id INTEGER NOT NULL PRIMARY KEY,
+    id INTEGER AUTO_INCREMENT NOT NULL PRIMARY KEY,
     type ENUM("user", "organization"),
     name VARCHAR(128) NOT NULL UNIQUE,
     password VARCHAR(128),
