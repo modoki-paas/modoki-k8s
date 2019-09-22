@@ -50,7 +50,7 @@ func NewSQLConn(t *testing.T) *sqlx.DB {
 }
 
 func createTable(t *testing.T, dbx *sqlx.DB) {
-	sqls, err := filepath.Glob("../schema/*.sql")
+	sqls, err := filepath.Glob("../..//schema/*.sql")
 
 	if err != nil {
 		t.Fatalf("failed to open sql files: %v", err)
