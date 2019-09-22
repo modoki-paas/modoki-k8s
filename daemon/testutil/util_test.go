@@ -5,5 +5,7 @@ import (
 )
 
 func TestNewSQLConn(t *testing.T) {
-	NewSQLConn(t)
+	conn := NewSQLConn(t)
+
+	conn.Close()
 }

@@ -12,6 +12,7 @@ import (
 func TestGetFromToken(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		db := testutil.NewSQLConn(t)
+		defer db.Close()
 
 		store := NewDB(db)
 
