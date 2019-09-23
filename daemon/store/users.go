@@ -113,7 +113,7 @@ func (s *userStore) AddUser(name, password string, userType UserTypeEnum) (u *Us
 func (s *userStore) GetUser(id int) (*User, error) {
 	var u User
 
-	if err := s.db.db.QueryRowxContext(context.Background(), "SElECT * FROM users WHERE id = ?", id).Scan(&u); err != nil {
+	if err := s.db.db.QueryRowxContext(context.Background(), "SElECT * FROM users WHERE id = ?", id).StructScan(&u); err != nil {
 		return nil, xerrors.Errorf("faield to retrieve user info: %v", err)
 	}
 
