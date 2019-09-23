@@ -107,11 +107,17 @@ func (s *userStore) AddUser(name, password string, userType UserTypeEnum) (u *Us
 		return nil, xerrors.Errorf("faield to retrieve last inserted id: %v", err)
 	}
 
-	if err := s.db.db.QueryRowxContext(context.Background(), "SElECT * FROM users WHERE id = ?", int(id64)).Scan(&u); err != nil {
+	return s.GetUser(int(id64))
+}
+
+func (s *userStore) GetUser(id int) (*User, error) {
+	var u User
+
+	if err := s.db.db.QueryRowxContext(context.Background(), "SElECT * FROM users WHERE id = ?", id).Scan(&u); err != nil {
 		return nil, xerrors.Errorf("faield to retrieve user info: %v", err)
 	}
 
-	return u, nil
+	return &u, nil
 }
 
 func (s *userStore) GetUserFromToken(token string) (*User, *Token, error) {
