@@ -46,7 +46,7 @@ func newTokensStore(db *dbContext) *tokensStore {
 	return &tokensStore{db: db}
 }
 
-func (s *tokensStore) NewToken(t *Token) (*Token, error) {
+func (s *tokensStore) AddToken(t *Token) (*Token, error) {
 	res, err := s.db.db.ExecContext(
 		context.Background(),
 		"INSERT INTO tokens (token, organization, author, permission) VALUES (?, ?, ?, ?)",

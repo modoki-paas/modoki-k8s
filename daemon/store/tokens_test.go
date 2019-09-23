@@ -23,7 +23,7 @@ func TestGetFromToken(t *testing.T) {
 			TokenPermission: nil,
 		}
 
-		_, err := store.Token().NewToken(tk)
+		_, err := store.Token().AddToken(tk)
 
 		if err != nil {
 			t.Fatalf("failed to register new token: %v", err)
