@@ -130,7 +130,7 @@ func (s *userStore) GetUserFromToken(token string) (*User, *Token, error) {
 	var ut userToken
 	err := s.db.db.QueryRowxContext(
 		context.Background(),
-		"SELECT * FROM users INNER JOIN tokens ON tokens.organization = user.id WHERE tokens.token = ?",
+		"SELECT * FROM users INNER JOIN tokens ON tokens.organization = users.id WHERE tokens.token = ?",
 		token,
 	).StructScan(&ut)
 
