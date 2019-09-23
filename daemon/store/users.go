@@ -123,8 +123,8 @@ func (s *userStore) GetUser(id int) (*User, error) {
 func (s *userStore) GetUserFromToken(token string) (*User, *Token, error) {
 	// userToken represents target user or organization(NOT AUTHOR OF TOKEN) and token
 	type userToken struct {
-		Users  *User
-		Tokens *Token
+		Users  *User  `db:"users`
+		Tokens *Token `db:"tokens"`
 	}
 
 	var ut userToken
