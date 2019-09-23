@@ -16,23 +16,6 @@ type User struct {
 	UpdatedAt time.Time `db:"updated_at"`
 }
 
-// userToken represents target user or organization(NOT AUTHOR OF TOKEN) and token
-type userToken struct {
-	ID        int       `db:"id"`
-	UserType  string    `db:"type"`
-	Name      string    `db:"name"`
-	Password  []byte    `db:"password"`
-	CreatedAt time.Time `db:"created_at"`
-	UpdatedAt time.Time `db:"updated_at"`
-
-	Token           string           `db:"token"`
-	Organization    int              `db:"organization"`
-	Author          int              `db:"author"`
-	TokenPermission *TokenPermission `db:"permission"`
-	TokenCreatedAt  time.Time        `db:"token_created_at"`
-	TokenUpdatedAt  time.Time        `db:"token_updated_at"`
-}
-
 type userStore struct {
 	db *dbContext
 }
@@ -42,6 +25,23 @@ func newUserStore(db *dbContext) *userStore {
 }
 
 func (s *userStore) GetUserFromToken(token string) (*User, *Token, error) {
+	// userToken represents target user or organization(NOT AUTHOR OF TOKEN) and token
+	type userToken struct {
+		ID        int       `db:"id"`
+		UserType  string    `db:"type"`
+		Name      string    `db:"name"`
+		Password  []byte    `db:"password"`
+		CreatedAt time.Time `db:"created_at"`
+		UpdatedAt time.Time `db:"updated_at"`
+
+		Token           string           `db:"token"`
+		Organization    int              `db:"organization"`
+		Author          int              `db:"author"`
+		TokenPermission *TokenPermission `db:"permission"`
+		TokenCreatedAt  time.Time        `db:"token_created_at"`
+		TokenUpdatedAt  time.Time        `db:"token_updated_at"`
+	}
+
 	var ut userToken
 	err := s.db.db.QueryRowxContext(
 		context.Background(),
