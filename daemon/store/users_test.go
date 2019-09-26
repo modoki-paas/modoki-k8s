@@ -112,8 +112,8 @@ func TestGetUserFromToken(t *testing.T) {
 		if !cmp.Equal(ru, u) {
 			t.Errorf("user does not match: want %v, got %v", *u, *ru)
 		}
-		if !cmp.Equal(rt, t) {
-			t.Errorf("token does not match: want %v, got %v", *t, *rt)
+		if !cmp.Equal(rt, token) {
+			t.Errorf("token does not match: want %v, got %v", *token, *rt)
 		}
 	})
 }
