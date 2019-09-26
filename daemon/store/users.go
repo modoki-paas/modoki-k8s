@@ -135,7 +135,9 @@ func (s *userStore) GetUserFromToken(token string) (*User, *Token, error) {
 		context.Background(),
 		"SELECT "+
 			selector.
-				SelectStruct("").String()+
+				SelectStruct("users.*").
+				SelectStruct("tokens.*").
+				String()+
 			" FROM users INNER JOIN tokens ON tokens.organization = user.id WHERE tokens.token = ?",
 		token,
 	).StructScan(&ut)
