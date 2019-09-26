@@ -5,7 +5,7 @@ import (
 	"database/sql/driver"
 	"time"
 
-	sqlxselect "github.com/cs3238-tsuzu/sqlx-selector"
+	sqlxselect "github.com/cs3238-tsuzu/sqlx-selector/v2"
 	"golang.org/x/crypto/bcrypt"
 
 	"golang.org/x/xerrors"
@@ -129,12 +129,10 @@ func (s *userStore) GetUserFromToken(token string) (*User, *Token, error) {
 	}
 
 	var ut userToken
-	selector, _ := sqlxselect.New(&ut)
-
 	err := s.db.db.QueryRowxContext(
 		context.Background(),
 		"SELECT "+
-			selector.
+			sqlxselect.New(&ut).
 				SelectStruct("users.*").
 				SelectStruct("tokens.*").
 				String()+
