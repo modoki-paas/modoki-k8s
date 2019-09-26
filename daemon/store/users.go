@@ -5,6 +5,7 @@ import (
 	"database/sql/driver"
 	"time"
 
+	sqlxselect "github.com/cs3238-tsuzu/sqlx-selector"
 	"golang.org/x/crypto/bcrypt"
 
 	"golang.org/x/xerrors"
@@ -123,14 +124,19 @@ func (s *userStore) GetUser(id int) (*User, error) {
 func (s *userStore) GetUserFromToken(token string) (*User, *Token, error) {
 	// userToken represents target user or organization(NOT AUTHOR OF TOKEN) and token
 	type userToken struct {
-		Users  *User  `db:"users`
-		Tokens *Token `db:"tokens"`
+		User  *User  `db:"users"`
+		Token *Token `db:"tokens"`
 	}
 
 	var ut userToken
+	selector, _ := sqlxselect.New(&ut)
+
 	err := s.db.db.QueryRowxContext(
 		context.Background(),
-		"SELECT * FROM users INNER JOIN tokens ON tokens.organization = users.id WHERE tokens.token = ?",
+		"SELECT "+
+			selector.
+				SelectStruct("").String()+
+			" FROM users INNER JOIN tokens ON tokens.organization = user.id WHERE tokens.token = ?",
 		token,
 	).StructScan(&ut)
 
@@ -138,5 +144,5 @@ func (s *userStore) GetUserFromToken(token string) (*User, *Token, error) {
 		return nil, nil, xerrors.Errorf("failed to get token and user from db: %v", err)
 	}
 
-	return ut.Users, ut.Tokens, nil
+	return ut.User, ut.Token, nil
 }
