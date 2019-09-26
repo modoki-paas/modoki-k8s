@@ -46,8 +46,25 @@ func newTokensStore(db *dbContext) *tokensStore {
 	return &tokensStore{db: db}
 }
 
-func (s *tokensStore) AddToken(t *Token) (*Token, error) {
-	res, err := s.db.db.ExecContext(
+func (s *tokensStore) AddToken(t *Token) (ret *Token, err error) {
+	dbx, err := s.db.Begin(context.Background(), nil)
+	store := newDB(dbx)
+
+	if err != nil {
+		return nil, xerrors.Errorf("faield to begin transaction: %v", err)
+	}
+	defer func() {
+		if err != nil {
+			dbx.Rollback()
+		} else {
+			if err := dbx.Commit(); err != nil {
+				err = xerrors.Errorf("failed to commit transaction: %v", err)
+				ret = nil
+			}
+		}
+	}()
+
+	res, err := dbx.db.ExecContext(
 		context.Background(),
 		"INSERT INTO tokens (token, organization, author, permission) VALUES (?, ?, ?, ?)",
 		t.Token,
@@ -66,11 +83,21 @@ func (s *tokensStore) AddToken(t *Token) (*Token, error) {
 		return nil, xerrors.Errorf("failed to register new token: %v", err)
 	}
 
-	t.ID = int(id)
-
-	return t, nil
+	return store.Token().GetToken(int(id))
 }
 
+func (s *tokensStore) GetToken(id int) (*Token, error) {
+	var ts Token
+	err := s.db.db.
+		QueryRowxContext(context.Background(), "SELECT * FROM tokens WHERE id=?", id).
+		StructScan(&ts)
+
+	if err != nil {
+		return nil, xerrors.Errorf("failed to scan: %v", err)
+	}
+
+	return &ts, nil
+}
 func (s *tokensStore) GetFromToken(token string) (*Token, error) {
 	var ts Token
 	err := s.db.db.
