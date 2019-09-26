@@ -81,6 +81,7 @@ func (s *userStore) AddUser(name, password string, userType UserTypeEnum) (u *Us
 	}
 
 	dbx, err := s.db.Begin(context.Background(), nil)
+	store := newDB(dbx)
 
 	if err != nil {
 		return nil, xerrors.Errorf("faield to begin transaction: %v", err)
@@ -96,10 +97,10 @@ func (s *userStore) AddUser(name, password string, userType UserTypeEnum) (u *Us
 		}
 	}()
 
-	res, err := s.db.db.ExecContext(context.Background(), "INSERT INTO users (type, name, password) VALUES (?, ?, ?)", u.UserType, u.Name, u.Password)
+	res, err := dbx.db.ExecContext(context.Background(), "INSERT INTO users (type, name, password) VALUES (?, ?, ?)", u.UserType, u.Name, u.Password)
 
 	if err != nil {
-		return nil, xerrors.Errorf("faield to begin transaction: %v", err)
+		return nil, xerrors.Errorf("faield to add user: %v", err)
 	}
 
 	id64, err := res.LastInsertId()
@@ -108,7 +109,7 @@ func (s *userStore) AddUser(name, password string, userType UserTypeEnum) (u *Us
 		return nil, xerrors.Errorf("faield to retrieve last inserted id: %v", err)
 	}
 
-	return s.GetUser(int(id64))
+	return store.User().GetUser(int(id64))
 }
 
 func (s *userStore) GetUser(id int) (*User, error) {

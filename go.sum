@@ -3,9 +3,6 @@ github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03
 github.com/DATA-DOG/go-sqlmock v1.3.3 h1:CWUqKXe0s8A2z6qCgkP4Kru7wC11YoAnoupUKFDnH08=
 github.com/DATA-DOG/go-sqlmock v1.3.3/go.mod h1:f/Ixk793poVmq4qj/V1dPUg2JEAKC73Q5eFN3EC/SaM=
 github.com/client9/misspell v0.3.4/go.mod h1:qj6jICC3Q7zFZvVWo7KLAzC3yx5G7kyvSDkc90ppPyw=
-github.com/cs3238-tsuzu/sqlx-selector v1.1.0 h1:VNle9KKkGRLrvARc61kylut4vrOShKYRjdR+VnSvcHQ=
-github.com/cs3238-tsuzu/sqlx-selector/v2 v2.0.0 h1:vMNPEmOw3F5RNbkinSDUXsAER17oDRpvayLzTda1/zo=
-github.com/cs3238-tsuzu/sqlx-selector/v2 v2.0.0/go.mod h1:AdG6W+a06YXO25TnIrIlLH+xwz7nVasJDejWwnipBao=
 github.com/cs3238-tsuzu/sqlx-selector/v2 v2.0.1 h1:uOGAd7NnLP2fFdctKZrY4aRUV2XkPvNVhCwv3Qgvy9Y=
 github.com/cs3238-tsuzu/sqlx-selector/v2 v2.0.1/go.mod h1:AdG6W+a06YXO25TnIrIlLH+xwz7nVasJDejWwnipBao=
 github.com/go-sql-driver/mysql v1.4.0/go.mod h1:zAC/RDZ24gD3HViQzih4MyKcchzm+sOG5ZlKdlhCg5w=
