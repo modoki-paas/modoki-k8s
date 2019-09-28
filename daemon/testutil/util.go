@@ -34,7 +34,10 @@ func NewSQLConn(t *testing.T) *sqlx.DB {
 		t.Fatalf("failed to delete database: %v", err)
 	}
 	if _, err := dbx.Exec("CREATE DATABASE testdb"); err != nil {
-		t.Fatalf("failed to delete database: %v", err)
+		t.Fatalf("failed to create database: %v", err)
+	}
+	if _, err := dbx.Exec("USE testdb"); err != nil {
+		t.Fatalf("failed to select database: %v", err)
 	}
 
 	createTable(t, dbx)
