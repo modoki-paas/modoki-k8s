@@ -69,7 +69,7 @@ func newDB(db *dbContext) *DB {
 	}
 }
 
-func NewDB(db *sqlx.DB) *DB {
+func NewDB(db sqlx.ExtContext) *DB {
 	return newDB(&dbContext{db: db})
 }
 
