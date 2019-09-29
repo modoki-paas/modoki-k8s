@@ -1,4 +1,4 @@
-// build +test_db
+// build +use_external_db
 
 package store
 

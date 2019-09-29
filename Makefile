@@ -18,7 +18,7 @@ docker:
 
 .PHONY: test
 test:
-	go test -race -tags test_db -v ./...
+	go test -race -tags use_external_db -v ./...
 
 .PHONY: docker-push
 docker-push:
