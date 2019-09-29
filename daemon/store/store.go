@@ -15,9 +15,14 @@ type dbContext struct {
 	opt *sql.TxOptions
 }
 
+// Beginnable represents db connection that can begin transaction
+type Beginnable interface {
+	BeginTxx(ctx context.Context, opts *sql.TxOptions) (*sqlx.Tx, error)
+}
+
 func (d *dbContext) Begin(ctx context.Context, opt *sql.TxOptions) (*dbContext, error) {
 	switch v := d.db.(type) {
-	case *sqlx.DB:
+	case Beginnable:
 		tx, err := v.BeginTxx(ctx, opt)
 
 		if err != nil {
@@ -28,7 +33,7 @@ func (d *dbContext) Begin(ctx context.Context, opt *sql.TxOptions) (*dbContext, 
 			db:  tx,
 			opt: opt,
 		}, nil
-	case *sqlx.Tx:
+	default:
 		// already begun
 
 		if opt != nil && d.opt != opt {
@@ -36,7 +41,6 @@ func (d *dbContext) Begin(ctx context.Context, opt *sql.TxOptions) (*dbContext, 
 		}
 		return d, nil
 	}
-	return nil, xerrors.Errorf("unknown db type: %v", d.db)
 }
 
 func (d *dbContext) Commit() error {
