@@ -24,7 +24,7 @@ func NewSQLMock(t *testing.T) (*sqlx.DB, sqlmock.Sqlmock) {
 
 // NewSQLConn returns connection with sql*x*.DB
 func NewSQLConn(t *testing.T) *sqlx.DB {
-	dbx, err := sqlx.Connect("mysql", "root:password@tcp(127.0.0.1)/testdb?parseTime=true&multiStatements=true")
+	dbx, err := sqlx.Connect("mysql", "root:password@tcp(127.0.0.1)/?parseTime=true&multiStatements=true")
 
 	if err != nil {
 		t.Fatalf("failed to connect to external db for test: %v", err)
