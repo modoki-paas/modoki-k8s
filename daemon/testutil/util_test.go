@@ -1,3 +1,5 @@
+// build +test_db
+
 package testutil
 
 import (
@@ -5,7 +7,9 @@ import (
 )
 
 func TestNewSQLConn(t *testing.T) {
-	conn := NewSQLConn(t)
+	t.Run("sql conn test", func(t *testing.T) {
+		conn := NewSQLConn(t)
 
-	conn.Close()
+		conn.Close()
+	})
 }
