@@ -2,6 +2,7 @@ package testutil
 
 import (
 	"io/ioutil"
+	"math/rand"
 	"path/filepath"
 	"testing"
 
@@ -22,27 +23,46 @@ func NewSQLMock(t *testing.T) (*sqlx.DB, sqlmock.Sqlmock) {
 	return dbx, mock
 }
 
+type sqlxConn struct {
+	dbName string
+	*sqlx.DB
+}
+
+func (c *sqlxConn) Close() error {
+	c.DB.Exec("DROP DATABASE " + c.dbName)
+
+	return c.DB.Close()
+}
+
 // NewSQLConn returns connection with sql*x*.DB
-func NewSQLConn(t *testing.T) *sqlx.DB {
+func NewSQLConn(t *testing.T) *sqlxConn {
 	dbx, err := sqlx.Connect("mysql", "root:password@tcp(127.0.0.1)/?parseTime=true&multiStatements=true")
 
 	if err != nil {
 		t.Fatalf("failed to connect to external db for test: %v", err)
 	}
 
-	if _, err := dbx.Exec("DROP DATABASE IF EXISTS testdb"); err != nil {
-		t.Fatalf("failed to delete database: %v", err)
+	var lts = []byte("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
+
+	b := make([]byte, 10)
+	for i := range b {
+		b[i] = lts[rand.Intn(len(lts))]
 	}
-	if _, err := dbx.Exec("CREATE DATABASE testdb"); err != nil {
+	dbName := string(b)
+
+	if _, err := dbx.Exec("CREATE DATABASE " + dbName); err != nil {
 		t.Fatalf("failed to create database: %v", err)
 	}
-	if _, err := dbx.Exec("USE testdb"); err != nil {
+	if _, err := dbx.Exec("USE " + dbName); err != nil {
 		t.Fatalf("failed to select database: %v", err)
 	}
 
 	createTable(t, dbx)
 
-	return dbx
+	return &sqlxConn{
+		dbName: dbName,
+		DB:     dbx,
+	}
 }
 
 func createTable(t *testing.T, dbx *sqlx.DB) {
