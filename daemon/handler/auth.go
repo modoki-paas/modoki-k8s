@@ -94,3 +94,22 @@ func UnaryServerInterceptor(db *store.DB) grpc.UnaryServerInterceptor {
 		return handler(ctx, req)
 	}
 }
+
+// GetValuesFromContext returns user and token stored in context
+func GetValuesFromContext(ctx context.Context) (user *store.User, token string) {
+	u := ctx.Value(UserContext)
+
+	if u == nil {
+		user = nil
+	} else {
+		user = u.(*store.User)
+	}
+
+	tk := ctx.Value(TokenContext)
+
+	if tk != nil {
+		token = tk.(string)
+	}
+
+	return
+}
