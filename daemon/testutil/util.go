@@ -5,6 +5,7 @@ import (
 	"math/rand"
 	"path/filepath"
 	"testing"
+	"time"
 
 	"github.com/DATA-DOG/go-sqlmock"
 	_ "github.com/go-sql-driver/mysql"
@@ -45,6 +46,7 @@ func NewSQLConn(t *testing.T) *sqlxConn {
 	var lts = []byte("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
 
 	b := make([]byte, 10)
+	rand.Seed(time.Now().UnixNano())
 	for i := range b {
 		b[i] = lts[rand.Intn(len(lts))]
 	}
