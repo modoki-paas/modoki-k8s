@@ -2,40 +2,19 @@ package store
 
 import (
 	"context"
-	"database/sql/driver"
-	"encoding/json"
 	"time"
 
 	"golang.org/x/xerrors"
 )
 
-type TokenPermission struct {
-}
-
-func (j *TokenPermission) Scan(src interface{}) error {
-	switch v := src.(type) {
-	case []byte:
-		if err := json.Unmarshal(v, j); err != nil {
-			return err
-		}
-	default:
-		return xerrors.Errorf("failed to scan json for %v", v)
-	}
-	return nil
-}
-
-func (j TokenPermission) Value() (driver.Value, error) {
-	return json.Marshal(j)
-}
-
 type Token struct {
-	ID              int              `db:"id"`
-	Token           string           `db:"token"`
-	Organization    int              `db:"organization"`
-	Author          int              `db:"author"`
-	TokenPermission *TokenPermission `db:"permission"`
-	CreatedAt       time.Time        `db:"created_at"`
-	UpdatedAt       time.Time        `db:"updated_at"`
+	ID              int         `db:"id"`
+	Token           string      `db:"token"`
+	Organization    int         `db:"organization"`
+	Author          int         `db:"author"`
+	TokenPermission *Permission `db:"permission"`
+	CreatedAt       time.Time   `db:"created_at"`
+	UpdatedAt       time.Time   `db:"updated_at"`
 }
 
 type tokensStore struct {
