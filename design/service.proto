@@ -35,7 +35,7 @@ message ServiceState {
 message ServiceCreateRequest { ServiceSpec spec = 1; }
 
 message ServiceCreateResponse {
-  string id = 1;
+  int32 id = 1;
   ServiceSpec spec = 2;
 }
 
