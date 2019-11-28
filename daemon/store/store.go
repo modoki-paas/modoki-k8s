@@ -13,6 +13,7 @@ type dbContext struct {
 	db sqlx.ExtContext
 
 	opt *sql.TxOptions
+	txRoot bool
 }
 
 // Beginnable represents db connection that can begin transaction
@@ -32,6 +33,7 @@ func (d *dbContext) Begin(ctx context.Context, opt *sql.TxOptions) (*dbContext, 
 		return &dbContext{
 			db:  tx,
 			opt: opt,
+			txRoot: true,
 		}, nil
 	default:
 		// already begun
@@ -39,11 +41,19 @@ func (d *dbContext) Begin(ctx context.Context, opt *sql.TxOptions) (*dbContext, 
 		if opt != nil && d.opt != opt {
 			return nil, xerrors.Errorf("tx option does not match: %v <=> %v", d.opt, opt)
 		}
-		return d, nil
+		return &dbContext {
+			db: d.db,
+			opt: opt,
+			txRoot: false,
+		}, nil
 	}
 }
 
 func (d *dbContext) Commit() error {
+	if !d.txRoot {
+		return nil
+	}
+
 	v, ok := d.db.(*sqlx.Tx)
 
 	if !ok {
@@ -54,6 +64,10 @@ func (d *dbContext) Commit() error {
 }
 
 func (d *dbContext) Rollback() error {
+	if !d.txRoot {
+		return nil
+	}
+
 	v, ok := d.db.(*sqlx.Tx)
 
 	if !ok {
