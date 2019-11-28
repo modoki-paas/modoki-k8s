@@ -9,19 +9,22 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
 	api "github.com/modoki-paas/modoki-k8s/api"
+	"github.com/modoki-paas/modoki-k8s/daemon/config"
 	"github.com/modoki-paas/modoki-k8s/daemon/handler"
 	"github.com/modoki-paas/modoki-k8s/daemon/store"
 	"google.golang.org/grpc"
 )
 
 type commandArg struct {
-	DSN  string
-	Help bool
+	DSN    string
+	Config string
+	Help   bool
 }
 
 func (arg *commandArg) Init() {
 	flag.StringVar(&arg.DSN, "db", "", "database source name")
 	flag.BoolVar(&arg.Help, "help", false, "show usage")
+	flag.StringVar(&arg.Config, "config", "", "path to config file")
 
 	flag.Parse()
 
@@ -33,8 +36,20 @@ func (arg *commandArg) Init() {
 }
 
 func main() {
+	sctx := &handler.ServerContext{}
+
 	carg := &commandArg{}
 	carg.Init()
+
+	if carg.Config != "" {
+		cfg, err := config.ReadConfig(carg.Config)
+
+		if err != nil {
+			panic(err)
+		}
+
+		sctx.Config = cfg
+	}
 
 	d, err := sqlx.Open("mysql", carg.DSN)
 
@@ -42,16 +57,13 @@ func main() {
 		panic(err)
 	}
 
-	db := store.NewDB(d)
-
-	sctx := &handler.ServerContext{
-		DB: db,
-	}
+	sctx.DB = store.NewDB(d)
 
 	listener, err := net.Listen("tcp", ":80")
 	if err != nil {
 		log.Fatalf("failed to listen on :80: %v", err)
 	}
+
 	server := grpc.NewServer()
 	api.RegisterServiceServer(server, &handler.ServiceServer{Context: sctx})
 

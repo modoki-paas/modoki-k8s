@@ -4,7 +4,6 @@ import (
 	"context"
 
 	api "github.com/modoki-paas/modoki-k8s/api"
-	"github.com/modoki-paas/modoki-k8s/daemon/store"
 	"golang.org/x/xerrors"
 )
 
@@ -16,25 +15,7 @@ var _ api.ServiceServer = &ServiceServer{}
 var _ Authorizer = &ServiceServer{}
 
 func (s *ServiceServer) Create(ctx context.Context, req *api.ServiceCreateRequest) (*api.ServiceCreateResponse, error) {
-	specOpt := req.Spec.Options
-
-	opt := map[string]string{}
-	for k, v := range specOpt {
-		opt[k] = v.String()
-	}
-
-	serviceConfig := &store.Service{
-		Name:  req.Spec.Name,
-		Owner: int(req.Spec.Owner),
-		Config: &store.ServiceConfig{
-			Image:   req.Spec.Image,
-			Command: req.Spec.Command,
-			Args:    req.Spec.Args,
-			Options: opt,
-		},
-	}
-
-	svc, err := s.Context.DB.Service().AddService(serviceConfig)
+	svc, err := s.Context.DB.Service().AddService(req.Spec)
 
 	if err != nil {
 		return nil, xerrors.Errorf("failed to store service config in db :%w", err)

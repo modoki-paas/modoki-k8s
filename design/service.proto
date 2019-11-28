@@ -3,33 +3,29 @@ package modoki;
 
 option go_package = "modoki";
 
-import "google/protobuf/any.proto";
 import "google/protobuf/timestamp.proto";
 
 message ServiceSpec {
-  string name = 1;
-  string image = 2;
-  repeated string command = 3;
-  repeated string args = 4;
-  int32 owner = 5;
+  int32 owner = 1;
+  string name = 2;
+  string domain = 3; // optional
+  string image = 4;
+  repeated string command = 5;
+  repeated string args = 6;
+  map<string, string> env = 7;
 
-  map<string, google.protobuf.Any> options = 10;
+  map<string, string> annotations = 10;
+  map<string, string> labels = 11;
 }
 
-enum ServiceStatus {
-  Deploying = 0;
-  Running = 1;
-  Terminated = 2;
-  Error = 3;
-}
+message ServiceStatus {
+  string state = 1;
+  google.protobuf.Timestamp started_at = 2;
+  int32 exit_code = 3;
 
-message ServiceState {
-  ServiceState state = 1;
-  string stateMessage = 2;
-
-  map<string, google.protobuf.Any> options = 10;
-  google.protobuf.Timestamp created_at = 11;
-  google.protobuf.Timestamp updated_at = 12;
+  google.protobuf.Timestamp created_at = 10;
+  google.protobuf.Timestamp updated_at = 11;
+  map<string, string> attributes = 12;
 }
 
 message ServiceCreateRequest { ServiceSpec spec = 1; }
@@ -41,4 +37,28 @@ message ServiceCreateResponse {
 
 service Service {
   rpc Create(ServiceCreateRequest) returns (ServiceCreateResponse);
+}
+
+message YAML {
+  string config = 1;
+}
+
+enum OperateKind {
+  Apply = 0;
+  Remove = 1;
+}
+
+message OperateRequest {
+  OperateKind kind = 1;
+  int32 owner = 2;
+  ServiceSpec spec = 3;
+  YAML yaml = 4;
+}
+
+message OperateResponse {
+  YAML yaml = 1;
+}
+
+service Generator {
+  rpc Operate(OperateRequest) returns (OperateResponse);
 }
