@@ -15,7 +15,13 @@ var _ api.ServiceServer = &ServiceServer{}
 var _ Authorizer = &ServiceServer{}
 
 func (s *ServiceServer) Create(ctx context.Context, req *api.ServiceCreateRequest) (*api.ServiceCreateResponse, error) {
-	svc, err := s.Context.DB.Service().AddService(req.Spec)
+	tx, err := s.Context.DB.Begin(ctx, nil)
+
+	if err != nil {
+		return nil, xerrors.Errorf("failed to begin transaction: %w", err)
+	}
+
+	svc, err := tx.Service().AddService(req.Spec)
 
 	if err != nil {
 		return nil, xerrors.Errorf("failed to store service config in db :%w", err)
