@@ -8,7 +8,7 @@ import (
 
 	"github.com/google/go-cmp/cmp"
 
-	"github.com/modoki-paas/modoki-k8s/daemon/testutil"
+	"github.com/modoki-paas/modoki-k8s/apiserver/testutil"
 )
 
 func TestAddUser(t *testing.T) {

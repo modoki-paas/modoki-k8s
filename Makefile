@@ -7,7 +7,7 @@ DOCKER_BUILDKIT = 1
 
 .PHONY: modokid
 modokid: 
-	go build -o modokid $(wildcard ./daemon/*.go)
+	go build -o modokid $(wildcard ./apiserver/*.go)
 
 .PHONY: all
 all: modokid docker test

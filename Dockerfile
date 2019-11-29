@@ -14,7 +14,7 @@ FROM golang:1.13 as builder
 COPY . /work
 WORKDIR /work
 ENV GO111MODULE=on
-RUN go build -tags netgo -ldflags '-extldflags "-static"' -o /modokid /work/daemon
+RUN go build -tags netgo -ldflags '-extldflags "-static"' -o /modokid /work/apiserver
 
 FROM alpine:3.9
 

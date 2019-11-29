@@ -8,7 +8,7 @@ import (
 
 	"github.com/google/go-cmp/cmp"
 	api "github.com/modoki-paas/modoki-k8s/api"
-	"github.com/modoki-paas/modoki-k8s/daemon/testutil"
+	"github.com/modoki-paas/modoki-k8s/apiserver/testutil"
 )
 
 func TestAddService(t *testing.T) {

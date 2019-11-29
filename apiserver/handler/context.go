@@ -1,8 +1,8 @@
 package handler
 
 import (
-	"github.com/modoki-paas/modoki-k8s/daemon/config"
-	"github.com/modoki-paas/modoki-k8s/daemon/store"
+	"github.com/modoki-paas/modoki-k8s/apiserver/config"
+	"github.com/modoki-paas/modoki-k8s/apiserver/store"
 )
 
 // ServerContext contains accessor used by handlers

@@ -8,7 +8,7 @@ import (
 
 	"database/sql"
 
-	"github.com/modoki-paas/modoki-k8s/daemon/store"
+	"github.com/modoki-paas/modoki-k8s/apiserver/store"
 	"golang.org/x/xerrors"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"

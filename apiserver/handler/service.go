@@ -4,7 +4,7 @@ import (
 	"context"
 
 	api "github.com/modoki-paas/modoki-k8s/api"
-	"github.com/modoki-paas/modoki-k8s/daemon/store"
+	"github.com/modoki-paas/modoki-k8s/apiserver/store"
 	"golang.org/x/xerrors"
 )
 

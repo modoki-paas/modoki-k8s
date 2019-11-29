@@ -9,9 +9,9 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
 	api "github.com/modoki-paas/modoki-k8s/api"
-	"github.com/modoki-paas/modoki-k8s/daemon/config"
-	"github.com/modoki-paas/modoki-k8s/daemon/handler"
-	"github.com/modoki-paas/modoki-k8s/daemon/store"
+	"github.com/modoki-paas/modoki-k8s/apiserver/config"
+	"github.com/modoki-paas/modoki-k8s/apiserver/handler"
+	"github.com/modoki-paas/modoki-k8s/apiserver/store"
 	"google.golang.org/grpc"
 )
 
