@@ -12,7 +12,7 @@ type Service struct {
 	ID        int              `db:"id"`
 	Owner     int              `db:"owner"`
 	Name      string           `db:"name"`
-	Config    *api.ServiceSpec `db:"config"`
+	Spec      *api.ServiceSpec `db:"spec"`
 	CreatedAt time.Time        `db:"created_at"`
 	UpdatedAt time.Time        `db:"updated_at"`
 }
@@ -25,13 +25,14 @@ func newServiceStore(db *dbContext) *serviceStore {
 	return &serviceStore{db: db}
 }
 
-func (ss *serviceStore) AddService(s *api.ServiceSpec) (ret *Service, err error) {
+func (ss *serviceStore) AddService(s *Service) (ret *Service, err error) {
 	dbx, err := ss.db.Begin(context.Background(), nil)
 	store := newDB(dbx)
 
 	if err != nil {
 		return nil, xerrors.Errorf("faield to begin transaction: %v", err)
 	}
+
 	defer func() {
 		if err != nil {
 			dbx.Rollback()
@@ -48,7 +49,7 @@ func (ss *serviceStore) AddService(s *api.ServiceSpec) (ret *Service, err error)
 		`INSERT INTO services
 			(owner, name, config)
 			VALUES (?, ?, ?)`,
-		s.Owner, s.Name, s,
+		s.Owner, s.Name, s.Spec,
 	)
 
 	if err != nil {

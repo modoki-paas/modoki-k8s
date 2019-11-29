@@ -21,7 +21,7 @@ func TestAddService(t *testing.T) {
 		s := &Service{
 			Owner: 10,
 			Name:  "service-name",
-			Config: &api.ServiceSpec{
+			Spec: &api.ServiceSpec{
 				Image: "image-name",
 			},
 		}

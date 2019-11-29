@@ -4,6 +4,7 @@ import (
 	"context"
 
 	api "github.com/modoki-paas/modoki-k8s/api"
+	"github.com/modoki-paas/modoki-k8s/daemon/store"
 	"golang.org/x/xerrors"
 )
 
@@ -21,7 +22,13 @@ func (s *ServiceServer) Create(ctx context.Context, req *api.ServiceCreateReques
 		return nil, xerrors.Errorf("failed to begin transaction: %w", err)
 	}
 
-	svc, err := tx.Service().AddService(req.Spec)
+	svc := &store.Service{
+		Owner: int(req.Spec.Owner),
+		Name:  req.Spec.Name,
+		Spec:  req.Spec,
+	}
+
+	svc, err = tx.Service().AddService(svc)
 
 	if err != nil {
 		return nil, xerrors.Errorf("failed to store service config in db :%w", err)
