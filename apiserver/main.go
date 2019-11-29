@@ -16,15 +16,13 @@ import (
 )
 
 type commandArg struct {
-	DSN    string
 	Config string
 	Help   bool
 }
 
 func (arg *commandArg) Init() {
-	flag.StringVar(&arg.DSN, "db", "", "database source name")
 	flag.BoolVar(&arg.Help, "help", false, "show usage")
-	flag.StringVar(&arg.Config, "config", "", "path to config file")
+	flag.StringVar(&arg.Config, "config", "/etc/modoki/apiserver.yaml", "path to config file")
 
 	flag.Parse()
 
@@ -41,17 +39,15 @@ func main() {
 	carg := &commandArg{}
 	carg.Init()
 
-	if carg.Config != "" {
-		cfg, err := config.ReadConfig(carg.Config)
+	cfg, err := config.ReadConfig(carg.Config)
 
-		if err != nil {
-			panic(err)
-		}
-
-		sctx.Config = cfg
+	if err != nil {
+		panic(err)
 	}
 
-	d, err := sqlx.Open("mysql", carg.DSN)
+	sctx.Config = cfg
+
+	d, err := sqlx.Open("mysql", cfg.DB)
 
 	if err != nil {
 		panic(err)
@@ -65,7 +61,7 @@ func main() {
 	}
 
 	server := grpc.NewServer()
-	api.RegisterServiceServer(server, &handler.ServiceServer{Context: sctx})
+	api.RegisterServiceServer(server, &handler.ServiceServer{Context: sctx})	
 
 	if err := server.Serve(listener); err != nil {
 		log.Fatalf("failed to start server on :80: %v", err)

@@ -17,6 +17,14 @@ type Plugin struct {
 
 type Config struct {
 	Plugins []Plugin `yaml:"plugins" json:"plugins"`
+
+	Generator struct {
+		Endpoint string `yaml:"endpoint" json:"endpoint"`
+		Insecure bool   `yaml:"insecure" json:"insecure"`
+	} `yaml:"generator" json:"generator"`
+
+	DB      string `yaml:"db" json:"db"`
+	Address string `yaml:"address" json:"address"`
 }
 
 func ReadConfig(name string) (*Config, error) {
