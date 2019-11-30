@@ -80,7 +80,7 @@ func (ss *serviceStore) AddService(s *Service) (ret *Service, err error) {
 	res, err := dbx.db.ExecContext(
 		context.Background(),
 		`INSERT INTO services
-			(owner, name, config)
+			(owner, name, spec)
 			VALUES (?, ?, ?)`,
 		s.Owner, s.Name, s.Spec,
 	)
