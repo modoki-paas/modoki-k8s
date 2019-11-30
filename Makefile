@@ -1,5 +1,7 @@
 PROTOC = protoc
 GO111MODULE = on
+DOCKER_APISERVER_DOCKERFILE = Dockerfile-apiserver
+DOCKER_YAMLER_DOCKERFILE = Dockerfile-yamler
 DOCKER_APISERVER_IMAGE = modokipaas/modoki-k8s
 DOCKER_YAMLER_IMAGE = modokipaas/modoki-yamler
 DOCKER_BUILDKIT = 1
@@ -15,8 +17,8 @@ all: modokid docker test
 
 .PHONY: docker
 docker:
-	docker build -t $(DOCKER_APISERVER_IMAGE) .
-	docker build -t $(DOCKER_YAMLER_IMAGE) .
+	docker build -t $(DOCKER_APISERVER_IMAGE) -f $(DOCKER_APISERVER_DOCKERFILE) .
+	docker build -t $(DOCKER_YAMLER_IMAGE) -f $(DOCKER_YAMLER_DOCKERFILE) .
 
 .PHONY: test
 test:
