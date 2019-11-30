@@ -41,8 +41,8 @@ func TestAddService(t *testing.T) {
 		if ret.Name != s.Name {
 			t.Errorf("invalid name: want %v got %v", s.Name, ret.Name)
 		}
-		if !cmp.Equal(ret.Config, s.Config) {
-			t.Errorf("invalid config: want %v got %v", s.Config, ret.Config)
+		if !cmp.Equal(ret.Spec, s.Spec) {
+			t.Errorf("invalid spec: want %v got %v", s.Spec, ret.Spec)
 		}
 
 		if ret.CreatedAt == (time.Time{}) {
