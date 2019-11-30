@@ -4,6 +4,7 @@ RUN wget https://github.com/jwilder/dockerize/releases/download/${DOCKERIZE_VERS
     && tar -C /usr/local/bin -xzvf dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
     && rm dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz
 
+ENV GO111MODULE=on
 RUN go get sigs.k8s.io/kustomize/kustomize/v3@v3.3.0
 
 FROM golang:1.13 as builder
