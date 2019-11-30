@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/google/go-cmp/cmp"
-	api "github.com/modoki-paas/modoki-k8s/api"
 	"github.com/modoki-paas/modoki-k8s/apiserver/testutil"
 )
 
@@ -21,7 +20,7 @@ func TestAddService(t *testing.T) {
 		s := &Service{
 			Owner: 10,
 			Name:  "service-name",
-			Spec: &api.ServiceSpec{
+			Spec: &ServiceSpec{
 				Image: "image-name",
 			},
 		}

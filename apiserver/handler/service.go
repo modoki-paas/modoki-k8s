@@ -25,7 +25,7 @@ func (s *ServiceServer) Create(ctx context.Context, req *api.ServiceCreateReques
 	svc := &store.Service{
 		Owner: int(req.Spec.Owner),
 		Name:  req.Spec.Name,
-		Spec:  req.Spec,
+		Spec:  (*store.ServiceSpec)(req.Spec),
 	}
 
 	svc, err = tx.Service().AddService(svc)
