@@ -4,10 +4,7 @@ RUN wget https://github.com/jwilder/dockerize/releases/download/${DOCKERIZE_VERS
     && tar -C /usr/local/bin -xzvf dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
     && rm dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz
 
-ENV SQLDEF_VERSION v0.5.9
-RUN wget https://github.com/k0kubun/sqldef/releases/download/${SQLDEF_VERSION}/mysqldef_linux_amd64.tar.gz \
-    && tar -C /usr/local/bin -xzvf mysqldef_linux_amd64.tar.gz \
-    && rm mysqldef_linux_amd64.tar.gz
+RUN go get sigs.k8s.io/kustomize/kustomize/v3@v3.3.0
 
 FROM golang:1.13 as builder
 
@@ -16,10 +13,10 @@ WORKDIR /work
 ENV GO111MODULE=on
 RUN go build -tags netgo -ldflags '-extldflags "-static"' -o /yamler ./yamler
 
-FROM alpine:3.9
+FROM debian:10
 
-COPY --from=tools /usr/local/bin/mysqldef /bin
 COPY --from=tools /usr/local/bin/dockerize /bin
+COPY --from=tools /go/bin/kustomize /bin
 COPY ./scripts/ /bin/
 COPY --from=builder /yamler /bin
 COPY ./schema /schema
