@@ -8,9 +8,7 @@ import (
 	"os"
 	"os/exec"
 
-	"github.com/docker/docker/pkg/testutil/cmd"
 	"github.com/otiai10/copy"
-
 	"golang.org/x/xerrors"
 )
 
@@ -39,7 +37,7 @@ func (w *Workspace) Close() error {
 	return os.RemoveAll(w.Dir)
 }
 
-func (w *Workspace) CommandWithInput(ctx context.Context, input io.Reader, command string, args ...string) *cmd.Cmd {
+func (w *Workspace) CommandWithInput(ctx context.Context, input io.Reader, command string, args ...string) *exec.Cmd {
 	cmd := exec.CommandContext(ctx, command, args...)
 
 	cmd.Dir = w.Dir
@@ -50,4 +48,22 @@ func (w *Workspace) CommandWithInput(ctx context.Context, input io.Reader, comma
 
 func (w *Workspace) Command(ctx context.Context, command string, args ...string) *exec.Cmd {
 	return w.CommandWithInput(ctx, bytes.NewReader(nil), command, args...)
+}
+
+func (w *Workspace) KustomizeWithInput(ctx context.Context, input io.Reader, args ...string) *exec.Cmd {
+	return w.CommandWithInput(ctx, bytes.NewReader(nil), "kustomize", args...)
+}
+
+func (w *Workspace) Kustomize(ctx context.Context, args ...string) *exec.Cmd {
+	return w.CommandWithInput(ctx, bytes.NewReader(nil), "kustomize", args...)
+}
+
+func (w *Workspace) Build(ctx context.Context) (string, error) {
+	output, err := w.Kustomize(ctx, "build").CombinedOutput()
+
+	if err != nil {
+		return "", xerrors.Errorf("failed to execute kustomize build: %w", err)
+	}
+
+	return string(output), nil
 }
