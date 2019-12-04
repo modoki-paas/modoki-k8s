@@ -1,0 +1,35 @@
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: modoki-app-deploy
+  labels:
+    app: modoki-app-pod
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: modoki-app-pod
+  template:
+    metadata:
+      labels:
+        app: modoki-app-pod
+    spec:
+      containers:
+      - name: server
+        imagePullPolicy: Always
+        image: IMAGE_NAME
+        ports:
+        - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: modoki-app-svc
+spec:
+  selector:
+    app: modoki-app-pod
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
