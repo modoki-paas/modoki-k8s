@@ -8,39 +8,39 @@ import (
 	"golang.org/x/xerrors"
 )
 
-type ServiceServer struct {
+type AppServer struct {
 	Context *ServerContext
 }
 
-var _ api.ServiceServer = &ServiceServer{}
-var _ Authorizer = &ServiceServer{}
+var _ api.AppServer = &AppServer{}
+var _ Authorizer = &AppServer{}
 
-func (s *ServiceServer) Create(ctx context.Context, req *api.ServiceCreateRequest) (*api.ServiceCreateResponse, error) {
+func (s *AppServer) Create(ctx context.Context, req *api.AppCreateRequest) (*api.AppCreateResponse, error) {
 	tx, err := s.Context.DB.Begin(ctx, nil)
 
 	if err != nil {
 		return nil, xerrors.Errorf("failed to begin transaction: %w", err)
 	}
 
-	svc := &store.Service{
+	svc := &store.App{
 		Owner: int(req.Spec.Owner),
 		Name:  req.Spec.Name,
-		Spec:  (*store.ServiceSpec)(req.Spec),
+		Spec:  (*store.AppSpec)(req.Spec),
 	}
 
-	svc, err = tx.Service().AddService(svc)
+	svc, err = tx.App().AddApp(svc)
 
 	if err != nil {
-		return nil, xerrors.Errorf("failed to store service config in db :%w", err)
+		return nil, xerrors.Errorf("failed to store app config in db :%w", err)
 	}
 
-	return &api.ServiceCreateResponse{
+	return &api.AppCreateResponse{
 		Id:   int32(svc.ID),
 		Spec: req.GetSpec(),
 	}, nil
 }
 
-func (s *ServiceServer) Authorize(ctx context.Context, route string) error {
+func (s *AppServer) Authorize(ctx context.Context, route string) error {
 	user, _ := GetValuesFromContext(ctx)
 
 	if user != nil {

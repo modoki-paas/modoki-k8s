@@ -24,7 +24,7 @@ func Test_OperateApply(t *testing.T) {
 		Id:        "test-id",
 		Kind:      modoki.OperateKind_Apply,
 		Performer: 10,
-		Spec: &modoki.ServiceSpec{
+		Spec: &modoki.AppSpec{
 			Owner:   11,
 			Name:    "app-name",
 			Domain:  "app-name.example.com",

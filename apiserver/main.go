@@ -61,7 +61,7 @@ func main() {
 	}
 
 	server := grpc.NewServer()
-	api.RegisterServiceServer(server, &handler.ServiceServer{Context: sctx})	
+	api.RegisterAppServer(server, &handler.AppServer{Context: sctx})	
 
 	if err := server.Serve(listener); err != nil {
 		log.Fatalf("failed to start server on :80: %v", err)

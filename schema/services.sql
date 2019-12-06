@@ -1,4 +1,4 @@
-CREATE TABLE services (
+CREATE TABLE apps (
     id INTEGER AUTO_INCREMENT NOT NULL PRIMARY KEY,
     owner INTEGER,
     name VARCHAR(128) NOT NULL UNIQUE,
@@ -7,4 +7,4 @@ CREATE TABLE services (
     updated_at timestamp not null default current_timestamp on update current_timestamp
 );
 
-ALTER TABLE services ADD INDEX name_index(name);
+ALTER TABLE apps ADD INDEX name_index(name);

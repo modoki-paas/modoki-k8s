@@ -12,7 +12,7 @@ import (
 type dbContext struct {
 	db sqlx.ExtContext
 
-	opt *sql.TxOptions
+	opt    *sql.TxOptions
 	txRoot bool
 }
 
@@ -31,8 +31,8 @@ func (d *dbContext) Begin(ctx context.Context, opt *sql.TxOptions) (*dbContext, 
 		}
 
 		return &dbContext{
-			db:  tx,
-			opt: opt,
+			db:     tx,
+			opt:    opt,
 			txRoot: true,
 		}, nil
 	default:
@@ -41,9 +41,9 @@ func (d *dbContext) Begin(ctx context.Context, opt *sql.TxOptions) (*dbContext, 
 		if opt != nil && d.opt != opt {
 			return nil, xerrors.Errorf("tx option does not match: %v <=> %v", d.opt, opt)
 		}
-		return &dbContext {
-			db: d.db,
-			opt: opt,
+		return &dbContext{
+			db:     d.db,
+			opt:    opt,
 			txRoot: false,
 		}, nil
 	}
@@ -113,8 +113,8 @@ func (d *DB) User() *userStore {
 	return newUserStore(d.db)
 }
 
-func (d *DB) Service() *serviceStore {
-	return newServiceStore(d.db)
+func (d *DB) App() *appStore {
+	return newAppStore(d.db)
 }
 
 func (d *DB) UserGroupRelation() *userGroupRelationsStore {

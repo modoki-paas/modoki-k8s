@@ -10,22 +10,22 @@ import (
 	"github.com/modoki-paas/modoki-k8s/apiserver/testutil"
 )
 
-func TestAddService(t *testing.T) {
+func TestAddApp(t *testing.T) {
 	t.Run("success_normal", func(t *testing.T) {
 		db := testutil.NewSQLConn(t)
 		defer db.Close()
 
 		store := NewDB(db)
 
-		s := &Service{
+		s := &App{
 			Owner: 10,
-			Name:  "service-name",
-			Spec: &ServiceSpec{
+			Name:  "app-name",
+			Spec: &AppSpec{
 				Image: "image-name",
 			},
 		}
 
-		ret, err := store.Service().AddService(s)
+		ret, err := store.App().AddApp(s)
 
 		if err != nil {
 			t.Fatalf("failed to add user: %v", err)

@@ -12,9 +12,9 @@ import (
 	"golang.org/x/xerrors"
 )
 
-type ServiceSpec api.ServiceSpec
+type AppSpec api.AppSpec
 
-func (ss *ServiceSpec) Scan(src interface{}) error {
+func (ss *AppSpec) Scan(src interface{}) error {
 	var s []byte
 	switch v := src.(type) {
 	case []byte:
@@ -31,7 +31,7 @@ func (ss *ServiceSpec) Scan(src interface{}) error {
 	return nil
 }
 
-func (ss *ServiceSpec) Value() (driver.Value, error) {
+func (ss *AppSpec) Value() (driver.Value, error) {
 	b := make([]byte, 0)
 	buf := bytes.NewBuffer(b)
 	if err := json.NewEncoder(buf).Encode(ss); err != nil {
@@ -41,24 +41,24 @@ func (ss *ServiceSpec) Value() (driver.Value, error) {
 	return buf.Bytes(), nil
 }
 
-type Service struct {
+type App struct {
 	ID        int          `db:"id"`
 	Owner     int          `db:"owner"`
 	Name      string       `db:"name"`
-	Spec      *ServiceSpec `db:"spec"`
+	Spec      *AppSpec `db:"spec"`
 	CreatedAt time.Time    `db:"created_at"`
 	UpdatedAt time.Time    `db:"updated_at"`
 }
 
-type serviceStore struct {
+type appStore struct {
 	db *dbContext
 }
 
-func newServiceStore(db *dbContext) *serviceStore {
-	return &serviceStore{db: db}
+func newAppStore(db *dbContext) *appStore {
+	return &appStore{db: db}
 }
 
-func (ss *serviceStore) AddService(s *Service) (ret *Service, err error) {
+func (ss *appStore) AddApp(s *App) (ret *App, err error) {
 	dbx, err := ss.db.Begin(context.Background(), nil)
 	store := newDB(dbx)
 
@@ -79,34 +79,34 @@ func (ss *serviceStore) AddService(s *Service) (ret *Service, err error) {
 
 	res, err := dbx.db.ExecContext(
 		context.Background(),
-		`INSERT INTO services
+		`INSERT INTO apps
 			(owner, name, spec)
 			VALUES (?, ?, ?)`,
 		s.Owner, s.Name, s.Spec,
 	)
 
 	if err != nil {
-		return nil, xerrors.Errorf("failed to add service to db: %v", err)
+		return nil, xerrors.Errorf("failed to add app to db: %v", err)
 	}
 
 	id64, err := res.LastInsertId()
 
 	if err != nil {
-		return nil, xerrors.Errorf("failed to add service to db: %v", err)
+		return nil, xerrors.Errorf("failed to add app to db: %v", err)
 	}
 
-	return store.Service().GetService(int(id64))
+	return store.App().GetApp(int(id64))
 }
 
-func (ss *serviceStore) GetService(id int) (*Service, error) {
-	var service Service
+func (ss *appStore) GetApp(id int) (*App, error) {
+	var app App
 	err := ss.db.db.
-		QueryRowxContext(context.Background(), "SELECT * FROM services WHERE id=?", id).
-		StructScan(&service)
+		QueryRowxContext(context.Background(), "SELECT * FROM apps WHERE id=?", id).
+		StructScan(&app)
 
 	if err != nil {
-		return nil, xerrors.Errorf("failed to retrieve service: %v", err)
+		return nil, xerrors.Errorf("failed to retrieve app: %v", err)
 	}
 
-	return &service, nil
+	return &app, nil
 }

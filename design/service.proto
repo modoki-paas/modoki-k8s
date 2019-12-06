@@ -5,7 +5,7 @@ option go_package = "modoki";
 
 import "google/protobuf/timestamp.proto";
 
-message ServiceSpec {
+message AppSpec {
   int32 owner = 1;
   string name = 2;
   string domain = 3; // optional
@@ -18,7 +18,7 @@ message ServiceSpec {
   map<string, string> labels = 11;
 }
 
-message ServiceStatus {
+message AppStatus {
   string id = 1;
   string state = 2;
   google.protobuf.Timestamp started_at = 3;
@@ -29,15 +29,15 @@ message ServiceStatus {
   map<string, string> attributes = 12;
 }
 
-message ServiceCreateRequest { ServiceSpec spec = 1; }
+message AppCreateRequest { AppSpec spec = 1; }
 
-message ServiceCreateResponse {
+message AppCreateResponse {
   string id = 1;
-  ServiceSpec spec = 2;
+  AppSpec spec = 2;
 }
 
-service Service {
-  rpc Create(ServiceCreateRequest) returns (ServiceCreateResponse);
+service App {
+  rpc Create(AppCreateRequest) returns (AppCreateResponse);
 }
 
 message KubernetesConfig {
@@ -57,7 +57,7 @@ message OperateRequest {
   string id = 1;
   OperateKind kind = 2;
   int32 performer = 3;
-  ServiceSpec spec = 4;
+  AppSpec spec = 4;
   YAML delete_yaml = 5;
   YAML apply_yaml = 6;
   KubernetesConfig k8s_config = 7;
