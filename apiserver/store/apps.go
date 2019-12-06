@@ -9,6 +9,7 @@ import (
 	"time"
 
 	api "github.com/modoki-paas/modoki-k8s/api"
+	"github.com/rs/xid"
 	"golang.org/x/xerrors"
 )
 
@@ -42,12 +43,13 @@ func (ss *AppSpec) Value() (driver.Value, error) {
 }
 
 type App struct {
-	ID        int          `db:"id"`
-	Owner     int          `db:"owner"`
-	Name      string       `db:"name"`
-	Spec      *AppSpec `db:"spec"`
-	CreatedAt time.Time    `db:"created_at"`
-	UpdatedAt time.Time    `db:"updated_at"`
+	ID        int       `db:"id"`
+	AppID     string    `db:"app_id"`
+	Owner     int       `db:"owner"`
+	Name      string    `db:"name"`
+	Spec      *AppSpec  `db:"spec"`
+	CreatedAt time.Time `db:"created_at"`
+	UpdatedAt time.Time `db:"updated_at"`
 }
 
 type appStore struct {
@@ -77,10 +79,12 @@ func (ss *appStore) AddApp(s *App) (ret *App, err error) {
 		}
 	}()
 
+	s.AppID = xid.New().String()
+
 	res, err := dbx.db.ExecContext(
 		context.Background(),
 		`INSERT INTO apps
-			(owner, name, spec)
+			(app_id, owner, name, spec)
 			VALUES (?, ?, ?)`,
 		s.Owner, s.Name, s.Spec,
 	)

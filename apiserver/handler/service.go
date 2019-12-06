@@ -35,7 +35,7 @@ func (s *AppServer) Create(ctx context.Context, req *api.AppCreateRequest) (*api
 	}
 
 	return &api.AppCreateResponse{
-		Id:   int32(svc.ID),
+		Id:   svc.AppID,
 		Spec: req.GetSpec(),
 	}, nil
 }
