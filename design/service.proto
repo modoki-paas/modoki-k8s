@@ -19,9 +19,10 @@ message ServiceSpec {
 }
 
 message ServiceStatus {
-  string state = 1;
-  google.protobuf.Timestamp started_at = 2;
-  int32 exit_code = 3;
+  string id = 1;
+  string state = 2;
+  google.protobuf.Timestamp started_at = 3;
+  int32 exit_code = 4;
 
   google.protobuf.Timestamp created_at = 10;
   google.protobuf.Timestamp updated_at = 11;
@@ -31,12 +32,16 @@ message ServiceStatus {
 message ServiceCreateRequest { ServiceSpec spec = 1; }
 
 message ServiceCreateResponse {
-  int32 id = 1;
+  string id = 1;
   ServiceSpec spec = 2;
 }
 
 service Service {
   rpc Create(ServiceCreateRequest) returns (ServiceCreateResponse);
+}
+
+message KubernetesConfig {
+  string namespace = 1;
 }
 
 message YAML {
@@ -45,18 +50,22 @@ message YAML {
 
 enum OperateKind {
   Apply = 0;
-  Remove = 1;
+  Delete = 1;
 }
 
 message OperateRequest {
-  OperateKind kind = 1;
-  int32 owner = 2;
-  ServiceSpec spec = 3;
-  YAML yaml = 4;
+  string id = 1;
+  OperateKind kind = 2;
+  int32 performer = 3;
+  ServiceSpec spec = 4;
+  YAML delete_yaml = 5;
+  YAML apply_yaml = 6;
+  KubernetesConfig k8s_config = 7;
 }
 
 message OperateResponse {
-  YAML yaml = 1;
+  YAML delete_yaml = 1;
+  YAML apply_yaml = 2;
 }
 
 service Generator {

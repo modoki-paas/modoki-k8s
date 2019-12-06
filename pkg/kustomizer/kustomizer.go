@@ -66,7 +66,7 @@ func (w *Workspace) Build(ctx context.Context) (string, error) {
 	output, err := w.Kustomize(ctx, "build").CombinedOutput()
 
 	if err != nil {
-		return "", xerrors.Errorf("failed to execute kustomize build: %w", err)
+		return string(output), xerrors.Errorf("failed to execute kustomize build: %w", err)
 	}
 
 	return string(output), nil
