@@ -30,14 +30,14 @@ func (s *tokensStore) AddToken(t *Token) (ret *Token, err error) {
 	store := newDB(dbx)
 
 	if err != nil {
-		return nil, xerrors.Errorf("faield to begin transaction: %v", err)
+		return nil, xerrors.Errorf("faield to begin transaction: %w", err)
 	}
 	defer func() {
 		if err != nil {
 			dbx.Rollback()
 		} else {
 			if err := dbx.Commit(); err != nil {
-				err = xerrors.Errorf("failed to commit transaction: %v", err)
+				err = xerrors.Errorf("failed to commit transaction: %w", err)
 				ret = nil
 			}
 		}
@@ -53,13 +53,13 @@ func (s *tokensStore) AddToken(t *Token) (ret *Token, err error) {
 	)
 
 	if err != nil {
-		return nil, xerrors.Errorf("failed to register new token: %v", err)
+		return nil, xerrors.Errorf("failed to register new token: %w", err)
 	}
 
 	id, err := res.LastInsertId()
 
 	if err != nil {
-		return nil, xerrors.Errorf("failed to register new token: %v", err)
+		return nil, xerrors.Errorf("failed to register new token: %w", err)
 	}
 
 	return store.Token().GetToken(int(id))
@@ -72,7 +72,7 @@ func (s *tokensStore) GetToken(id int) (*Token, error) {
 		StructScan(&ts)
 
 	if err != nil {
-		return nil, xerrors.Errorf("failed to scan: %v", err)
+		return nil, xerrors.Errorf("failed to scan: %w", err)
 	}
 
 	return &ts, nil
@@ -84,7 +84,7 @@ func (s *tokensStore) GetFromToken(token string) (*Token, error) {
 		StructScan(&ts)
 
 	if err != nil {
-		return nil, xerrors.Errorf("failed to scan: %v", err)
+		return nil, xerrors.Errorf("failed to scan: %w", err)
 	}
 
 	return &ts, nil

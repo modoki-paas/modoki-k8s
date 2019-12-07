@@ -62,7 +62,7 @@ func (ai *AuthorizerInterceptor) addUserTokenContext(ctx context.Context) (conte
 			user = nil
 			tk = nil
 		} else {
-			return nil, xerrors.Errorf("failed to get user and token from db: %v", err)
+			return nil, xerrors.Errorf("failed to get user and token from db: %w", err)
 		}
 	}
 
@@ -80,7 +80,7 @@ func UnaryServerInterceptor(db *store.DB) grpc.UnaryServerInterceptor {
 		ctx, err := ai.addUserTokenContext(ctx)
 
 		if err != nil {
-			return nil, xerrors.Errorf("failed to add user and token data to context: %v", err)
+			return nil, xerrors.Errorf("failed to add user and token data to context: %w", err)
 		}
 
 		if srv, ok := info.Server.(Authorizer); ok {

@@ -65,7 +65,7 @@ func (ss *appStore) AddApp(s *App) (ret *App, err error) {
 	store := newDB(dbx)
 
 	if err != nil {
-		return nil, xerrors.Errorf("faield to begin transaction: %v", err)
+		return nil, xerrors.Errorf("faield to begin transaction: %w", err)
 	}
 
 	defer func() {
@@ -73,7 +73,7 @@ func (ss *appStore) AddApp(s *App) (ret *App, err error) {
 			dbx.Rollback()
 		} else {
 			if err := dbx.Commit(); err != nil {
-				err = xerrors.Errorf("failed to commit transaction: %v", err)
+				err = xerrors.Errorf("failed to commit transaction: %w", err)
 				ret = nil
 			}
 		}
@@ -90,13 +90,13 @@ func (ss *appStore) AddApp(s *App) (ret *App, err error) {
 	)
 
 	if err != nil {
-		return nil, xerrors.Errorf("failed to add app to db: %v", err)
+		return nil, xerrors.Errorf("failed to add app to db: %w", err)
 	}
 
 	id64, err := res.LastInsertId()
 
 	if err != nil {
-		return nil, xerrors.Errorf("failed to add app to db: %v", err)
+		return nil, xerrors.Errorf("failed to add app to db: %w", err)
 	}
 
 	return store.App().GetApp(int(id64))
@@ -109,7 +109,7 @@ func (ss *appStore) GetApp(id int) (*App, error) {
 		StructScan(&app)
 
 	if err != nil {
-		return nil, xerrors.Errorf("failed to retrieve app: %v", err)
+		return nil, xerrors.Errorf("failed to retrieve app: %w", err)
 	}
 
 	return &app, nil

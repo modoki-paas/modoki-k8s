@@ -72,7 +72,7 @@ func (s *userStore) AddUser(name, password string, userType UserTypeEnum) (u *Us
 	passwd, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 
 	if err != nil {
-		return nil, xerrors.Errorf("failed to hash password: %v", err)
+		return nil, xerrors.Errorf("failed to hash password: %w", err)
 	}
 	u = &User{
 		UserType: userType,
@@ -84,14 +84,14 @@ func (s *userStore) AddUser(name, password string, userType UserTypeEnum) (u *Us
 	store := newDB(dbx)
 
 	if err != nil {
-		return nil, xerrors.Errorf("faield to begin transaction: %v", err)
+		return nil, xerrors.Errorf("faield to begin transaction: %w", err)
 	}
 	defer func() {
 		if err != nil {
 			dbx.Rollback()
 		} else {
 			if err := dbx.Commit(); err != nil {
-				err = xerrors.Errorf("failed to commit transaction: %v", err)
+				err = xerrors.Errorf("failed to commit transaction: %w", err)
 				u = nil
 			}
 		}
@@ -100,13 +100,13 @@ func (s *userStore) AddUser(name, password string, userType UserTypeEnum) (u *Us
 	res, err := dbx.db.ExecContext(context.Background(), "INSERT INTO users (type, name, password) VALUES (?, ?, ?)", u.UserType, u.Name, u.Password)
 
 	if err != nil {
-		return nil, xerrors.Errorf("faield to add user: %v", err)
+		return nil, xerrors.Errorf("faield to add user: %w", err)
 	}
 
 	id64, err := res.LastInsertId()
 
 	if err != nil {
-		return nil, xerrors.Errorf("faield to retrieve last inserted id: %v", err)
+		return nil, xerrors.Errorf("faield to retrieve last inserted id: %w", err)
 	}
 
 	return store.User().GetUser(int(id64))
@@ -116,7 +116,7 @@ func (s *userStore) GetUser(id int) (*User, error) {
 	var u User
 
 	if err := s.db.db.QueryRowxContext(context.Background(), "SElECT * FROM users WHERE id = ?", id).StructScan(&u); err != nil {
-		return nil, xerrors.Errorf("faield to retrieve user info: %v", err)
+		return nil, xerrors.Errorf("faield to retrieve user info: %w", err)
 	}
 
 	return &u, nil
@@ -142,7 +142,7 @@ func (s *userStore) GetUserFromToken(token string) (*User, *Token, error) {
 	).StructScan(&ut)
 
 	if err != nil {
-		return nil, nil, xerrors.Errorf("failed to get token and user from db: %v", err)
+		return nil, nil, xerrors.Errorf("failed to get token and user from db: %w", err)
 	}
 
 	return ut.User, ut.Token, nil
