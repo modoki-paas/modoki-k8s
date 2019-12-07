@@ -85,7 +85,7 @@ func (ss *appStore) AddApp(s *App) (ret *App, err error) {
 		context.Background(),
 		`INSERT INTO apps
 			(app_id, owner, name, spec)
-			VALUES (?, ?, ?)`,
+			VALUES (?, ?, ?, ?)`,
 		s.AppID, s.Owner, s.Name, s.Spec,
 	)
 
