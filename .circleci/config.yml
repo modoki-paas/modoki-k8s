@@ -29,5 +29,9 @@ jobs:
             echo Failed waiting for MySQL && exit 1
       - run: echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin
       - run: make install_dependencies
-      - run: make all
+      - run:
+          environment:
+            PATH: "$PATH:$PWD"
+          command: make all
+        
       - run: make docker-push
