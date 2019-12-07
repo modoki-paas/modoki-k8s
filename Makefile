@@ -8,6 +8,11 @@ DOCKER_BUILDKIT = 1
 
 .DEFAULT_GOAL := modokid
 
+.PHONY: install_dependencies
+install_dependencies:
+	curl -s "https://raw.githubusercontent.com/\
+	kubernetes-sigs/kustomize/master/hack/install_kustomize.sh"  | bash
+
 .PHONY: modokid
 modokid: 
 	go build -o modokid $(wildcard ./apiserver/*.go)
