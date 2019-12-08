@@ -68,6 +68,15 @@ message OperateResponse {
   YAML apply_yaml = 2;
 }
 
+message MetricsRequest {
+  string id = 1;
+}
+
+message MetricsResponse {
+  AppStatus status = 1;
+}
+
 service Generator {
   rpc Operate(OperateRequest) returns (OperateResponse);
+  rpc Metrics(MetricsRequest) returns (MetricsResponse);
 }

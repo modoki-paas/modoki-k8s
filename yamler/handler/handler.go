@@ -76,3 +76,7 @@ func (h *Handler) Operate(ctx context.Context, req *modoki.OperateRequest) (*mod
 		return nil, xerrors.Errorf("unknown operate kind: " + req.Kind.String())
 	}
 }
+
+func (h *Handler) Metrics(context.Context, *modoki.MetricsRequest) (*modoki.MetricsResponse, error) {
+	panic("not implemented")
+}
