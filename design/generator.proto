@@ -1,0 +1,48 @@
+syntax = "proto3";
+package modoki;
+
+option go_package = "modoki";
+
+import "service.proto";
+
+
+message KubernetesConfig {
+  string namespace = 1;
+}
+
+message YAML {
+  string config = 1;
+}
+
+enum OperateKind {
+  Apply = 0;
+  Delete = 1;
+}
+
+message OperateRequest {
+  string id = 1;
+  OperateKind kind = 2;
+  int32 performer = 3;
+  AppSpec spec = 4;
+  YAML delete_yaml = 5;
+  YAML apply_yaml = 6;
+  KubernetesConfig k8s_config = 7;
+}
+
+message OperateResponse {
+  YAML delete_yaml = 1;
+  YAML apply_yaml = 2;
+}
+
+message MetricsRequest {
+  string id = 1;
+}
+
+message MetricsResponse {
+  AppStatus status = 1;
+}
+
+service Generator {
+  rpc Operate(OperateRequest) returns (OperateResponse);
+  rpc Metrics(MetricsRequest) returns (MetricsResponse);
+}
