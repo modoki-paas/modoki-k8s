@@ -18,15 +18,19 @@ func TestAddUser(t *testing.T) {
 
 		store := NewDB(db)
 
-		u, err := store.User().AddUser("test-user", "my-password", UserNormal)
+		u, err := store.User().AddUser("test-id", "test-name", "my-password", UserNormal)
 
 		if err != nil {
 			t.Fatalf("failed to add user: %v", err)
 		}
 
-		if u.ID <= 0 {
-			t.Errorf("id should be >0, but got %v", u.ID)
+		if u.SeqID <= 0 {
+			t.Errorf("id should be >0, but got %v", u.SeqID)
 		}
+		if u.ID != "test-id" {
+			t.Errorf("id should be test-id, but got %v", u.ID)
+		}
+
 		if u.UserType != UserNormal {
 			t.Errorf("type should be UserNormal, but got %v", u.UserType)
 		}
@@ -58,8 +62,11 @@ func TestAddUser(t *testing.T) {
 			t.Fatalf("failed to add user: %v", err)
 		}
 
-		if u.ID <= 0 {
-			t.Errorf("id should be >0, but got %v", u.ID)
+		if u.SeqID <= 0 {
+			t.Errorf("id should be >0, but got %v", u.SeqID)
+		}
+		if u.ID != "test-id" {
+			t.Errorf("id should be test-id, but got %v", u.ID)
 		}
 		if u.UserType != UserOrganization {
 			t.Errorf("type should be UserOrganization, but got %v", u.UserType)

@@ -35,7 +35,7 @@ func TestGetFromToken(t *testing.T) {
 			t.Fatalf("failed to retrieve token: %v", err)
 		}
 
-		if ret.ID == 0 {
+		if ret.SeqID == 0 {
 			t.Error("id should be not zero")
 		}
 		if tk.Token != ret.Token {

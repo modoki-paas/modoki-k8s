@@ -69,7 +69,7 @@ func newUserStore(db *dbContext) *userStore {
 	return &userStore{db: db}
 }
 
-func (s *userStore) AddUser(name, password string, userType UserTypeEnum) (u *User, err error) {
+func (s *userStore) AddUser(id, name, password string, userType UserTypeEnum) (u *User, err error) {
 	passwd, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 
 	if err != nil {
@@ -98,7 +98,14 @@ func (s *userStore) AddUser(name, password string, userType UserTypeEnum) (u *Us
 		}
 	}()
 
-	res, err := dbx.db.ExecContext(context.Background(), "INSERT INTO users (type, name, password) VALUES (?, ?, ?)", u.UserType, u.Name, u.Password)
+	res, err := dbx.db.ExecContext(
+		context.Background(),
+		`INSERT INTO users (
+			type,
+			id,
+			name,
+			password
+		) VALUES (?, ?, ?)`, u.UserType, u.ID, u.Name, u.Password)
 
 	if err != nil {
 		return nil, xerrors.Errorf("faield to add user: %w", err)
