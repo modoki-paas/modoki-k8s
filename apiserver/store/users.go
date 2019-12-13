@@ -81,7 +81,7 @@ func (s *userStore) AddUser(id, name string, userType UserTypeEnum) (u *User, er
 		`INSERT INTO users (
 			type,
 			id,
-			name,
+			name
 		) VALUES (?, ?, ?)`, u.UserType, u.ID, u.Name)
 
 	if err != nil {
