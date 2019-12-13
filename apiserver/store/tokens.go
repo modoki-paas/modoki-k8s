@@ -47,13 +47,11 @@ func (s *tokensStore) AddToken(t *Token) (ret *Token, err error) {
 		`INSERT INTO tokens (
 			token,
 			owner,
-			author,
-			permission
-		) VALUES (?, ?, ?, ?)`,
+			author
+		) VALUES (?, ?, ?)`,
 		t.Token,
 		t.Owner,
 		t.Author,
-		t.TokenPermission,
 	)
 
 	if err != nil {

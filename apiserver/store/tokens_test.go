@@ -20,7 +20,6 @@ func TestGetFromToken(t *testing.T) {
 			Token:           "token",
 			Owner:           1,
 			Author:          10,
-			TokenPermission: nil,
 		}
 
 		_, err := store.Token().AddToken(tk)
