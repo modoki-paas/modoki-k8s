@@ -6,7 +6,6 @@ import (
 	"time"
 
 	sqlxselect "github.com/cs3238-tsuzu/sqlx-selector/v2"
-	"golang.org/x/crypto/bcrypt"
 
 	"golang.org/x/xerrors"
 )
@@ -42,23 +41,8 @@ type User struct {
 	ID        string       `db:"id"`
 	UserType  UserTypeEnum `db:"type"`
 	Name      string       `db:"name"`
-	Password  []byte       `db:"password"`
 	CreatedAt time.Time    `db:"created_at"`
 	UpdatedAt time.Time    `db:"updated_at"`
-}
-
-func (u *User) ComparePassword(passwd string) (bool, error) {
-	err := bcrypt.CompareHashAndPassword(u.Password, []byte(passwd))
-
-	if err != nil {
-		if err == bcrypt.ErrMismatchedHashAndPassword {
-			return false, nil
-		}
-
-		return false, err
-	}
-
-	return true, nil
 }
 
 type userStore struct {
@@ -69,16 +53,10 @@ func newUserStore(db *dbContext) *userStore {
 	return &userStore{db: db}
 }
 
-func (s *userStore) AddUser(id, name, password string, userType UserTypeEnum) (u *User, err error) {
-	passwd, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-
-	if err != nil {
-		return nil, xerrors.Errorf("failed to hash password: %w", err)
-	}
+func (s *userStore) AddUser(id, name, string, userType UserTypeEnum) (u *User, err error) {
 	u = &User{
 		UserType: userType,
 		Name:     name,
-		Password: passwd,
 	}
 
 	dbx, err := s.db.Begin(context.Background(), nil)
@@ -104,8 +82,7 @@ func (s *userStore) AddUser(id, name, password string, userType UserTypeEnum) (u
 			type,
 			id,
 			name,
-			password
-		) VALUES (?, ?, ?)`, u.UserType, u.ID, u.Name, u.Password)
+		) VALUES (?, ?, ?)`, u.UserType, u.ID, u.Name)
 
 	if err != nil {
 		return nil, xerrors.Errorf("faield to add user: %w", err)
