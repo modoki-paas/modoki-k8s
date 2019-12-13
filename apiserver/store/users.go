@@ -58,7 +58,7 @@ func (s *userStore) AddUser(id, name string, userType UserTypeEnum, role UserSys
 			id,
 			name,
 			system_role
-		) VALUES (?, ?, ?)`, u.UserType, u.ID, u.Name, u.SystemRole)
+		) VALUES (?, ?, ?, ?)`, u.UserType, u.ID, u.Name, u.SystemRole)
 
 	if err != nil {
 		return nil, xerrors.Errorf("faield to add user: %w", err)
