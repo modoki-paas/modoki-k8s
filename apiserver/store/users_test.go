@@ -56,7 +56,7 @@ func TestAddUser(t *testing.T) {
 
 		store := NewDB(db)
 
-		u, err := store.User().AddUser("test-user", "my-password", UserOrganization)
+		u, err := store.User().AddUser("test-id", "test-name", "my-password", UserNormal)
 
 		if err != nil {
 			t.Fatalf("failed to add user: %v", err)
@@ -95,7 +95,7 @@ func TestGetUserFromToken(t *testing.T) {
 
 		store := NewDB(db)
 
-		u, err := store.User().AddUser("my-name", "my-password", UserNormal)
+		u, err := store.User().AddUser("test-id", "test-name", "my-password", UserNormal)
 
 		if err != nil {
 			t.Fatalf("failed to add user: %v", err)
