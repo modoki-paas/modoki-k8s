@@ -76,7 +76,7 @@ func (s *userStore) AddUser(id, name string, userType UserTypeEnum, role UserSys
 func (s *userStore) GetUser(id int) (*User, error) {
 	var u User
 
-	if err := s.db.db.QueryRowxContext(context.Background(), "SElECT * FROM users WHERE id = ?", id).StructScan(&u); err != nil {
+	if err := s.db.db.QueryRowxContext(context.Background(), "SElECT * FROM users WHERE seq = ?", id).StructScan(&u); err != nil {
 		return nil, xerrors.Errorf("faield to retrieve user info: %w", err)
 	}
 
@@ -98,7 +98,7 @@ func (s *userStore) GetUserFromToken(token string) (*User, *Token, error) {
 				SelectStruct("users.*").
 				SelectStruct("tokens.*").
 				String()+
-			" FROM users INNER JOIN tokens ON tokens.organization = users.id WHERE tokens.token = ?",
+			" FROM users INNER JOIN tokens ON tokens.owner = users.seq WHERE tokens.token = ?",
 		token,
 	).StructScan(&ut)
 

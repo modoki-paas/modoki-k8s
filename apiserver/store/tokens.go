@@ -47,7 +47,7 @@ func (s *tokensStore) AddToken(t *Token) (ret *Token, err error) {
 		context.Background(),
 		`INSERT INTO tokens (
 			token,
-			organization,
+			owner,
 			author,
 			permission
 		) VALUES (?, ?, ?, ?)`,
@@ -73,7 +73,7 @@ func (s *tokensStore) AddToken(t *Token) (ret *Token, err error) {
 func (s *tokensStore) GetToken(id int) (*Token, error) {
 	var ts Token
 	err := s.db.db.
-		QueryRowxContext(context.Background(), "SELECT * FROM tokens WHERE id=?", id).
+		QueryRowxContext(context.Background(), "SELECT * FROM tokens WHERE seq=?", id).
 		StructScan(&ts)
 
 	if err != nil {
