@@ -36,8 +36,8 @@ func TestAddUser(t *testing.T) {
 		if u.SystemRole == UserRoleAdmin {
 			t.Errorf("role should be UserRoleAdmin(admin), but got %v", u.SystemRole)
 		}
-		if u.Name != "test-user" {
-			t.Errorf("name should be %v, but got %v", "test-user", u.Name)
+		if u.Name != "test-name" {
+			t.Errorf("name should be %v, but got %v", "test-name", u.Name)
 		}
 		if u.CreatedAt == (time.Time{}) {
 			t.Error("created_at is not set")
@@ -71,8 +71,8 @@ func TestAddUser(t *testing.T) {
 		if u.SystemRole == UserRoleAdmin {
 			t.Errorf("role should be UserRoleAdmin(admin), but got %v", u.SystemRole)
 		}
-		if u.Name != "test-user" {
-			t.Errorf("name should be %v, but got %v", "test-user", u.Name)
+		if u.Name != "test-name" {
+			t.Errorf("name should be %v, but got %v", "test-name", u.Name)
 		}
 		if u.CreatedAt == (time.Time{}) {
 			t.Error("created_at is not set")

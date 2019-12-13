@@ -29,6 +29,7 @@ func newUserStore(db *dbContext) *userStore {
 
 func (s *userStore) AddUser(id, name string, userType UserTypeEnum, role UserSystemRole) (u *User, err error) {
 	u = &User{
+		ID:         id,
 		UserType:   userType,
 		Name:       name,
 		SystemRole: UserSystemRole(role),
