@@ -2,7 +2,6 @@ package store
 
 import (
 	"context"
-	"database/sql/driver"
 	"time"
 
 	sqlxselect "github.com/cs3238-tsuzu/sqlx-selector/v2"
@@ -10,39 +9,14 @@ import (
 	"golang.org/x/xerrors"
 )
 
-// UserTypeEnum represents the type of users
-type UserTypeEnum string
-
-func (e *UserTypeEnum) Scan(src interface{}) error {
-	switch v := src.(type) {
-	case []byte:
-		*e = UserTypeEnum(v)
-	case string:
-		*e = UserTypeEnum(v)
-	default:
-		return xerrors.Errorf("failed to scan json for %v", v)
-	}
-	return nil
-}
-
-func (e UserTypeEnum) Value() (driver.Value, error) {
-	return string(e), nil
-}
-
-var (
-	// UserNormal means a individual user, not organization
-	UserNormal UserTypeEnum = "user"
-	// UserOrganization means an organization contains some users
-	UserOrganization UserTypeEnum = "organization"
-)
-
 type User struct {
-	SeqID     int          `db:"seq"`
-	ID        string       `db:"id"`
-	UserType  UserTypeEnum `db:"type"`
-	Name      string       `db:"name"`
-	CreatedAt time.Time    `db:"created_at"`
-	UpdatedAt time.Time    `db:"updated_at"`
+	SeqID      int            `db:"seq"`
+	ID         string         `db:"id"`
+	UserType   UserTypeEnum   `db:"type"`
+	Name       string         `db:"name"`
+	CreatedAt  time.Time      `db:"created_at"`
+	UpdatedAt  time.Time      `db:"updated_at"`
+	SystemRole UserSystemRole `db:"system_role"`
 }
 
 type userStore struct {
@@ -53,10 +27,11 @@ func newUserStore(db *dbContext) *userStore {
 	return &userStore{db: db}
 }
 
-func (s *userStore) AddUser(id, name string, userType UserTypeEnum) (u *User, err error) {
+func (s *userStore) AddUser(id, name string, userType UserTypeEnum, role UserSystemRole) (u *User, err error) {
 	u = &User{
-		UserType: userType,
-		Name:     name,
+		UserType:   userType,
+		Name:       name,
+		SystemRole: UserSystemRole(role),
 	}
 
 	dbx, err := s.db.Begin(context.Background(), nil)
@@ -81,8 +56,9 @@ func (s *userStore) AddUser(id, name string, userType UserTypeEnum) (u *User, er
 		`INSERT INTO users (
 			type,
 			id,
-			name
-		) VALUES (?, ?, ?)`, u.UserType, u.ID, u.Name)
+			name,
+			system_role
+		) VALUES (?, ?, ?)`, u.UserType, u.ID, u.Name, u.SystemRole)
 
 	if err != nil {
 		return nil, xerrors.Errorf("faield to add user: %w", err)

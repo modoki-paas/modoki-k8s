@@ -84,7 +84,7 @@ func (ss *appStore) AddApp(s *App) (ret *App, err error) {
 	res, err := dbx.db.ExecContext(
 		context.Background(),
 		`INSERT INTO apps
-			(app_id, owner, name, spec)
+			(id, owner, name, spec)
 			VALUES (?, ?, ?, ?)`,
 		s.ID, s.Owner, s.Name, s.Spec,
 	)

@@ -45,7 +45,12 @@ func (s *tokensStore) AddToken(t *Token) (ret *Token, err error) {
 
 	res, err := dbx.db.ExecContext(
 		context.Background(),
-		"INSERT INTO tokens (token, organization, author, permission) VALUES (?, ?, ?, ?)",
+		`INSERT INTO tokens (
+			token,
+			organization,
+			author,
+			permission
+		) VALUES (?, ?, ?, ?)`,
 		t.Token,
 		t.Owner,
 		t.Author,
