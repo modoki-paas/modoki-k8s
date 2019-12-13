@@ -33,7 +33,7 @@ func TestAddUser(t *testing.T) {
 		if u.UserType != UserNormal {
 			t.Errorf("type should be UserNormal, but got %v", u.UserType)
 		}
-		if u.SystemRole == UserRoleAdmin {
+		if u.SystemRole != UserRoleAdmin {
 			t.Errorf("role should be UserRoleAdmin(admin), but got %v", u.SystemRole)
 		}
 		if u.Name != "test-name" {
@@ -53,7 +53,7 @@ func TestAddUser(t *testing.T) {
 
 		store := NewDB(db)
 
-		u, err := store.User().AddUser("test-id", "test-name", UserNormal, UserRoleAdmin)
+		u, err := store.User().AddUser("test-id", "test-name", UserOrganization, UserRoleAdmin)
 
 		if err != nil {
 			t.Fatalf("failed to add user: %v", err)
@@ -68,7 +68,7 @@ func TestAddUser(t *testing.T) {
 		if u.UserType != UserOrganization {
 			t.Errorf("type should be UserOrganization, but got %v", u.UserType)
 		}
-		if u.SystemRole == UserRoleAdmin {
+		if u.SystemRole != UserRoleAdmin {
 			t.Errorf("role should be UserRoleAdmin(admin), but got %v", u.SystemRole)
 		}
 		if u.Name != "test-name" {
