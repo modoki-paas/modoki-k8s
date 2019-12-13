@@ -99,7 +99,6 @@ func TestGetUserFromToken(t *testing.T) {
 			Token:           "my-token",
 			Owner:           u.SeqID,
 			Author:          u.SeqID,
-			TokenPermission: &Permission{},
 		})
 		if err != nil {
 			t.Fatalf("failed to add token: %v", err)
