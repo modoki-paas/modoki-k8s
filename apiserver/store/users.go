@@ -53,7 +53,7 @@ func newUserStore(db *dbContext) *userStore {
 	return &userStore{db: db}
 }
 
-func (s *userStore) AddUser(id, name, string, userType UserTypeEnum) (u *User, err error) {
+func (s *userStore) AddUser(id, name string, userType UserTypeEnum) (u *User, err error) {
 	u = &User{
 		UserType: userType,
 		Name:     name,
