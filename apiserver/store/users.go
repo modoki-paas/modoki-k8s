@@ -38,7 +38,8 @@ var (
 )
 
 type User struct {
-	ID        int          `db:"id"`
+	SeqID     int          `db:"seq"`
+	ID        string       `db:"id"`
 	UserType  UserTypeEnum `db:"type"`
 	Name      string       `db:"name"`
 	Password  []byte       `db:"password"`

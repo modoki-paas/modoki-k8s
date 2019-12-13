@@ -31,8 +31,11 @@ func TestAddApp(t *testing.T) {
 			t.Fatalf("failed to add user: %v", err)
 		}
 
-		if ret.ID <= 0 {
+		if ret.SeqID <= 0 {
 			t.Errorf("id should be >0, but got %v", ret.ID)
+		}
+		if ret.ID == "" {
+			t.Errorf("id should not be empty, but got empty id")
 		}
 		if ret.Owner != s.Owner {
 			t.Errorf("invalid owner: want %v got %v", s.Owner, ret.Owner)

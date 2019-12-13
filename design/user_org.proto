@@ -1,0 +1,83 @@
+syntax = "proto3";
+package modoki;
+
+option go_package = "modoki";
+
+import "google/protobuf/timestamp.proto";
+
+enum SystemRole {
+  Nothing = 0;
+  Admin = 1;
+}
+
+message User {
+  int32 id = 1;
+  string user_id = 2;
+  string name = 3;
+  repeated SystemRole roles = 4;
+
+  google.protobuf.Timestamp created_at = 10;
+  google.protobuf.Timestamp updated_at = 11;
+}
+
+message Organization {
+  int32 id = 1;
+  string org_id = 2;
+  string name = 3;
+}
+
+message UserDeleteRequest {
+  string id = 1;
+}
+
+message UserDeleteResponse {}
+
+message UserFindByIDRequest {
+  string user_id = 1;
+}
+
+message UserFindByIDResponse {
+  User user = 1;
+}
+
+message OrganizationAddRequest {
+  Organization organization = 1;
+}
+
+message OrganizationAddResponse {
+  Organization organization = 1;
+}
+
+message OrganizationDeleteRequest {
+  int32 id = 1;
+}
+
+message OrganizationDeleteResponse {
+}
+
+message OrganizationInviteUserRequest {
+  int32 target = 1;
+  int32 organization = 2;
+}
+
+message OrganizationInviteUserResponse {
+}
+
+message OrganizationListUserRequest {
+  int32 organization = 1;
+}
+
+message OrganizationListUserResponse {
+  repeated User organizations = 1;
+}
+
+service UserOrg {
+  rpc UserAdd(User) returns (User);
+  rpc UserDelete(UserDeleteRequest) returns (UserDeleteResponse);
+  rpc UserFindByID(UserFindByIDRequest) returns (UserFindByIDResponse);
+
+  rpc OrganizationAdd(Organization) returns (Organization);
+  rpc OrganizationDelete(OrganizationDeleteRequest) returns (OrganizationDeleteResponse);
+  rpc OrganizationInviteUser(OrganizationInviteUserRequest) returns (OrganizationInviteUserResponse);
+  rpc OrganizationListUser(OrganizationListUserRequest) returns(OrganizationListUserResponse);  
+}

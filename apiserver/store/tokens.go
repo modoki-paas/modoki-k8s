@@ -8,7 +8,7 @@ import (
 )
 
 type Token struct {
-	ID              int         `db:"id"`
+	SeqID           int         `db:"seq"`
 	Token           string      `db:"token"`
 	Organization    int         `db:"organization"`
 	Author          int         `db:"author"`

@@ -1,0 +1,47 @@
+syntax = "proto3";
+package modoki;
+
+option go_package = "modoki";
+
+message SignInRequest {
+  
+}
+
+message SignInResponse {
+  string redirect_uri = 1;
+}
+
+message SignOutRequest {
+
+}
+
+message SignOutResponse {
+
+}
+
+message CallbackRequest {
+  string AccessToken = 1;
+  string IDToken = 2;
+  string State = 3;
+}
+
+message CallbackResponse {
+
+}
+
+message IssueTokenRequest {
+  int32 owner = 1;
+  string name = 2;
+}
+
+message IssueTokenResponse {
+  string token = 1;
+}
+
+service Authority {
+  rpc SignIn(SignInRequest) returns (SignInResponse);
+  rpc SignOut(SignOutRequest) returns (SignOutResponse);
+  rpc Callback(CallbackRequest) returns (CallbackResponse);
+
+  rpc IssueToken(IssueTokenRequest) returns (IssueTokenResponse);
+}

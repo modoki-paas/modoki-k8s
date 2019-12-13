@@ -19,10 +19,11 @@ message AppSpec {
 }
 
 message AppStatus {
-  string id = 1;
-  string state = 2;
-  google.protobuf.Timestamp started_at = 3;
-  int32 exit_code = 4;
+  int32 id = 1;
+  string app_id = 2;
+  string state = 3;
+  google.protobuf.Timestamp started_at = 4;
+  int32 exit_code = 5;
 
   google.protobuf.Timestamp created_at = 10;
   google.protobuf.Timestamp updated_at = 11;

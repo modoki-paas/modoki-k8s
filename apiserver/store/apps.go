@@ -43,8 +43,8 @@ func (ss *AppSpec) Value() (driver.Value, error) {
 }
 
 type App struct {
-	ID        int       `db:"id"`
-	AppID     string    `db:"app_id"`
+	SeqID     int       `db:"seq"`
+	ID        string    `db:"id"`
 	Owner     int       `db:"owner"`
 	Name      string    `db:"name"`
 	Spec      *AppSpec  `db:"spec"`
@@ -79,14 +79,14 @@ func (ss *appStore) AddApp(s *App) (ret *App, err error) {
 		}
 	}()
 
-	s.AppID = xid.New().String()
+	s.ID = xid.New().String()
 
 	res, err := dbx.db.ExecContext(
 		context.Background(),
 		`INSERT INTO apps
 			(app_id, owner, name, spec)
 			VALUES (?, ?, ?, ?)`,
-		s.AppID, s.Owner, s.Name, s.Spec,
+		s.ID, s.Owner, s.Name, s.Spec,
 	)
 
 	if err != nil {
@@ -102,10 +102,23 @@ func (ss *appStore) AddApp(s *App) (ret *App, err error) {
 	return store.App().GetApp(int(id64))
 }
 
-func (ss *appStore) GetApp(id int) (*App, error) {
+func (ss *appStore) GetApp(seq int) (*App, error) {
 	var app App
 	err := ss.db.db.
-		QueryRowxContext(context.Background(), "SELECT * FROM apps WHERE id=?", id).
+		QueryRowxContext(context.Background(), "SELECT * FROM apps WHERE seq=?", seq).
+		StructScan(&app)
+
+	if err != nil {
+		return nil, xerrors.Errorf("failed to retrieve app: %w", err)
+	}
+
+	return &app, nil
+}
+
+func (ss *appStore) FindAppByID(id string) (*App, error) {
+	var app App
+	err := ss.db.db.
+		QueryRowxContext(context.Background(), "SELECT * FROM apps WHERE seq=?", id).
 		StructScan(&app)
 
 	if err != nil {
