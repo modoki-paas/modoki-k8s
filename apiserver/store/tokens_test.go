@@ -18,7 +18,7 @@ func TestGetFromToken(t *testing.T) {
 
 		tk := &Token{
 			Token:           "token",
-			Organization:    1,
+			Owner:           1,
 			Author:          10,
 			TokenPermission: nil,
 		}
@@ -41,8 +41,8 @@ func TestGetFromToken(t *testing.T) {
 		if tk.Token != ret.Token {
 			t.Errorf("invalid token: want %v got %v", tk.Token, ret.Token)
 		}
-		if tk.Organization != ret.Organization {
-			t.Errorf("invalid org: want %v got %v", tk.Organization, ret.Organization)
+		if tk.Owner != ret.Owner {
+			t.Errorf("invalid owner: want %v got %v", tk.Owner, ret.Owner)
 		}
 		if tk.Author != ret.Author {
 			t.Errorf("invalid author: want %v got %v", tk.Author, ret.Author)
