@@ -10,7 +10,7 @@ import (
 type Token struct {
 	SeqID           int         `db:"seq"`
 	Token           string      `db:"token"`
-	Organization    int         `db:"organization"`
+	Owner           int         `db:"owner"`
 	Author          int         `db:"author"`
 	TokenPermission *Permission `db:"permission"`
 	CreatedAt       time.Time   `db:"created_at"`
@@ -47,7 +47,7 @@ func (s *tokensStore) AddToken(t *Token) (ret *Token, err error) {
 		context.Background(),
 		"INSERT INTO tokens (token, organization, author, permission) VALUES (?, ?, ?, ?)",
 		t.Token,
-		t.Organization,
+		t.Owner,
 		t.Author,
 		t.TokenPermission,
 	)

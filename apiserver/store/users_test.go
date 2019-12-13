@@ -102,8 +102,8 @@ func TestGetUserFromToken(t *testing.T) {
 		}
 		token, err := store.Token().AddToken(&Token{
 			Token:           "my-token",
-			Organization:    u.ID,
-			Author:          u.ID,
+			Owner:           u.SeqID,
+			Author:          u.SeqID,
 			TokenPermission: &Permission{},
 		})
 		if err != nil {
