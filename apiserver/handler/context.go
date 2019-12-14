@@ -7,6 +7,7 @@ import (
 
 // ServerContext contains accessor used by handlers
 type ServerContext struct {
-	DB     *store.DB
-	Config *config.Config
+	DB        *store.DB
+	Config    *config.Config
+	EnvConfig *config.EnvConfig
 }
