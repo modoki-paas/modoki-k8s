@@ -11,7 +11,6 @@ import (
 	api "github.com/modoki-paas/modoki-k8s/api"
 	"github.com/modoki-paas/modoki-k8s/apiserver/config"
 	"github.com/modoki-paas/modoki-k8s/apiserver/handler"
-	"github.com/modoki-paas/modoki-k8s/apiserver/store"
 	"google.golang.org/grpc"
 )
 
@@ -53,7 +52,7 @@ func main() {
 		panic(err)
 	}
 
-	sctx.DB = store.NewDB(d)
+	sctx.DB = d
 
 	listener, err := net.Listen("tcp", ":80")
 	if err != nil {
@@ -61,7 +60,7 @@ func main() {
 	}
 
 	server := grpc.NewServer()
-	api.RegisterAppServer(server, &handler.AppServer{Context: sctx})	
+	api.RegisterAppServer(server, &handler.AppServer{Context: sctx})
 
 	if err := server.Serve(listener); err != nil {
 		log.Fatalf("failed to start server on :80: %v", err)
