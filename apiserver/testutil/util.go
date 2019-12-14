@@ -14,6 +14,7 @@ import (
 
 // NewSQLMock returns sqlmock with sql*x*.DB
 func NewSQLMock(t *testing.T) (*sqlx.DB, sqlmock.Sqlmock) {
+	t.Helper()
 	db, mock, err := sqlmock.New()
 
 	if err != nil {
@@ -37,6 +38,7 @@ func (c *sqlxConn) Close() error {
 
 // NewSQLConn returns connection with sql*x*.DB
 func NewSQLConn(t *testing.T) *sqlxConn {
+	t.Helper()
 	dbx, err := sqlx.Connect("mysql", "root:password@tcp(127.0.0.1)/?parseTime=true&multiStatements=true")
 
 	if err != nil {
@@ -68,7 +70,8 @@ func NewSQLConn(t *testing.T) *sqlxConn {
 }
 
 func createTable(t *testing.T, dbx *sqlx.DB) {
-	sqls, err := filepath.Glob("../../schema/*.sql")
+	t.Helper()
+	sqls, err := filepath.Glob("../../../schema/*.sql")
 
 	if err != nil {
 		t.Fatalf("failed to open sql files: %v", err)

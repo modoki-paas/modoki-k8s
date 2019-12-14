@@ -101,7 +101,7 @@ func (ss *AppStore) GetApp(seq int) (*App, error) {
 func (ss *AppStore) FindAppByID(id string) (*App, error) {
 	var app App
 	err := ss.db.
-		QueryRowxContext(context.Background(), "SELECT * FROM apps WHERE seq=?", id).
+		QueryRowxContext(context.Background(), "SELECT * FROM apps WHERE id=?", id).
 		StructScan(&app)
 
 	if err != nil {

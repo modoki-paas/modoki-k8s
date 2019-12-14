@@ -27,13 +27,13 @@ func TestAddApp(t *testing.T) {
 		seq, err := store.AddApp(s)
 
 		if err != nil {
-			t.Fatalf("failed to add user: %v", err)
+			t.Fatalf("failed to add app: %v", err)
 		}
 
 		ret, err := store.GetApp(seq)
 
 		if err != nil {
-			t.Fatalf("failed to get user: %v", err)
+			t.Fatalf("failed to get app: %v", err)
 		}
 
 		if ret.SeqID <= 0 {

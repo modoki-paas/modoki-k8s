@@ -25,7 +25,7 @@ func TestAddUser(t *testing.T) {
 		u, err := store.GetUser(seq)
 
 		if err != nil {
-			t.Fatal("failed to get user: %v", err)
+			t.Fatalf("failed to get user: %v", err)
 		}
 
 		if u.SeqID <= 0 {
