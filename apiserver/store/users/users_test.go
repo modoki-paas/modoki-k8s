@@ -1,12 +1,10 @@
 // +build use_external_db
 
-package store
+package users
 
 import (
 	"testing"
 	"time"
-
-	"github.com/google/go-cmp/cmp"
 
 	"github.com/modoki-paas/modoki-k8s/apiserver/testutil"
 )
@@ -16,12 +14,18 @@ func TestAddUser(t *testing.T) {
 		db := testutil.NewSQLConn(t)
 		defer db.Close()
 
-		store := NewDB(db)
+		store := NewUserStore(db)
 
-		u, err := store.User().AddUser("test-id", "test-name", UserNormal, UserRoleAdmin)
+		seq, err := store.AddUser("test-id", "test-name", UserNormal, UserRoleAdmin)
 
 		if err != nil {
 			t.Fatalf("failed to add user: %v", err)
+		}
+
+		u, err := store.GetUser(seq)
+
+		if err != nil {
+			t.Fatal("failed to get user: %v", err)
 		}
 
 		if u.SeqID <= 0 {
@@ -51,12 +55,18 @@ func TestAddUser(t *testing.T) {
 		db := testutil.NewSQLConn(t)
 		defer db.Close()
 
-		store := NewDB(db)
+		store := NewUserStore(db)
 
-		u, err := store.User().AddUser("test-id", "test-name", UserOrganization, UserRoleAdmin)
+		seq, err := store.AddUser("test-id", "test-name", UserOrganization, UserRoleAdmin)
 
 		if err != nil {
 			t.Fatalf("failed to add user: %v", err)
+		}
+
+		u, err := store.GetUser(seq)
+
+		if err != nil {
+			t.Fatalf("failed to get user: %v", err)
 		}
 
 		if u.SeqID <= 0 {
@@ -79,42 +89,6 @@ func TestAddUser(t *testing.T) {
 		}
 		if u.UpdatedAt == (time.Time{}) {
 			t.Error("updated_at is not set")
-		}
-	})
-}
-
-func TestGetUserFromToken(t *testing.T) {
-	t.Run("success", func(t *testing.T) {
-		db := testutil.NewSQLConn(t)
-		defer db.Close()
-
-		store := NewDB(db)
-
-		u, err := store.User().AddUser("test-id", "test-name", UserNormal, UserRoleAdmin)
-
-		if err != nil {
-			t.Fatalf("failed to add user: %v", err)
-		}
-		token, err := store.Token().AddToken(&Token{
-			Token:           "my-token",
-			Owner:           u.SeqID,
-			Author:          u.SeqID,
-		})
-		if err != nil {
-			t.Fatalf("failed to add token: %v", err)
-		}
-
-		ru, rt, err := store.User().GetUserFromToken(token.Token)
-
-		if err != nil {
-			t.Fatalf("failed to get user from token: %v", err)
-		}
-
-		if !cmp.Equal(ru, u) {
-			t.Errorf("user does not match: want %v, got %v", *u, *ru)
-		}
-		if !cmp.Equal(rt, token) {
-			t.Errorf("token does not match: want %v, got %v", *token, *rt)
 		}
 	})
 }

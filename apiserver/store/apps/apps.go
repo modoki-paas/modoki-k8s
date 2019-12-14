@@ -1,4 +1,4 @@
-package store
+package apps
 
 import (
 	"bytes"
@@ -8,6 +8,7 @@ import (
 	"errors"
 	"time"
 
+	"github.com/jmoiron/sqlx"
 	api "github.com/modoki-paas/modoki-k8s/api"
 	"github.com/rs/xid"
 	"golang.org/x/xerrors"
@@ -52,36 +53,18 @@ type App struct {
 	UpdatedAt time.Time `db:"updated_at"`
 }
 
-type appStore struct {
-	db *dbContext
+type AppStore struct {
+	db sqlx.ExtContext
 }
 
-func newAppStore(db *dbContext) *appStore {
-	return &appStore{db: db}
+func NewAppStore(db sqlx.ExtContext) *AppStore {
+	return &AppStore{db: db}
 }
 
-func (ss *appStore) AddApp(s *App) (ret *App, err error) {
-	dbx, err := ss.db.Begin(context.Background(), nil)
-	store := newDB(dbx)
-
-	if err != nil {
-		return nil, xerrors.Errorf("faield to begin transaction: %w", err)
-	}
-
-	defer func() {
-		if err != nil {
-			dbx.Rollback()
-		} else {
-			if err := dbx.Commit(); err != nil {
-				err = xerrors.Errorf("failed to commit transaction: %w", err)
-				ret = nil
-			}
-		}
-	}()
-
+func (ss *AppStore) AddApp(s *App) (seqID int, err error) {
 	s.ID = xid.New().String()
 
-	res, err := dbx.db.ExecContext(
+	res, err := ss.db.ExecContext(
 		context.Background(),
 		`INSERT INTO apps
 			(id, owner, name, spec)
@@ -90,21 +73,21 @@ func (ss *appStore) AddApp(s *App) (ret *App, err error) {
 	)
 
 	if err != nil {
-		return nil, xerrors.Errorf("failed to add app to db: %w", err)
+		return 0, xerrors.Errorf("failed to add app to db: %w", err)
 	}
 
 	id64, err := res.LastInsertId()
 
 	if err != nil {
-		return nil, xerrors.Errorf("failed to add app to db: %w", err)
+		return 0, xerrors.Errorf("failed to add app to db: %w", err)
 	}
 
-	return store.App().GetApp(int(id64))
+	return int(id64), nil
 }
 
-func (ss *appStore) GetApp(seq int) (*App, error) {
+func (ss *AppStore) GetApp(seq int) (*App, error) {
 	var app App
-	err := ss.db.db.
+	err := ss.db.
 		QueryRowxContext(context.Background(), "SELECT * FROM apps WHERE seq=?", seq).
 		StructScan(&app)
 
@@ -115,9 +98,9 @@ func (ss *appStore) GetApp(seq int) (*App, error) {
 	return &app, nil
 }
 
-func (ss *appStore) FindAppByID(id string) (*App, error) {
+func (ss *AppStore) FindAppByID(id string) (*App, error) {
 	var app App
-	err := ss.db.db.
+	err := ss.db.
 		QueryRowxContext(context.Background(), "SELECT * FROM apps WHERE seq=?", id).
 		StructScan(&app)
 

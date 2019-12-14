@@ -1,4 +1,4 @@
-package store
+package users
 
 import (
 	"database/sql/driver"

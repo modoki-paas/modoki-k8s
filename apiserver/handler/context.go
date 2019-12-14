@@ -1,13 +1,13 @@
 package handler
 
 import (
+	"github.com/jmoiron/sqlx"
 	"github.com/modoki-paas/modoki-k8s/apiserver/config"
-	"github.com/modoki-paas/modoki-k8s/apiserver/store"
 )
 
 // ServerContext contains accessor used by handlers
 type ServerContext struct {
-	DB        *store.DB
+	DB        *sqlx.DB
 	Config    *config.Config
 	EnvConfig *config.EnvConfig
 }

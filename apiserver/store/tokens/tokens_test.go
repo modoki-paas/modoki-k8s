@@ -1,6 +1,6 @@
 // +build use_external_db
 
-package store
+package tokens
 
 import (
 	"testing"
@@ -11,24 +11,23 @@ import (
 
 func TestGetFromToken(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
+		tk := &Token{
+			Token:  "token",
+			Owner:  1,
+			Author: 10,
+		}
+
 		db := testutil.NewSQLConn(t)
 		defer db.Close()
 
-		store := NewDB(db)
-
-		tk := &Token{
-			Token:           "token",
-			Owner:           1,
-			Author:          10,
-		}
-
-		_, err := store.Token().AddToken(tk)
+		store := NewTokenStore(db)
+		_, err := store.AddToken(tk)
 
 		if err != nil {
 			t.Fatalf("failed to register new token: %v", err)
 		}
 
-		ret, err := store.Token().GetFromToken("token")
+		ret, err := store.GetFromToken("token")
 
 		if err != nil {
 			t.Fatalf("failed to retrieve token: %v", err)

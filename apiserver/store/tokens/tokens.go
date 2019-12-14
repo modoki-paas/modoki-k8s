@@ -1,9 +1,10 @@
-package store
+package tokens
 
 import (
 	"context"
 	"time"
 
+	"github.com/jmoiron/sqlx"
 	"golang.org/x/xerrors"
 )
 
@@ -16,33 +17,16 @@ type Token struct {
 	UpdatedAt time.Time `db:"updated_at"`
 }
 
-type tokensStore struct {
-	db *dbContext
+type TokenStore struct {
+	db sqlx.ExtContext
 }
 
-func newTokensStore(db *dbContext) *tokensStore {
-	return &tokensStore{db: db}
+func NewTokenStore(db sqlx.ExtContext) *TokenStore {
+	return &TokenStore{db: db}
 }
 
-func (s *tokensStore) AddToken(t *Token) (ret *Token, err error) {
-	dbx, err := s.db.Begin(context.Background(), nil)
-	store := newDB(dbx)
-
-	if err != nil {
-		return nil, xerrors.Errorf("faield to begin transaction: %w", err)
-	}
-	defer func() {
-		if err != nil {
-			dbx.Rollback()
-		} else {
-			if err := dbx.Commit(); err != nil {
-				err = xerrors.Errorf("failed to commit transaction: %w", err)
-				ret = nil
-			}
-		}
-	}()
-
-	res, err := dbx.db.ExecContext(
+func (s *TokenStore) AddToken(t *Token) (seqID int, err error) {
+	res, err := s.db.ExecContext(
 		context.Background(),
 		`INSERT INTO tokens (
 			token,
@@ -55,21 +39,21 @@ func (s *tokensStore) AddToken(t *Token) (ret *Token, err error) {
 	)
 
 	if err != nil {
-		return nil, xerrors.Errorf("failed to register new token: %w", err)
+		return 0, xerrors.Errorf("failed to register new token: %w", err)
 	}
 
 	id, err := res.LastInsertId()
 
 	if err != nil {
-		return nil, xerrors.Errorf("failed to register new token: %w", err)
+		return 0, xerrors.Errorf("failed to register new token: %w", err)
 	}
 
-	return store.Token().GetToken(int(id))
+	return int(id), nil
 }
 
-func (s *tokensStore) GetToken(id int) (*Token, error) {
+func (s *TokenStore) GetToken(id int) (*Token, error) {
 	var ts Token
-	err := s.db.db.
+	err := s.db.
 		QueryRowxContext(context.Background(), "SELECT * FROM tokens WHERE seq=?", id).
 		StructScan(&ts)
 
@@ -79,9 +63,9 @@ func (s *tokensStore) GetToken(id int) (*Token, error) {
 
 	return &ts, nil
 }
-func (s *tokensStore) GetFromToken(token string) (*Token, error) {
+func (s *TokenStore) GetFromToken(token string) (*Token, error) {
 	var ts Token
-	err := s.db.db.
+	err := s.db.
 		QueryRowxContext(context.Background(), "SELECT * FROM tokens WHERE token=?", token).
 		StructScan(&ts)
 

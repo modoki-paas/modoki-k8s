@@ -1,6 +1,6 @@
 // build +use_external_db
 
-package store
+package apps
 
 import (
 	"testing"
@@ -12,11 +12,6 @@ import (
 
 func TestAddApp(t *testing.T) {
 	t.Run("success_normal", func(t *testing.T) {
-		db := testutil.NewSQLConn(t)
-		defer db.Close()
-
-		store := NewDB(db)
-
 		s := &App{
 			Owner: 10,
 			Name:  "app-name",
@@ -25,10 +20,20 @@ func TestAddApp(t *testing.T) {
 			},
 		}
 
-		ret, err := store.App().AddApp(s)
+		db := testutil.NewSQLConn(t)
+		defer db.Close()
+
+		store := NewAppStore(db)
+		seq, err := store.AddApp(s)
 
 		if err != nil {
 			t.Fatalf("failed to add user: %v", err)
+		}
+
+		ret, err := store.GetApp(seq)
+
+		if err != nil {
+			t.Fatalf("failed to get user: %v", err)
 		}
 
 		if ret.SeqID <= 0 {

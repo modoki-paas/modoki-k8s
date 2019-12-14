@@ -6,9 +6,9 @@ import (
 
 	"strings"
 
-	"database/sql"
-
-	"github.com/modoki-paas/modoki-k8s/apiserver/store"
+	"github.com/jmoiron/sqlx"
+	"github.com/modoki-paas/modoki-k8s/apiserver/store/tokens"
+	"github.com/modoki-paas/modoki-k8s/apiserver/store/users"
 	"golang.org/x/xerrors"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -28,7 +28,7 @@ type Authorizer interface {
 }
 
 type AuthorizerInterceptor struct {
-	db *store.DB
+	db *sqlx.DB
 }
 
 func (ai *AuthorizerInterceptor) getTokenFromHeader(ctx context.Context) (string, error) {
@@ -49,22 +49,8 @@ func (ai *AuthorizerInterceptor) getTokenFromHeader(ctx context.Context) (string
 }
 
 func (ai *AuthorizerInterceptor) addUserTokenContext(ctx context.Context) (context.Context, error) {
-	var user *store.User
-	var tk *store.Token
-
-	token, err := ai.getTokenFromHeader(ctx)
-
-	if err == nil {
-		user, tk, err = ai.db.User().GetUserFromToken(token)
-
-		if xerrors.Is(err, sql.ErrNoRows) {
-			// unauthorized
-			user = nil
-			tk = nil
-		} else {
-			return nil, xerrors.Errorf("failed to get user and token from db: %w", err)
-		}
-	}
+	var user *users.User
+	var tk *tokens.Token
 
 	ctx = context.WithValue(ctx, TokenContext, tk)
 	ctx = context.WithValue(ctx, UserContext, user)
@@ -73,7 +59,7 @@ func (ai *AuthorizerInterceptor) addUserTokenContext(ctx context.Context) (conte
 }
 
 // UnaryServerInterceptor はリクエストごとの認可を行う、unary サーバーインターセプターを返す。
-func UnaryServerInterceptor(db *store.DB) grpc.UnaryServerInterceptor {
+func UnaryServerInterceptor(db *sqlx.DB) grpc.UnaryServerInterceptor {
 	ai := &AuthorizerInterceptor{db}
 
 	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
@@ -96,19 +82,19 @@ func UnaryServerInterceptor(db *store.DB) grpc.UnaryServerInterceptor {
 }
 
 // GetValuesFromContext returns user and token stored in context
-func GetValuesFromContext(ctx context.Context) (user *store.User, token *store.Token) {
+func GetValuesFromContext(ctx context.Context) (user *users.User, token *tokens.Token) {
 	u := ctx.Value(UserContext)
 
 	if u == nil {
 		user = nil
 	} else {
-		user = u.(*store.User)
+		user = u.(*users.User)
 	}
 
 	tk := ctx.Value(TokenContext)
 
 	if tk != nil {
-		token = tk.(*store.Token)
+		token = tk.(*tokens.Token)
 	}
 
 	return
