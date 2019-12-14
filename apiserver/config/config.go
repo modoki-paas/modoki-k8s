@@ -12,7 +12,7 @@ import (
 type Plugin struct {
 	Name              string `yaml:"name" json:"name"`
 	GeneratorEndpoint string `yaml:"generator" json:"generator"`
-	HasStatus         bool   `yaml:"has_status" json:"has_status"`
+	MetricsAPI        bool   `yaml:"metrics_api" json:"metrics_api"`
 }
 
 type Config struct {
