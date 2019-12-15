@@ -37,6 +37,28 @@ message AppCreateResponse {
   AppSpec spec = 2;
 }
 
+message AppApplyRequest { AppSpec spec = 1; }
+
+message AppApplyResponse {}
+
+message AppDeleteRequest {
+  string id = 1;
+}
+
+message AppDeleteResponse {}
+
+message AppStatusRequest {
+  string id = 1;
+}
+
+message AppStatusResponse {
+  AppStatus status = 1;
+}
+
+
 service App {
   rpc Create(AppCreateRequest) returns (AppCreateResponse);
+  // rpc Apply(AppApplyRequest) returns (AppApplyResponse);
+  // rpc Delete(AppDeleteRequest) returns (AppDeleteResponse);
+  // rpc Status(AppStatusRequest) returns (AppStatusResponse);
 }

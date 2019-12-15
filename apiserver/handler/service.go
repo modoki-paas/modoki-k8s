@@ -34,19 +34,19 @@ func (s *AppServer) Create(ctx context.Context, req *api.AppCreateRequest) (res 
 
 	store := apps.NewAppStore(tx)
 
-	svc := &apps.App{
+	app := &apps.App{
 		Owner: int(req.Spec.Owner),
 		Name:  req.Spec.Name,
 		Spec:  (*apps.AppSpec)(req.Spec),
 	}
 
-	seq, err := store.AddApp(svc)
+	seq, err := store.AddApp(app)
 
 	if err != nil {
 		return nil, xerrors.Errorf("failed to store app config in db: %w", err)
 	}
 
-	app, err := store.GetApp(seq)
+	app, err = store.GetApp(seq)
 
 	if err != nil {
 		return nil, xerrors.Errorf("failed to get app config in db: %w", err)
