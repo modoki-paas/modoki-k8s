@@ -55,7 +55,6 @@ message AppStatusResponse {
   AppStatus status = 1;
 }
 
-
 service App {
   rpc Create(AppCreateRequest) returns (AppCreateResponse);
   // rpc Apply(AppApplyRequest) returns (AppApplyResponse);

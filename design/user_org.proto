@@ -26,6 +26,14 @@ message Organization {
   string name = 3;
 }
 
+message UserAddRequest {
+  User user = 1;
+}
+
+message UserAddResponse {
+  User user = 1;
+}
+
 message UserDeleteRequest {
   string id = 1;
 }
@@ -72,11 +80,11 @@ message OrganizationListUserResponse {
 }
 
 service UserOrg {
-  rpc UserAdd(User) returns (User);
+  rpc UserAdd(UserAddRequest) returns (UserAddResponse);
   rpc UserDelete(UserDeleteRequest) returns (UserDeleteResponse);
   rpc UserFindByID(UserFindByIDRequest) returns (UserFindByIDResponse);
 
-  rpc OrganizationAdd(Organization) returns (Organization);
+  rpc OrganizationAdd(OrganizationAddRequest) returns (OrganizationAddResponse);
   rpc OrganizationDelete(OrganizationDeleteRequest) returns (OrganizationDeleteResponse);
   rpc OrganizationInviteUser(OrganizationInviteUserRequest) returns (OrganizationInviteUserResponse);
   rpc OrganizationListUser(OrganizationListUserRequest) returns(OrganizationListUserResponse);  
