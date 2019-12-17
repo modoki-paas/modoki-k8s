@@ -1,13 +1,11 @@
-package handler
+package auth
 
 import (
 	"context"
 	"fmt"
-
+	"strconv"
 	"strings"
 
-	"github.com/modoki-paas/modoki-k8s/pkg/types"
-	"golang.org/x/xerrors"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
@@ -17,8 +15,9 @@ import (
 type contextKey string
 
 const (
-	TokenContext contextKey = "token-context"
-	UserContext  contextKey = "user-context"
+	UserSeqIDContext contextKey = "user-seq-context"
+
+	UserSeqIDHeader = "X-User-Seq-ID"
 )
 
 type Authorizer interface {
@@ -26,16 +25,11 @@ type Authorizer interface {
 }
 
 type AuthorizerInterceptor struct {
-	serverCtx *ServerContext
+	tokens []string
 }
 
 // validateTokenFromHeader validates tokens in env config
-func (ai *AuthorizerInterceptor) validateTokenFromHeader(ctx context.Context) bool {
-	md, ok := metadata.FromIncomingContext(ctx)
-	if !ok {
-		return false
-	}
-
+func (ai *AuthorizerInterceptor) validateTokenFromHeader(md metadata.MD) bool {
 	headers := md.Get("Authorization")
 
 	if len(headers) == 0 {
@@ -44,7 +38,7 @@ func (ai *AuthorizerInterceptor) validateTokenFromHeader(ctx context.Context) bo
 
 	key := strings.TrimPrefix(headers[0], "Bearer ")
 
-	for _, k := range ai.serverCtx.EnvConfig.APIKeys {
+	for _, k := range ai.tokens {
 		if k == key {
 			return true
 		}
@@ -53,31 +47,47 @@ func (ai *AuthorizerInterceptor) validateTokenFromHeader(ctx context.Context) bo
 	return false
 }
 
-func (ai *AuthorizerInterceptor) addUserTokenContext(ctx context.Context) (context.Context, error) {
-	var user *types.User
-	var tk *types.Token
+func (ai *AuthorizerInterceptor) addUserTokenContext(ctx context.Context, seqID int) context.Context {
+	return context.WithValue(ctx, UserSeqIDContext, seqID)
+}
 
-	ctx = context.WithValue(ctx, TokenContext, tk)
-	ctx = context.WithValue(ctx, UserContext, user)
+func (ai *AuthorizerInterceptor) getUserSeqID(md metadata.MD) (seq int, ok bool) {
+	arr := md.Get(UserSeqIDHeader)
 
-	return ctx, nil
+	if len(arr) == 0 {
+		return 0, false
+	}
+
+	seq, err := strconv.Atoi(arr[0])
+
+	if err != nil {
+		return 0, false
+	}
+
+	return
 }
 
 // UnaryServerInterceptor handles authentication for each call
-func UnaryServerInterceptor(serverCtx *ServerContext) grpc.UnaryServerInterceptor {
+func UnaryServerInterceptor(tokens []string) grpc.UnaryServerInterceptor {
 	ai := &AuthorizerInterceptor{
-		serverCtx: serverCtx,
+		tokens: tokens,
 	}
 
 	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
-		if !ai.validateTokenFromHeader(ctx) {
+		md, ok := metadata.FromIncomingContext(ctx)
+
+		if !ok {
+			return nil, status.Error(codes.PermissionDenied, "unauthorized: metadata missing")
+		}
+
+		if !ai.validateTokenFromHeader(md) {
 			return nil, status.Error(codes.PermissionDenied, "unauthorized")
 		}
 
-		ctx, err := ai.addUserTokenContext(ctx)
+		seq, ok := ai.getUserSeqID(md)
 
-		if err != nil {
-			return nil, xerrors.Errorf("failed to add user and token data to context: %w", err)
+		if ok {
+			ctx = ai.addUserTokenContext(ctx, seq)
 		}
 
 		srv, ok := info.Server.(Authorizer)
@@ -94,20 +104,14 @@ func UnaryServerInterceptor(serverCtx *ServerContext) grpc.UnaryServerIntercepto
 }
 
 // GetValuesFromContext returns user and token stored in context
-func GetValuesFromContext(ctx context.Context) (user *types.User, token *types.Token) {
-	u := ctx.Value(UserContext)
+func GetValuesFromContext(ctx context.Context) (seqID int, ok bool) {
+	v := ctx.Value(UserSeqIDContext)
 
-	if u == nil {
-		user = nil
-	} else {
-		user = u.(*types.User)
+	if v == nil {
+		return 0, false
 	}
 
-	tk := ctx.Value(TokenContext)
-
-	if tk != nil {
-		token = tk.(*types.Token)
-	}
+	seqID, ok = v.(int)
 
 	return
 }

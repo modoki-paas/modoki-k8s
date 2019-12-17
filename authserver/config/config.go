@@ -16,7 +16,6 @@ type Endpoint struct {
 
 type Endpoints struct {
 	UserOrg *Endpoint `yaml:"user_org" json:"user_org"`
-	Auth    *Endpoint `yaml:"auth" json:"auth"`
 }
 
 type Config struct {

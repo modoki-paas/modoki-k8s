@@ -23,7 +23,6 @@ type Plugin struct {
 type Endpoints struct {
 	Generator *Endpoint `yaml:"generator" json:"generator"`
 	UserOrg   *Endpoint `yaml:"user_org" json:"user_org"`
-	Auth      *Endpoint `yaml:"auth" json:"auth"`
 }
 
 type Config struct {
