@@ -63,7 +63,7 @@ func (ai *AuthorizerInterceptor) addUserTokenContext(ctx context.Context) (conte
 	return ctx, nil
 }
 
-// UnaryServerInterceptor はリクエストごとの認可を行う、unary サーバーインターセプターを返す。
+// UnaryServerInterceptor handles authentication for each call
 func UnaryServerInterceptor(serverCtx *ServerContext) grpc.UnaryServerInterceptor {
 	ai := &AuthorizerInterceptor{
 		serverCtx: serverCtx,
