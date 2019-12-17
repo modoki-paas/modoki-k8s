@@ -39,4 +39,4 @@ if [ "$QUIT" = "1" ]; then
     exit 0
 fi
 
-/bin/modokid --db="$DB_USER:$DB_PASSWORD@$DB_HOST/$DB_DATABASE?parseTime=true"
+modoki-api --db="$DB_USER:$DB_PASSWORD@$DB_HOST/$DB_DATABASE?parseTime=true"

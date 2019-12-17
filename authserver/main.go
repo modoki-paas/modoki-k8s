@@ -9,8 +9,8 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
 	api "github.com/modoki-paas/modoki-k8s/api"
-	"github.com/modoki-paas/modoki-k8s/apiserver/config"
-	"github.com/modoki-paas/modoki-k8s/apiserver/handler"
+	"github.com/modoki-paas/modoki-k8s/authserver/config"
+	"github.com/modoki-paas/modoki-k8s/authserver/handler"
 	"google.golang.org/grpc"
 )
 
@@ -21,7 +21,7 @@ type commandArg struct {
 
 func (arg *commandArg) Init() {
 	flag.BoolVar(&arg.Help, "help", false, "show usage")
-	flag.StringVar(&arg.Config, "config", "/etc/modoki/apiserver.yaml", "path to config file")
+	flag.StringVar(&arg.Config, "config", "/etc/modoki/authserver.yaml", "path to config file")
 
 	flag.Parse()
 

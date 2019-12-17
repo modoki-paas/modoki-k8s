@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/modoki-paas/modoki-k8s/apiserver/testutil"
+	"github.com/modoki-paas/modoki-k8s/internal/testutil"
 )
 
 func TestGetFromToken(t *testing.T) {

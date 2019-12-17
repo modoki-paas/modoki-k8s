@@ -1,9 +1,15 @@
 PROTOC = protoc
 GO111MODULE = on
-DOCKER_APISERVER_DOCKERFILE = Dockerfile-apiserver
+DOCKER_APISERVER_DOCKERFILE = Dockerfile-api
 DOCKER_YAMLER_DOCKERFILE = Dockerfile-yamler
+DOCKER_AUTHSERVER_DOCKERFILE = Dockerfile-auth
 DOCKER_APISERVER_IMAGE = modokipaas/modoki-k8s
 DOCKER_YAMLER_IMAGE = modokipaas/modoki-yamler
+DOCKER_AUTHSERVER_IMAGE = modokipaas/modoki-auth
+
+DOCKER_DOCKERFILE=$(DOCKER_APISERVER_DOCKERFILE)
+DOCKER_IMAGE=$(DOCKER_APISERVER_IMAGE)
+
 DOCKER_BUILDKIT = 1
 
 .DEFAULT_GOAL := modokid
@@ -18,29 +24,35 @@ modokid:
 	go build -o modokid $(wildcard ./apiserver/*.go)
 
 .PHONY: all
-all: modokid docker test
+all: modokid docker-all test
 
 .PHONY: docker
 docker:
-	docker build -t $(DOCKER_APISERVER_IMAGE) -f $(DOCKER_APISERVER_DOCKERFILE) .
-	docker build -t $(DOCKER_YAMLER_IMAGE) -f $(DOCKER_YAMLER_DOCKERFILE) .
+	docker build -t $(DOCKER_IMAGE) -f $(DOCKER_DOCKERFILE) .
+
+.PHONY: docker-push
+docker-push:
+	if [ "$(CIRCLE_BRANCH)" = "master" ]; then\
+		docker push $(DOCKER_IMAGE);\
+	fi
+
+	docker tag $(DOCKER_IMAGE) $(DOCKER_IMAGE):$(CIRCLE_SHA1)
+
+.PHONY: docker-all
+docker-all: DOCKER_IMAGE=$(DOCKER_APISERVER_IMAGE) DOCKER_DOCKERFILE=$(DOCKER_APISERVER_DOCKERFILE)
+docker-all: docker
+docker-all: docker-push
+docker-all: DOCKER_IMAGE=$(DOCKER_YAMLER_IMAGE) DOCKER_DOCKERFILE=$(DOCKER_YAMLER_DOCKERFILE)
+docker-all: docker
+docker-all: docker-push
+docker-all: DOCKER_IMAGE=$(DOCKER_AUTHSERVER_IMAGE) DOCKER_DOCKERFILE=$(DOCKER_AUTHSERVER_DOCKERFILE)
+docker-all: docker
+docker-all: docker-push
 
 .PHONY: test
 test:
 	go test -race -tags use_external_db -v ./...
 
-.PHONY: docker-push
-docker-push:
-	if [ "$(CIRCLE_BRANCH)" = "master" ]; then\
-		docker push $(DOCKER_APISERVER_IMAGE);\
-		docker push $(DOCKER_YAMLER_IMAGE);\
-	fi
-
-	docker tag $(DOCKER_APISERVER_IMAGE) $(DOCKER_APISERVER_IMAGE):$(CIRCLE_SHA1)
-	docker push $(DOCKER_APISERVER_IMAGE):$(CIRCLE_SHA1)
-
-	docker tag $(DOCKER_YAMLER_IMAGE) $(DOCKER_YAMLER_IMAGE):$(CIRCLE_SHA1)
-	docker push $(DOCKER_YAMLER_IMAGE):$(CIRCLE_SHA1)
 
 .PHONY: generate
 generate: clean

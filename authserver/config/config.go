@@ -14,21 +14,12 @@ type Endpoint struct {
 	Insecure bool   `yaml:"insecure" json:"insecure"`
 }
 
-type Plugin struct {
-	Name       string    `yaml:"name" json:"name"`
-	Endpoint   *Endpoint `yaml:"endpoint" json:"endpoint"`
-	MetricsAPI bool      `yaml:"metrics_api" json:"metrics_api"`
-}
-
 type Endpoints struct {
-	Generator *Endpoint `yaml:"generator" json:"generator"`
-	UserOrg   *Endpoint `yaml:"user_org" json:"user_org"`
-	Auth      *Endpoint `yaml:"auth" json:"auth"`
+	UserOrg *Endpoint `yaml:"user_org" json:"user_org"`
+	Auth    *Endpoint `yaml:"auth" json:"auth"`
 }
 
 type Config struct {
-	Plugins []Plugin `yaml:"plugins" json:"plugins"`
-
 	DB        string    `yaml:"db" json:"db"`
 	Address   string    `yaml:"address" json:"address"`
 	Endpoints Endpoints `yaml:"endpoints" json:"endpoints"`
@@ -67,13 +58,8 @@ func addDefaultValues(cfg *Config) {
 	}
 
 	targetEndpoints := []**Endpoint{
-		&cfg.Endpoints.Generator,
 		&cfg.Endpoints.UserOrg,
 		&cfg.Endpoints.Auth,
-	}
-
-	for i := range cfg.Plugins {
-		targetEndpoints = append(targetEndpoints, &cfg.Plugins[i].Endpoint)
 	}
 
 	for _, e := range targetEndpoints {

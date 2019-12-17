@@ -14,14 +14,14 @@ FROM golang:1.13 as builder
 COPY . /work
 WORKDIR /work
 ENV GO111MODULE=on
-RUN go build -tags netgo -ldflags '-extldflags "-static"' -o /modokid ./apiserver
+RUN go build -tags netgo -ldflags '-extldflags "-static"' -o /modoki-api ./apiserver
 
 FROM alpine:3.9
 
 COPY --from=tools /usr/local/bin/mysqldef /bin
 COPY --from=tools /usr/local/bin/dockerize /bin
 COPY ./scripts/ /bin/
-COPY --from=builder /modokid /bin
+COPY --from=builder /modoki-api /bin
 COPY ./schema /schema
 
-ENTRYPOINT [ "/bin/modokid-entrypoint.sh" ]
+ENTRYPOINT [ "/bin/api-entrypoint.sh" ]

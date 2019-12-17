@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/google/go-cmp/cmp"
-	"github.com/modoki-paas/modoki-k8s/apiserver/testutil"
+	"github.com/modoki-paas/modoki-k8s/internal/testutil"
 )
 
 func TestAddApp(t *testing.T) {

@@ -3,7 +3,7 @@ package modoki;
 
 option go_package = "modoki";
 
-import "service.proto";
+import "app.proto";
 
 
 message KubernetesConfig {
