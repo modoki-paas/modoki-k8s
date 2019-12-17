@@ -8,6 +8,7 @@ import (
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/modoki-paas/modoki-k8s/internal/testutil"
+	"github.com/modoki-paas/modoki-k8s/pkg/types"
 )
 
 func TestAddApp(t *testing.T) {
