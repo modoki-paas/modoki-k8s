@@ -2,7 +2,7 @@ package handler
 
 import (
 	"github.com/jmoiron/sqlx"
-	"github.com/modoki-paas/modoki-k8s/apiserver/config"
+	"github.com/modoki-paas/modoki-k8s/authserver/config"
 )
 
 // ServerContext contains accessor used by handlers

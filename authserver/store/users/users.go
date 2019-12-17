@@ -2,22 +2,11 @@ package users
 
 import (
 	"context"
-	"time"
 
 	"github.com/jmoiron/sqlx"
-
+	"github.com/modoki-paas/modoki-k8s/pkg/types"
 	"golang.org/x/xerrors"
 )
-
-type User struct {
-	SeqID      int            `db:"seq"`
-	ID         string         `db:"id"`
-	UserType   UserTypeEnum   `db:"type"`
-	Name       string         `db:"name"`
-	CreatedAt  time.Time      `db:"created_at"`
-	UpdatedAt  time.Time      `db:"updated_at"`
-	SystemRole UserSystemRole `db:"system_role"`
-}
 
 type UserStore struct {
 	db sqlx.ExtContext
@@ -27,12 +16,12 @@ func NewUserStore(db sqlx.ExtContext) *UserStore {
 	return &UserStore{db: db}
 }
 
-func (s *UserStore) AddUser(id, name string, userType UserTypeEnum, role UserSystemRole) (seqID int, err error) {
-	u := &User{
+func (s *UserStore) AddUser(id, name string, userType types.UserTypeEnum, role types.UserSystemRole) (seqID int, err error) {
+	u := &types.User{
 		ID:         id,
 		UserType:   userType,
 		Name:       name,
-		SystemRole: UserSystemRole(role),
+		SystemRole: types.UserSystemRole(role),
 	}
 
 	res, err := s.db.ExecContext(
@@ -57,8 +46,8 @@ func (s *UserStore) AddUser(id, name string, userType UserTypeEnum, role UserSys
 	return int(id64), nil
 }
 
-func (s *UserStore) GetUser(id int) (*User, error) {
-	var u User
+func (s *UserStore) GetUser(id int) (*types.User, error) {
+	var u types.User
 
 	if err := s.db.QueryRowxContext(context.Background(), "SElECT * FROM users WHERE seq = ?", id).StructScan(&u); err != nil {
 		return nil, xerrors.Errorf("faield to retrieve user info: %w", err)

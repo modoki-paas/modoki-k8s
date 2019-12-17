@@ -2,20 +2,11 @@ package tokens
 
 import (
 	"context"
-	"time"
 
 	"github.com/jmoiron/sqlx"
+	"github.com/modoki-paas/modoki-k8s/pkg/types"
 	"golang.org/x/xerrors"
 )
-
-type Token struct {
-	SeqID     int       `db:"seq"`
-	Token     string    `db:"token"`
-	Owner     int       `db:"owner"`
-	Author    int       `db:"author"`
-	CreatedAt time.Time `db:"created_at"`
-	UpdatedAt time.Time `db:"updated_at"`
-}
 
 type TokenStore struct {
 	db sqlx.ExtContext
@@ -25,7 +16,7 @@ func NewTokenStore(db sqlx.ExtContext) *TokenStore {
 	return &TokenStore{db: db}
 }
 
-func (s *TokenStore) AddToken(t *Token) (seqID int, err error) {
+func (s *TokenStore) AddToken(t *types.Token) (seqID int, err error) {
 	res, err := s.db.ExecContext(
 		context.Background(),
 		`INSERT INTO tokens (
@@ -51,8 +42,8 @@ func (s *TokenStore) AddToken(t *Token) (seqID int, err error) {
 	return int(id), nil
 }
 
-func (s *TokenStore) GetToken(id int) (*Token, error) {
-	var ts Token
+func (s *TokenStore) GetToken(id int) (*types.Token, error) {
+	var ts types.Token
 	err := s.db.
 		QueryRowxContext(context.Background(), "SELECT * FROM tokens WHERE seq=?", id).
 		StructScan(&ts)
@@ -63,8 +54,8 @@ func (s *TokenStore) GetToken(id int) (*Token, error) {
 
 	return &ts, nil
 }
-func (s *TokenStore) GetFromToken(token string) (*Token, error) {
-	var ts Token
+func (s *TokenStore) GetFromToken(token string) (*types.Token, error) {
+	var ts types.Token
 	err := s.db.
 		QueryRowxContext(context.Background(), "SELECT * FROM tokens WHERE token=?", token).
 		StructScan(&ts)

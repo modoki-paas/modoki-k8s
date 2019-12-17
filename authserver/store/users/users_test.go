@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/modoki-paas/modoki-k8s/internal/testutil"
+	"github.com/modoki-paas/modoki-k8s/pkg/types"
 )
 
 func TestAddUser(t *testing.T) {
@@ -16,7 +17,7 @@ func TestAddUser(t *testing.T) {
 
 		store := NewUserStore(db)
 
-		seq, err := store.AddUser("test-id", "test-name", UserNormal, UserRoleAdmin)
+		seq, err := store.AddUser("test-id", "test-name", types.UserNormal, types.UserRoleAdmin)
 
 		if err != nil {
 			t.Fatalf("failed to add user: %v", err)
@@ -34,10 +35,10 @@ func TestAddUser(t *testing.T) {
 		if u.ID != "test-id" {
 			t.Errorf("id should be test-id, but got %v", u.ID)
 		}
-		if u.UserType != UserNormal {
+		if u.UserType != types.UserNormal {
 			t.Errorf("type should be UserNormal, but got %v", u.UserType)
 		}
-		if u.SystemRole != UserRoleAdmin {
+		if u.SystemRole != types.UserRoleAdmin {
 			t.Errorf("role should be UserRoleAdmin(admin), but got %v", u.SystemRole)
 		}
 		if u.Name != "test-name" {
@@ -57,7 +58,7 @@ func TestAddUser(t *testing.T) {
 
 		store := NewUserStore(db)
 
-		seq, err := store.AddUser("test-id", "test-name", UserOrganization, UserRoleAdmin)
+		seq, err := store.AddUser("test-id", "test-name", types.UserOrganization, types.UserRoleAdmin)
 
 		if err != nil {
 			t.Fatalf("failed to add user: %v", err)
@@ -75,10 +76,10 @@ func TestAddUser(t *testing.T) {
 		if u.ID != "test-id" {
 			t.Errorf("id should be test-id, but got %v", u.ID)
 		}
-		if u.UserType != UserOrganization {
+		if u.UserType != types.UserOrganization {
 			t.Errorf("type should be UserOrganization, but got %v", u.UserType)
 		}
-		if u.SystemRole != UserRoleAdmin {
+		if u.SystemRole != types.UserRoleAdmin {
 			t.Errorf("role should be UserRoleAdmin(admin), but got %v", u.SystemRole)
 		}
 		if u.Name != "test-name" {

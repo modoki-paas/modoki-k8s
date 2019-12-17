@@ -12,10 +12,10 @@ import (
 
 func TestAddApp(t *testing.T) {
 	t.Run("success_normal", func(t *testing.T) {
-		s := &App{
+		s := &types.App{
 			Owner: 10,
 			Name:  "app-name",
-			Spec: &AppSpec{
+			Spec: &types.AppSpec{
 				Image: "image-name",
 			},
 		}

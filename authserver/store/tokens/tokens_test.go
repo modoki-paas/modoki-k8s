@@ -7,11 +7,12 @@ import (
 	"time"
 
 	"github.com/modoki-paas/modoki-k8s/internal/testutil"
+	"github.com/modoki-paas/modoki-k8s/pkg/types"
 )
 
 func TestGetFromToken(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
-		tk := &Token{
+		tk := &types.Token{
 			Token:  "token",
 			Owner:  1,
 			Author: 10,

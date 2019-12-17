@@ -39,4 +39,4 @@ if [ "$QUIT" = "1" ]; then
     exit 0
 fi
 
-/bin/yamler --db="$DB_USER:$DB_PASSWORD@$DB_HOST/$DB_DATABASE?parseTime=true"
+/bin/modoki-yamler --db="$DB_USER:$DB_PASSWORD@$DB_HOST/$DB_DATABASE?parseTime=true"

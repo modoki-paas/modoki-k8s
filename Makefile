@@ -12,19 +12,29 @@ DOCKER_IMAGE=$(DOCKER_APISERVER_IMAGE)
 
 DOCKER_BUILDKIT = 1
 
-.DEFAULT_GOAL := modokid
+.DEFAULT_GOAL := build
 
 .PHONY: install_dependencies
 install_dependencies:
 	curl -s "https://raw.githubusercontent.com/\
 	kubernetes-sigs/kustomize/master/hack/install_kustomize.sh"  | bash
 
-.PHONY: modokid
-modokid: 
-	go build -o modokid $(wildcard ./apiserver/*.go)
+.PHONY: apiserver
+apiserver: 
+	go build -o modoki-apiserver $(wildcard ./apiserver/*.go)
+
+.PHONY: authserver
+authserver: 
+	go build -o modoki-authserver $(wildcard ./authserver/*.go)
+
+.PHONY: yamler
+yamler: 
+	go build -o modoki-yamler $(wildcard ./yamler/*.go)
+
+build: apiserver authserver yamler
 
 .PHONY: all
-all: modokid docker-all test
+all: build docker-all test
 
 .PHONY: docker
 docker:

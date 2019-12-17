@@ -5,6 +5,7 @@ import (
 
 	api "github.com/modoki-paas/modoki-k8s/api"
 	"github.com/modoki-paas/modoki-k8s/apiserver/store/apps"
+	"github.com/modoki-paas/modoki-k8s/pkg/types"
 	"golang.org/x/xerrors"
 )
 
@@ -34,10 +35,10 @@ func (s *AppServer) Create(ctx context.Context, req *api.AppCreateRequest) (res 
 
 	store := apps.NewAppStore(tx)
 
-	app := &apps.App{
+	app := &types.App{
 		Owner: int(req.Spec.Owner),
 		Name:  req.Spec.Name,
-		Spec:  (*apps.AppSpec)(req.Spec),
+		Spec:  (*types.AppSpec)(req.Spec),
 	}
 
 	seq, err := store.AddApp(app)

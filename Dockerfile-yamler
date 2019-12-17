@@ -12,14 +12,14 @@ FROM golang:1.13 as builder
 COPY . /work
 WORKDIR /work
 ENV GO111MODULE=on
-RUN go build -tags netgo -ldflags '-extldflags "-static"' -o /yamler ./yamler
+RUN go build -tags netgo -ldflags '-extldflags "-static"' -o /modoki-yamler ./yamler
 
 FROM debian:10
 
 COPY --from=tools /usr/local/bin/dockerize /bin
 COPY --from=tools /go/bin/kustomize /bin
 COPY ./scripts/ /bin/
-COPY --from=builder /yamler /bin
+COPY --from=builder /modoki-yamler /bin
 COPY ./schema /schema
 
 ENTRYPOINT [ "/bin/yamler-entrypoint.sh" ]

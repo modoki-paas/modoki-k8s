@@ -6,8 +6,7 @@ import (
 
 	"strings"
 
-	"github.com/modoki-paas/modoki-k8s/apiserver/store/tokens"
-	"github.com/modoki-paas/modoki-k8s/apiserver/store/users"
+	"github.com/modoki-paas/modoki-k8s/pkg/types"
 	"golang.org/x/xerrors"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -55,8 +54,8 @@ func (ai *AuthorizerInterceptor) validateTokenFromHeader(ctx context.Context) bo
 }
 
 func (ai *AuthorizerInterceptor) addUserTokenContext(ctx context.Context) (context.Context, error) {
-	var user *users.User
-	var tk *tokens.Token
+	var user *types.User
+	var tk *types.Token
 
 	ctx = context.WithValue(ctx, TokenContext, tk)
 	ctx = context.WithValue(ctx, UserContext, user)
@@ -95,19 +94,19 @@ func UnaryServerInterceptor(serverCtx *ServerContext) grpc.UnaryServerIntercepto
 }
 
 // GetValuesFromContext returns user and token stored in context
-func GetValuesFromContext(ctx context.Context) (user *users.User, token *tokens.Token) {
+func GetValuesFromContext(ctx context.Context) (user *types.User, token *types.Token) {
 	u := ctx.Value(UserContext)
 
 	if u == nil {
 		user = nil
 	} else {
-		user = u.(*users.User)
+		user = u.(*types.User)
 	}
 
 	tk := ctx.Value(TokenContext)
 
 	if tk != nil {
-		token = tk.(*tokens.Token)
+		token = tk.(*types.Token)
 	}
 
 	return
