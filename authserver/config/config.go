@@ -58,7 +58,6 @@ func addDefaultValues(cfg *Config) {
 
 	targetEndpoints := []**Endpoint{
 		&cfg.Endpoints.UserOrg,
-		&cfg.Endpoints.Auth,
 	}
 
 	for _, e := range targetEndpoints {
