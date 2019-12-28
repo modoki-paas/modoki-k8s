@@ -8,7 +8,6 @@ import (
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
-	api "github.com/modoki-paas/modoki-k8s/api"
 	"github.com/modoki-paas/modoki-k8s/authserver/config"
 	"github.com/modoki-paas/modoki-k8s/authserver/handler"
 	"google.golang.org/grpc"
@@ -60,7 +59,6 @@ func main() {
 	}
 
 	server := grpc.NewServer()
-	api.RegisterAppServer(server, &handler.AppServer{Context: sctx})
 
 	if err := server.Serve(listener); err != nil {
 		log.Fatalf("failed to start server on :80: %v", err)
