@@ -1,8 +1,11 @@
 package permissions
 
 var (
-	UserGet           = NewPermission("user:v1alpha1:get", false)
-	UserProfileGet    = NewPermission("user:v1alpha1:profile_get", false)
-	UserProfileUpdate = NewPermission("user:v1alpha1:profile_update", false)
-	UserDelete        = NewPermission("user:v1alpha1:delete", false)
+	UserCreate = NewPermission("user:v1alpha1:create")
+	UserList   = NewPermission("user:v1alpha1:list")
+	UserDelete = NewPermission("user:v1alpha1:delete", NamespaceUser)
+	UserGet    = NewPermission("user:v1alpha1:get", NamespaceUser)
+	UserUpdate = NewPermission("user:v1alpha1:update", NamespaceUser)
+
+	UserPermissions = []*Permission{UserCreate, UserGet, UserDelete, UserUpdate, UserList}
 )

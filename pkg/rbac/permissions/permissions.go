@@ -1,21 +1,26 @@
 package permissions
 
+type NamespaceType string
+
+var (
+	NamespaceUser NamespaceType = "user"
+	NamespaceOrg  NamespaceType = "organization"
+)
+
 type Permission struct {
-	Name       string `json:"name" yaml:"name"`
-	Namespaced bool   `json:"namespaced" yaml:"namespaced"`
+	Name       string          `json:"name" yaml:"name"`
+	Namespaces []NamespaceType `json:"namespaces" yaml:"namespaces"`
 }
 
-// PermissionBinding represents binding b/w permission and user/org
-type PermissionBinding struct {
-	Permission string `json:"permission" yaml:"permission"`
-	Target     string `json:"target" yaml:"target"`
-}
-
-func NewPermission(name string, namespaced bool) *Permission {
+func NewPermission(name string, namespaces ...NamespaceType) *Permission {
 	return &Permission{
 		Name:       name,
-		Namespaced: namespaced,
+		Namespaces: namespaces,
 	}
+}
+
+func (p *Permission) Namespaced() bool {
+	return len(p.Namespaces) != 0
 }
 
 type Role struct {
