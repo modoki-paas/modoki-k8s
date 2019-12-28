@@ -19,8 +19,14 @@ func NewPermission(name string, namespaces ...NamespaceType) *Permission {
 	}
 }
 
-func (p *Permission) Namespaced() bool {
-	return len(p.Namespaces) != 0
+func (p *Permission) Namespaced(nsType NamespaceType) bool {
+	for i := range p.Namespaces {
+		if p.Namespaces[i] == nsType {
+			return true
+		}
+	}
+
+	return false
 }
 
 type Role struct {
