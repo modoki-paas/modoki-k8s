@@ -68,7 +68,6 @@ func addDefaultValues(cfg *Config) {
 	targetEndpoints := []**Endpoint{
 		&cfg.Endpoints.Generator,
 		&cfg.Endpoints.UserOrg,
-		&cfg.Endpoints.Auth,
 	}
 
 	for i := range cfg.Plugins {
