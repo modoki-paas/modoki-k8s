@@ -125,7 +125,7 @@ func UnaryServerInterceptor(tokens []string) grpc.UnaryServerInterceptor {
 			return nil, status.Error(codes.PermissionDenied, "unknown user")
 		}
 
-		ctx = ai.addUserIDContext(ctx, id)
+		ctx = addUserIDContext(ctx, id)
 
 		targetID, ok := ai.getTargetID(md)
 
@@ -133,9 +133,11 @@ func UnaryServerInterceptor(tokens []string) grpc.UnaryServerInterceptor {
 			targetID = id
 		}
 
+		ctx = addTargetIDContext(ctx, targetID)
+
 		perms := ai.getPermissions(md, targetID)
 
-		ctx = ai.addPermissionsContext(ctx, perms)
+		ctx = addPermissionsContext(ctx, perms)
 
 		return handler(ctx, req)
 	}
