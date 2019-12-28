@@ -5,6 +5,8 @@ import (
 
 	api "github.com/modoki-paas/modoki-k8s/api"
 	"github.com/modoki-paas/modoki-k8s/apiserver/store/apps"
+	"github.com/modoki-paas/modoki-k8s/pkg/auth"
+	"github.com/modoki-paas/modoki-k8s/pkg/rbac/permissions"
 	"github.com/modoki-paas/modoki-k8s/pkg/types"
 	"golang.org/x/xerrors"
 )
@@ -17,6 +19,10 @@ var _ api.AppServer = &AppServer{}
 var _ Authorizer = &AppServer{}
 
 func (s *AppServer) Create(ctx context.Context, req *api.AppCreateRequest) (res *api.AppCreateResponse, err error) {
+	if err := auth.IsAuthorized(ctx, permissions.AppCreate); err != nil {
+		return err
+	}
+
 	tx, err := s.Context.DB.BeginTxx(ctx, nil)
 
 	if err != nil {

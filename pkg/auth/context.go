@@ -35,7 +35,7 @@ func getPermissionsContext(ctx context.Context) (perms map[string]struct{}) {
 	return ctx.Value(PermissionsContext).(map[string]struct{})
 }
 
-func IsAuthorized(ctx context.Context, required ...permissions.Permission) error {
+func IsAuthorized(ctx context.Context, required ...*permissions.Permission) error {
 	permsMap := getPermissionsContext(ctx)
 
 	for i := range required {
