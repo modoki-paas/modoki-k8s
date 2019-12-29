@@ -14,7 +14,7 @@ import (
 func TestAddApp(t *testing.T) {
 	t.Run("success_normal", func(t *testing.T) {
 		s := &types.App{
-			Owner: 10,
+			Owner: "owner-id",
 			Name:  "app-name",
 			Spec: &types.AppSpec{
 				Image: "image-name",

@@ -4,7 +4,7 @@ metadata:
   labels:
     modoki.tsuzu.xyz/domain: app-name.example.com
     modoki.tsuzu.xyz/id: test-id
-    modoki.tsuzu.xyz/owner: "11"
+    modoki.tsuzu.xyz/owner: owner-id
   name: modoki-app-svc-test-id
   namespace: namespace-name
 spec:
@@ -16,7 +16,7 @@ spec:
     app: modoki-app-pod
     modoki.tsuzu.xyz/domain: app-name.example.com
     modoki.tsuzu.xyz/id: test-id
-    modoki.tsuzu.xyz/owner: "11"
+    modoki.tsuzu.xyz/owner: owner-id
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -25,7 +25,7 @@ metadata:
     app: modoki-app-pod
     modoki.tsuzu.xyz/domain: app-name.example.com
     modoki.tsuzu.xyz/id: test-id
-    modoki.tsuzu.xyz/owner: "11"
+    modoki.tsuzu.xyz/owner: owner-id
   name: modoki-app-deploy-test-id
   namespace: namespace-name
 spec:
@@ -35,14 +35,14 @@ spec:
       app: modoki-app-pod
       modoki.tsuzu.xyz/domain: app-name.example.com
       modoki.tsuzu.xyz/id: test-id
-      modoki.tsuzu.xyz/owner: "11"
+      modoki.tsuzu.xyz/owner: owner-id
   template:
     metadata:
       labels:
         app: modoki-app-pod
         modoki.tsuzu.xyz/domain: app-name.example.com
         modoki.tsuzu.xyz/id: test-id
-        modoki.tsuzu.xyz/owner: "11"
+        modoki.tsuzu.xyz/owner: owner-id
     spec:
       containers:
       - args:
@@ -70,7 +70,7 @@ metadata:
   labels:
     modoki.tsuzu.xyz/domain: app-name.example.com
     modoki.tsuzu.xyz/id: test-id
-    modoki.tsuzu.xyz/owner: "11"
+    modoki.tsuzu.xyz/owner: owner-id
   name: modoki-app-ing-test-id
   namespace: namespace-name
 spec:
