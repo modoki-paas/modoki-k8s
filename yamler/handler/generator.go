@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"sort"
-	"strconv"
 
 	modoki "github.com/modoki-paas/modoki-k8s/api"
 	"github.com/modoki-paas/modoki-k8s/pkg/kustomizer"
@@ -33,7 +32,7 @@ func setupName(ctx context.Context, cfg *config.Config, y *types.Kustomization, 
 func setupLabels(ctx context.Context, cfg *config.Config, y *types.Kustomization, req *modoki.OperateRequest) (*types.Kustomization, error) {
 	y.CommonLabels = map[string]string{
 		"modoki.tsuzu.xyz/id":     req.Id,
-		"modoki.tsuzu.xyz/owner":  strconv.FormatInt(int64(req.Spec.Owner), 10),
+		"modoki.tsuzu.xyz/owner":  req.Spec.Owner,
 		"modoki.tsuzu.xyz/domain": req.Spec.Domain,
 	}
 
