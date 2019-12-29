@@ -3,6 +3,7 @@ package users
 import (
 	"context"
 
+	"github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
 	"github.com/modoki-paas/modoki-k8s/pkg/types"
 	"golang.org/x/xerrors"
@@ -16,12 +17,12 @@ func NewUserStore(db sqlx.ExtContext) *UserStore {
 	return &UserStore{db: db}
 }
 
-func (s *UserStore) AddUser(id, name string, userType types.UserTypeEnum, role types.UserSystemRole) (seqID int, err error) {
+func (s *UserStore) AddUser(id, name string, userType types.UserTypeEnum, systemRole string) (seqID int, err error) {
 	u := &types.User{
 		ID:         id,
 		UserType:   userType,
 		Name:       name,
-		SystemRole: types.UserSystemRole(role),
+		SystemRole: systemRole,
 	}
 
 	res, err := s.db.ExecContext(
@@ -34,6 +35,10 @@ func (s *UserStore) AddUser(id, name string, userType types.UserTypeEnum, role t
 		) VALUES (?, ?, ?, ?)`, u.UserType, u.ID, u.Name, u.SystemRole)
 
 	if err != nil {
+		if mysqlErr, ok := err.(*mysql.MySQLError); ok && mysqlErr.Number == 1062 {
+			return 0, ErrUserIDDuplicates
+		}
+
 		return 0, xerrors.Errorf("faield to add user: %w", err)
 	}
 

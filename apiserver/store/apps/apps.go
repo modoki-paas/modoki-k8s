@@ -3,6 +3,7 @@ package apps
 import (
 	"context"
 
+	"github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
 	"github.com/modoki-paas/modoki-k8s/pkg/types"
 	"github.com/rs/xid"
@@ -29,6 +30,10 @@ func (ss *AppStore) AddApp(s *types.App) (seqID int, err error) {
 	)
 
 	if err != nil {
+		if mysqlErr, ok := err.(*mysql.MySQLError); ok && mysqlErr.Number == 1062 {
+			return 0, ErrAppNameDuplicates
+		}
+
 		return 0, xerrors.Errorf("failed to add app to db: %w", err)
 	}
 

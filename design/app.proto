@@ -6,7 +6,7 @@ option go_package = "modoki";
 import "google/protobuf/timestamp.proto";
 
 message AppSpec {
-  int32 owner = 1;
+  string owner = 1;
   string name = 2;
   string domain = 3; // optional
   string image = 4;
@@ -19,7 +19,7 @@ message AppSpec {
 }
 
 message AppStatus {
-  int32 id = 1;
+  string id = 1;
   string app_id = 2;
   string state = 3;
   google.protobuf.Timestamp started_at = 4;
@@ -41,19 +41,13 @@ message AppApplyRequest { AppSpec spec = 1; }
 
 message AppApplyResponse {}
 
-message AppDeleteRequest {
-  string id = 1;
-}
+message AppDeleteRequest { string id = 1; }
 
 message AppDeleteResponse {}
 
-message AppStatusRequest {
-  string id = 1;
-}
+message AppStatusRequest { string id = 1; }
 
-message AppStatusResponse {
-  AppStatus status = 1;
-}
+message AppStatusResponse { AppStatus status = 1; }
 
 service App {
   rpc Create(AppCreateRequest) returns (AppCreateResponse);

@@ -10,6 +10,9 @@ var (
 	// OrgListAll -> list all organizations
 	OrgListAll = NewPermission("org:v1alpha1:list_all")
 
+	// OrgGet -> get organization
+	OrgGet = NewPermission("org:v1alpha1:get", NamespaceOrg)
+
 	// OrgDelete -> delete organization
 	OrgDelete = NewPermission("org:v1alpha1:delete", NamespaceOrg)
 
@@ -19,5 +22,8 @@ var (
 	// OrgMemberManagement -> manage members in a organization
 	OrgMemberManagement = NewPermission("org:v1alpha1:member_management", NamespaceOrg)
 
-	OrgPermissions = []*Permission{OrgCreate, OrgList, OrgListAll, OrgDelete, OrgUpdate, OrgMemberManagement}
+	// OrgMemberList -> list members in a organization
+	OrgMemberList = NewPermission("org:v1alpha1:member_list", NamespaceOrg)
+
+	OrgPermissions = []*Permission{OrgCreate, OrgList, OrgListAll, OrgDelete, OrgUpdate, OrgMemberManagement, OrgMemberList}
 )

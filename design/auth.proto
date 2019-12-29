@@ -20,9 +20,9 @@ message SignOutResponse {
 }
 
 message CallbackRequest {
-  string AccessToken = 1;
-  string IDToken = 2;
-  string State = 3;
+  string access_token = 1;
+  string id_token = 2;
+  string state = 3;
 }
 
 message CallbackResponse {
@@ -30,7 +30,7 @@ message CallbackResponse {
 }
 
 message IssueTokenRequest {
-  int32 owner = 1;
+  string owner = 1;
   string name = 2;
 }
 

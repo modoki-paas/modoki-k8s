@@ -5,16 +5,10 @@ option go_package = "modoki";
 
 import "google/protobuf/timestamp.proto";
 
-enum SystemRole {
-  Nothing = 0;
-  Admin = 1;
-}
-
 message User {
-  int32 id = 1;
-  string user_id = 2;
-  string name = 3;
-  repeated SystemRole roles = 4;
+  string user_id = 1;
+  string name = 2;
+  string role_name = 3;
 
   google.protobuf.Timestamp created_at = 10;
   google.protobuf.Timestamp updated_at = 11;
@@ -57,22 +51,23 @@ message OrganizationAddResponse {
 }
 
 message OrganizationDeleteRequest {
-  int32 id = 1;
+  string id = 1;
 }
 
 message OrganizationDeleteResponse {
 }
 
 message OrganizationInviteUserRequest {
-  int32 target = 1;
-  int32 organization = 2;
+  string user_id = 1;
+  string target_org_id = 2;
+  string role_name = 3;
 }
 
 message OrganizationInviteUserResponse {
 }
 
 message OrganizationListUserRequest {
-  int32 organization = 1;
+  string id = 1;
 }
 
 message OrganizationListUserResponse {
