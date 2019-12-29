@@ -1,7 +1,7 @@
 CREATE TABLE apps (
     seq INTEGER AUTO_INCREMENT NOT NULL PRIMARY KEY,
     id VARCHAR(128) NOT NULL UNIQUE,
-    owner INTEGER,
+    owner VARCHAR(128),
     name VARCHAR(128) NOT NULL UNIQUE,
     spec JSON,
     created_at timestamp not null default current_timestamp,

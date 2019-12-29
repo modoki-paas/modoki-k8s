@@ -43,7 +43,7 @@ func (s *AppServer) Create(ctx context.Context, req *api.AppCreateRequest) (res 
 	store := apps.NewAppStore(tx)
 
 	app := &types.App{
-		Owner: int(req.Spec.Owner),
+		Owner: req.Spec.Owner,
 		Name:  req.Spec.Name,
 		Spec:  (*types.AppSpec)(req.Spec),
 	}

@@ -42,7 +42,7 @@ func (ss *AppSpec) Value() (driver.Value, error) {
 type App struct {
 	SeqID     int       `db:"seq"`
 	ID        string    `db:"id"`
-	Owner     int       `db:"owner"`
+	Owner     string    `db:"owner"`
 	Name      string    `db:"name"`
 	Spec      *AppSpec  `db:"spec"`
 	CreatedAt time.Time `db:"created_at"`
