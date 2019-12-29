@@ -2,6 +2,7 @@ package users
 
 import (
 	"context"
+	"database/sql"
 
 	"github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
@@ -51,11 +52,43 @@ func (s *UserStore) AddUser(id, name string, userType types.UserTypeEnum, system
 	return int(id64), nil
 }
 
-func (s *UserStore) GetUser(id int) (*types.User, error) {
+func (s *UserStore) GetUser(seq int) (*types.User, error) {
 	var u types.User
 
-	if err := s.db.QueryRowxContext(context.Background(), "SElECT * FROM users WHERE seq = ?", id).StructScan(&u); err != nil {
-		return nil, xerrors.Errorf("faield to retrieve user info: %w", err)
+	err := sqlx.GetContext(
+		context.Background(),
+		s.db, &u,
+		"SElECT * FROM users WHERE seq=?",
+		seq,
+	)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, ErrUnknownUser
+		}
+
+		return nil, xerrors.Errorf("failed to retrieve user info: %w", err)
+	}
+
+	return &u, nil
+}
+
+func (s *UserStore) FindUserByID(id string) (*types.User, error) {
+	var u types.User
+
+	err := sqlx.GetContext(
+		context.Background(),
+		s.db, &u,
+		"SElECT * FROM users WHERE id=? AND `type`=\"user\"",
+		id,
+	)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, ErrUnknownUser
+		}
+
+		return nil, xerrors.Errorf("failed to retrieve user info: %w", err)
 	}
 
 	return &u, nil

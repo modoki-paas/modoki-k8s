@@ -8,6 +8,7 @@ import (
 	modoki "github.com/modoki-paas/modoki-k8s/api"
 	"github.com/modoki-paas/modoki-k8s/apiserver/store/users"
 	"github.com/modoki-paas/modoki-k8s/internal/dbutil"
+	"github.com/modoki-paas/modoki-k8s/internal/grpcutil"
 	"github.com/modoki-paas/modoki-k8s/pkg/auth"
 	"github.com/modoki-paas/modoki-k8s/pkg/rbac/permissions"
 	"github.com/modoki-paas/modoki-k8s/pkg/rbac/roles"
@@ -33,7 +34,7 @@ func (s *UserOrgServer) UserAdd(ctx context.Context, req *modoki.UserAddRequest)
 
 		user := req.User
 
-		systemRole := roles.FindSystemRole(user.RoleName)
+		systemRole := roles.FindSystemRole(user.SystemRoleName)
 
 		if systemRole == nil {
 			return status.Error(codes.InvalidArgument, "unknown system role")
@@ -69,8 +70,32 @@ func (s *UserOrgServer) UserDelete(_ context.Context, _ *modoki.UserDeleteReques
 	panic("not implemented")
 }
 
-func (s *UserOrgServer) UserFindByID(_ context.Context, _ *modoki.UserFindByIDRequest) (*modoki.UserFindByIDResponse, error) {
-	panic("not implemented")
+func (s *UserOrgServer) UserFindByID(ctx context.Context, req *modoki.UserFindByIDRequest) (*modoki.UserFindByIDResponse, error) {
+	if err := auth.IsAuthorized(ctx, permissions.UserGetAll); err != nil {
+		return nil, status.Error(codes.PermissionDenied, err.Error())
+	}
+
+	userStore := users.NewUserStore(s.Context.DB)
+
+	u, err := userStore.FindUserByID(req.UserId)
+
+	if err != nil {
+		if err == users.ErrUnknownUser {
+			return nil, status.Error(codes.NotFound, "unknown user id")
+		}
+
+		return nil, status.Error(codes.Internal, fmt.Sprintf("internal error: %+v", err))
+	}
+
+	return &modoki.UserFindByIDResponse{
+		User: &modoki.User{
+			UserId:         u.ID,
+			Name:           u.Name,
+			SystemRoleName: u.SystemRole,
+			CreatedAt:      grpcutil.GRPCTimestamp(u.CreatedAt),
+			UpdatedAt:      grpcutil.GRPCTimestamp(u.UpdatedAt),
+		},
+	}, nil
 }
 
 func (s *UserOrgServer) OrganizationAdd(_ context.Context, _ *modoki.OrganizationAddRequest) (*modoki.OrganizationAddResponse, error) {
