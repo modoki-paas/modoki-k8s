@@ -18,6 +18,10 @@ func addRole(name string, role *Role) {
 	rolesLock.Lock()
 	defer rolesLock.Unlock()
 
+	if roles == nil {
+		roles = map[string]*Role{}
+	}
+
 	roles[name] = role
 }
 
@@ -37,6 +41,10 @@ func FindRole(name string) *Role {
 func addSystemRole(name string, role *SystemRole) {
 	systemRolesLock.Lock()
 	defer systemRolesLock.Unlock()
+
+	if systemRoles == nil {
+		systemRoles = map[string]*SystemRole{}
+	}
 
 	systemRoles[name] = role
 }
