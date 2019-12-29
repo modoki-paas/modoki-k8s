@@ -2,12 +2,17 @@ package dbutil
 
 import (
 	"context"
+	"database/sql"
 
 	"github.com/jmoiron/sqlx"
 	"golang.org/x/xerrors"
 )
 
-func Transaction(ctx context.Context, db *sqlx.DB, fn func(tx *sqlx.Tx) error) (err error) {
+type TxInterface interface {
+	BeginTxx(ctx context.Context, opts *sql.TxOptions) (*sqlx.Tx, error)
+}
+
+func Transaction(ctx context.Context, db TxInterface, fn func(tx *sqlx.Tx) error) (err error) {
 	tx, err := db.BeginTxx(ctx, nil)
 
 	if err != nil {

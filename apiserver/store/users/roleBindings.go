@@ -5,6 +5,7 @@ import (
 	"database/sql"
 
 	"github.com/jmoiron/sqlx"
+	"github.com/modoki-paas/modoki-k8s/pkg/rbac/roles"
 	"golang.org/x/xerrors"
 )
 
@@ -17,11 +18,12 @@ func NewRoleBindingsStore(db sqlx.ExtContext) *RoleBindingsStore {
 }
 
 // RegisterRoleBinding registers or updated role binding
+// MUST BE CALLED IN TRANSACTION
 func (s *RoleBindingsStore) RegisterRoleBinding(userSeqID, targetSeqID int, roleName string) (int, error) {
 	var seq int
 	err := s.db.QueryRowxContext(
 		context.Background(),
-		"SELECT seq FROM role_bindings WHERE user_seq=? AND target_seq=?",
+		"SELECT seq FROM role_bindings WHERE user_seq=? AND target_seq=? FOR UPDATE",
 		userSeqID, targetSeqID,
 	).Scan(&seq)
 
@@ -58,4 +60,25 @@ func (s *RoleBindingsStore) RegisterRoleBinding(userSeqID, targetSeqID int, role
 	}
 
 	return int(id64), nil
+}
+
+func (s *RoleBindingsStore) GetRoleBinding(userSeqID, targetSeqID int) (*roles.Role, error) {
+	var roleName string
+	err := s.db.QueryRowxContext(
+		context.Background(),
+		"SELECT role_name FROM role_bindings WHERE user_seq=? AND target_seq=?",
+		userSeqID, targetSeqID,
+	).Scan(&roleName)
+
+	if err != nil {
+		return nil, xerrors.Errorf("failed to get role binding from db: %w", err)
+	}
+
+	role := roles.FindRole(roleName)
+
+	if role == nil {
+		return nil, xerrors.Errorf("unknown role name: %s", roleName)
+	}
+
+	return role, nil
 }
