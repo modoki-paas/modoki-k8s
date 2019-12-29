@@ -29,6 +29,7 @@ func (s *UserOrgServer) UserAdd(ctx context.Context, req *modoki.UserAddRequest)
 
 	err = dbutil.Transaction(ctx, s.Context.DB, func(tx *sqlx.Tx) error {
 		userStore := users.NewUserStore(s.Context.DB)
+		roleBindingStore := users.NewRoleBindingsStore(s.Context.DB)
 
 		user := req.User
 
@@ -38,12 +39,16 @@ func (s *UserOrgServer) UserAdd(ctx context.Context, req *modoki.UserAddRequest)
 			return status.Error(codes.InvalidArgument, "unknown system role")
 		}
 
-		_, err := userStore.AddUser(user.UserId, user.Name, types.UserNormal, systemRole.Name)
+		seq, err := userStore.AddUser(user.UserId, user.Name, types.UserNormal, systemRole.Name)
 		if err != nil {
 			if err == users.ErrUserIDDuplicates {
 				return status.Error(codes.AlreadyExists, "user id already exists")
 			}
 
+			return status.Error(codes.Internal, fmt.Sprintf("internal error: %s", err.Error()))
+		}
+
+		if _, err := roleBindingStore.RegisterRoleBinding(seq, seq, roles.Self.Name); err != nil {
 			return status.Error(codes.Internal, fmt.Sprintf("internal error: %s", err.Error()))
 		}
 
