@@ -17,30 +17,34 @@ func TestRegisterRoleBinding(t *testing.T) {
 		db := testutil.NewSQLConn(t)
 		defer db.Close()
 
-		dbutil.Transaction(context.Background(), db, func(tx *sqlx.Tx) error {
+		err := dbutil.Transaction(context.Background(), db, func(tx *sqlx.Tx) error {
 			store := NewRoleBindingsStore(db)
 
 			seq, err := store.RegisterRoleBinding(0, 10, roles.SystemAdmin.Name)
 
 			if err != nil {
-				t.Fatalf("failed to register role binding: %+v", err)
+				return xerrors.Errorf("failed to register role binding: %+v", err)
 			}
 
 			if seq <= 0 {
-				t.Error("seq should be >0")
+				return xerrors.New("seq should be >0")
 			}
 
 			r, err := store.GetRoleBinding(0, 10)
 
 			if err != nil {
-				t.Fatalf("failed to get role binding: %+v", err)
+				return xerrors.Errorf("failed to get role binding: %+v", err)
 			}
 
 			if r.Name != roles.SystemAdmin.Name {
-				t.Errorf("role names differ(actual: %s, expected: %s)", r.Name, roles.SystemAdmin.Name)
+				return xerrors.Errorf("role names differ(actual: %s, expected: %s)", r.Name, roles.SystemAdmin.Name)
 			}
 
 			return nil
 		})
+
+		if err != nil {
+			t.Fatalf("transaction failed: %+v", err)
+		}
 	})
 }
