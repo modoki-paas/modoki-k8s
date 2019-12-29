@@ -7,10 +7,10 @@ import (
 	"testing"
 
 	"github.com/jmoiron/sqlx"
-	"golang.org/x/xerrors"
 	"github.com/modoki-paas/modoki-k8s/internal/dbutil"
 	"github.com/modoki-paas/modoki-k8s/internal/testutil"
 	"github.com/modoki-paas/modoki-k8s/pkg/rbac/roles"
+	"golang.org/x/xerrors"
 )
 
 func TestRegisterRoleBinding(t *testing.T) {
@@ -19,7 +19,7 @@ func TestRegisterRoleBinding(t *testing.T) {
 		defer db.Close()
 
 		err := dbutil.Transaction(context.Background(), db, func(tx *sqlx.Tx) error {
-			store := NewRoleBindingsStore(db)
+			store := NewRoleBindingsStore(tx)
 
 			seq, err := store.RegisterRoleBinding(0, 10, roles.SystemAdmin.Name)
 
