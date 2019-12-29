@@ -21,7 +21,7 @@ func TestRegisterRoleBinding(t *testing.T) {
 		err := dbutil.Transaction(context.Background(), db, func(tx *sqlx.Tx) error {
 			store := NewRoleBindingsStore(tx)
 
-			seq, err := store.RegisterRoleBinding(0, 10, roles.SystemAdmin.Name)
+			seq, err := store.RegisterRoleBinding(0, 10, roles.OrgAdmin.Name)
 
 			if err != nil {
 				return xerrors.Errorf("failed to register role binding: %+v", err)
@@ -37,7 +37,7 @@ func TestRegisterRoleBinding(t *testing.T) {
 				return xerrors.Errorf("failed to get role binding: %+v", err)
 			}
 
-			if r.Name != roles.SystemAdmin.Name {
+			if r.Name != roles.OrgAdmin.Name {
 				return xerrors.Errorf("role names differ(actual: %s, expected: %s)", r.Name, roles.SystemAdmin.Name)
 			}
 
