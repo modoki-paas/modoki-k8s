@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/jmoiron/sqlx"
+	"golang.org/x/xerrors"
 	"github.com/modoki-paas/modoki-k8s/internal/dbutil"
 	"github.com/modoki-paas/modoki-k8s/internal/testutil"
 	"github.com/modoki-paas/modoki-k8s/pkg/rbac/roles"
