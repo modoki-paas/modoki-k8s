@@ -25,7 +25,7 @@ func TestAddApp(t *testing.T) {
 		defer db.Close()
 
 		store := NewAppStore(db)
-		seq, err := store.AddApp(s)
+		seq, id, err := store.AddApp(s)
 
 		if err != nil {
 			t.Fatalf("failed to add app: %v", err)
@@ -40,8 +40,11 @@ func TestAddApp(t *testing.T) {
 		if ret.SeqID <= 0 {
 			t.Errorf("id should be >0, but got %v", ret.ID)
 		}
-		if ret.ID == "" {
+		if ret.ID == ""  {
 			t.Errorf("id should not be empty, but got empty id")
+		}
+		if ret.ID != id {
+			t.Errorf("App.ID: %s, returned id: %s", ret.ID, id)
 		}
 		if ret.Owner != s.Owner {
 			t.Errorf("invalid owner: want %v got %v", s.Owner, ret.Owner)

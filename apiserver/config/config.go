@@ -22,12 +22,13 @@ type Plugin struct {
 
 type Endpoints struct {
 	Generator *Endpoint `yaml:"generator" json:"generator"`
+	App       *Endpoint `yaml:"app" json:"app"`
 	UserOrg   *Endpoint `yaml:"user_org" json:"user_org"`
+
+	Plugins []Plugin `yaml:"plugins" json:"plugins"`
 }
 
 type Config struct {
-	Plugins []Plugin `yaml:"plugins" json:"plugins"`
-
 	DB        string    `yaml:"db" json:"db"`
 	Address   string    `yaml:"address" json:"address"`
 	Endpoints Endpoints `yaml:"endpoints" json:"endpoints"`
@@ -70,8 +71,8 @@ func addDefaultValues(cfg *Config) {
 		&cfg.Endpoints.UserOrg,
 	}
 
-	for i := range cfg.Plugins {
-		targetEndpoints = append(targetEndpoints, &cfg.Plugins[i].Endpoint)
+	for i := range cfg.Endpoints.Plugins {
+		targetEndpoints = append(targetEndpoints, &cfg.Endpoints.Plugins[i].Endpoint)
 	}
 
 	for _, e := range targetEndpoints {

@@ -3,8 +3,10 @@ package handler
 import (
 	"context"
 
+	"github.com/jmoiron/sqlx"
 	api "github.com/modoki-paas/modoki-k8s/api"
 	"github.com/modoki-paas/modoki-k8s/apiserver/store/apps"
+	"github.com/modoki-paas/modoki-k8s/internal/dbutil"
 	"github.com/modoki-paas/modoki-k8s/pkg/auth"
 	"github.com/modoki-paas/modoki-k8s/pkg/rbac/permissions"
 	"github.com/modoki-paas/modoki-k8s/pkg/types"
@@ -24,44 +26,28 @@ func (s *AppServer) Create(ctx context.Context, req *api.AppCreateRequest) (res 
 		return nil, status.Error(codes.PermissionDenied, err.Error())
 	}
 
-	tx, err := s.Context.DB.BeginTxx(ctx, nil)
+	err = dbutil.Transaction(ctx, s.Context.DB, func(tx *sqlx.Tx) error {
+		store := apps.NewAppStore(tx)
 
-	if err != nil {
-		return nil, xerrors.Errorf("failed to begin transaction: %w", err)
-	}
-	defer func() {
-		if err != nil {
-			tx.Rollback()
-		} else {
-			if err := tx.Commit(); err != nil {
-				err = xerrors.Errorf("failed to commit transaction: %w", err)
-				res = nil
-			}
+		app := &types.App{
+			Owner: req.Spec.Owner,
+			Name:  req.Spec.Name,
+			Spec:  (*types.AppSpec)(req.Spec),
 		}
-	}()
 
-	store := apps.NewAppStore(tx)
+		_, id, err := store.AddApp(app)
 
-	app := &types.App{
-		Owner: req.Spec.Owner,
-		Name:  req.Spec.Name,
-		Spec:  (*types.AppSpec)(req.Spec),
-	}
+		if err != nil {
+			return xerrors.Errorf("failed to store app config in db: %w", err)
+		}
 
-	seq, err := store.AddApp(app)
+		res = &api.AppCreateResponse{
+			Id:   id,
+			Spec: req.GetSpec(),
+		}
 
-	if err != nil {
-		return nil, xerrors.Errorf("failed to store app config in db: %w", err)
-	}
+		return nil
+	})
 
-	app, err = store.GetApp(seq)
-
-	if err != nil {
-		return nil, xerrors.Errorf("failed to get app config in db: %w", err)
-	}
-
-	return &api.AppCreateResponse{
-		Id:   app.ID,
-		Spec: req.GetSpec(),
-	}, nil
+	return res, nil
 }

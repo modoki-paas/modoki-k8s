@@ -18,7 +18,7 @@ func NewAppStore(db sqlx.ExtContext) *AppStore {
 	return &AppStore{db: db}
 }
 
-func (ss *AppStore) AddApp(s *types.App) (seqID int, err error) {
+func (ss *AppStore) AddApp(s *types.App) (seqID int, id string, err error) {
 	s.ID = xid.New().String()
 
 	res, err := ss.db.ExecContext(
@@ -31,19 +31,19 @@ func (ss *AppStore) AddApp(s *types.App) (seqID int, err error) {
 
 	if err != nil {
 		if mysqlErr, ok := err.(*mysql.MySQLError); ok && mysqlErr.Number == 1062 {
-			return 0, ErrAppNameDuplicates
+			return 0, "", ErrAppNameDuplicates
 		}
 
-		return 0, xerrors.Errorf("failed to add app to db: %w", err)
+		return 0, "", xerrors.Errorf("failed to add app to db: %w", err)
 	}
 
 	id64, err := res.LastInsertId()
 
 	if err != nil {
-		return 0, xerrors.Errorf("failed to add app to db: %w", err)
+		return 0, "", xerrors.Errorf("failed to add app to db: %w", err)
 	}
 
-	return int(id64), nil
+	return int(id64), s.ID, nil
 }
 
 func (ss *AppStore) GetApp(seq int) (*types.App, error) {

@@ -7,7 +7,6 @@ import (
 	"os"
 
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/jmoiron/sqlx"
 	api "github.com/modoki-paas/modoki-k8s/api"
 	"github.com/modoki-paas/modoki-k8s/apiserver/config"
 	"github.com/modoki-paas/modoki-k8s/apiserver/handler"
@@ -33,8 +32,6 @@ func (arg *commandArg) Init() {
 }
 
 func main() {
-	sctx := &handler.ServerContext{}
-
 	carg := &commandArg{}
 	carg.Init()
 
@@ -44,25 +41,21 @@ func main() {
 		panic(err)
 	}
 
-	sctx.Config = cfg
-
-	d, err := sqlx.Open("mysql", cfg.DB)
+	sctx, err := handler.NewServerContext(cfg)
 
 	if err != nil {
-		panic(err)
+		log.Fatalf("failed to initialize server context: %+v", err)
 	}
-
-	sctx.DB = d
 
 	listener, err := net.Listen("tcp", ":443")
 	if err != nil {
-		log.Fatalf("failed to listen on :443: %v", err)
+		log.Fatalf("failed to listen on :443: %+v", err)
 	}
 
 	server := grpc.NewServer()
 	api.RegisterAppServer(server, &handler.AppServer{Context: sctx})
 
 	if err := server.Serve(listener); err != nil {
-		log.Fatalf("failed to start server on :80: %v", err)
+		log.Fatalf("failed to start server on :80: %+v", err)
 	}
 }
