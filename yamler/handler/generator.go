@@ -7,9 +7,9 @@ import (
 	"sort"
 
 	modoki "github.com/modoki-paas/modoki-k8s/api"
+	"github.com/modoki-paas/modoki-k8s/internal/imageutil"
 	"github.com/modoki-paas/modoki-k8s/pkg/kustomizer"
 	"github.com/modoki-paas/modoki-k8s/yamler/config"
-	"github.com/modoki-paas/modoki-k8s/yamler/utils"
 	"golang.org/x/xerrors"
 	"sigs.k8s.io/kustomize/api/resid"
 	"sigs.k8s.io/kustomize/api/types"
@@ -78,7 +78,7 @@ func setupIngress(ctx context.Context, cfg *config.Config, y *types.Kustomizatio
 }
 
 func setupPod(ctx context.Context, cfg *config.Config, y *types.Kustomization, req *modoki.OperateRequest) (*types.Kustomization, error) {
-	ow, err := utils.ParseOverwrite(req.Spec.Image, true)
+	ow, err := imageutil.ParseOverwrite(req.Spec.Image, true)
 
 	if err != nil {
 		return nil, xerrors.Errorf("invalid image name parameter: %w", err)

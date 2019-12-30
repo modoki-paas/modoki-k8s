@@ -1,4 +1,4 @@
-package utils
+package imageutil
 
 import (
 	"regexp"
