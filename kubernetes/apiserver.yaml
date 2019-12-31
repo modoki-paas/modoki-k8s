@@ -21,10 +21,30 @@ spec:
           image: modokipaas/modoki-k8s
           ports:
             - containerPort: 443
+          volumeMounts:
+            - mountPath: /etc/modoki
+              name: config
           resources:
             limits: # ここで制限を指定
               cpu: "1"
               memory: 100Mi
+    volumes:
+      - name: config
+        configMap:
+          name: modoki-apiserver-config
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: modoki-apiserver-config
+  namespace: modoki
+data:
+  apiserver.yaml: |
+    db: modoki-db-svc
+    endpoints:
+      generator:
+        endpoint: modoki-yamler-svc
+        insecure: true
 ---
 apiVersion: v1
 kind: Service

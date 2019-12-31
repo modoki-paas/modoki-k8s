@@ -15,9 +15,9 @@ type Endpoint struct {
 }
 
 type Plugin struct {
-	Name       string    `yaml:"name" json:"name"`
-	Endpoint   *Endpoint `yaml:"endpoint" json:"endpoint"`
-	MetricsAPI bool      `yaml:"metrics_api" json:"metrics_api"`
+	Name       string `yaml:"name" json:"name"`
+	MetricsAPI bool   `yaml:"metrics_api" json:"metrics_api"`
+	*Endpoint
 }
 
 type Endpoints struct {
@@ -65,6 +65,10 @@ func ReadConfig(name string) (*Config, error) {
 func addDefaultValues(cfg *Config) {
 	if cfg.Address == "" {
 		cfg.Address = ":443"
+	}
+
+	if cfg.Namespace == "" {
+		cfg.Namespace = "modoki"
 	}
 
 	targetEndpoints := []**Endpoint{

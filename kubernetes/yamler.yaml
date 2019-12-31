@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: modoki-yamler-deployment
+  namespace: modoki
+  labels:
+    app: modoki-yamler
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: modoki-yamler
+  template:
+    metadata:
+      labels:
+        app: modoki-yamler
+    spec:
+      containers:
+        - name: modoki-yamler
+          imagePullPolicy: Always
+          image: modokipaas/modoki-yamler
+          ports:
+            - containerPort: 443
+          resources:
+            limits: # ここで制限を指定
+              cpu: "1"
+              memory: 100Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: modoki-yamler-svc
+  namespace: modoki
+spec:
+  selector:
+    app: modoki-yamler
+  ports:
+    - protocol: TCP
+      port: 443
+      targetPort: 443
