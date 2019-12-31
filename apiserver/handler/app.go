@@ -45,10 +45,10 @@ func (s *AppServer) Create(ctx context.Context, req *api.AppCreateRequest) (res 
 			s.Context.Generators[i].Client.Operate(
 				ctx,
 				&api.OperateRequest{
-					Id:        id,
-					Kind:      api.OperateKind_Apply,
-					Spec:      req.Spec,
-					ApplyYaml: nil,
+					Id:   id,
+					Kind: api.OperateKind_Apply,
+					Spec: req.Spec,
+					Yaml: nil,
 					K8SConfig: &api.KubernetesConfig{
 						Namespace: s.Context.Config.Namespace,
 					},

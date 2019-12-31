@@ -62,14 +62,12 @@ func (h *Handler) Operate(ctx context.Context, req *modoki.OperateRequest) (*mod
 	switch req.Kind {
 	case modoki.OperateKind_Apply:
 		return &modoki.OperateResponse{
-			ApplyYaml:  &modoki.YAML{Config: res},
-			DeleteYaml: &modoki.YAML{Config: ""},
+			Yaml: &modoki.YAML{Config: res},
 		}, nil
 
 	case modoki.OperateKind_Delete:
 		return &modoki.OperateResponse{
-			ApplyYaml:  &modoki.YAML{Config: ""},
-			DeleteYaml: &modoki.YAML{Config: res},
+			Yaml: &modoki.YAML{Config: res},
 		}, nil
 
 	default:

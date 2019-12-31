@@ -51,9 +51,9 @@ func Test_OperateApply(t *testing.T) {
 		t.Fatalf("unknown config: %+v", err)
 	}
 
-	if diff := cmp.Diff(string(b), resp.ApplyYaml.Config); diff != "" {
+	if diff := cmp.Diff(string(b), resp.Yaml.Config); diff != "" {
 		t.Fatal(diff)
 	}
 
-	t.Log(resp.ApplyYaml.Config)
+	t.Log(resp.Yaml.Config)
 }

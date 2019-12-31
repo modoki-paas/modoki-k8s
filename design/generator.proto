@@ -23,12 +23,12 @@ message OperateRequest {
   string id = 1;
   OperateKind kind = 2;
   AppSpec spec = 4;
-  YAML apply_yaml = 6;
+  YAML yaml = 5;
   KubernetesConfig k8s_config = 7;
 }
 
 message OperateResponse {
-  YAML apply_yaml = 2;
+  YAML yaml = 1;
 }
 
 message MetricsRequest {
