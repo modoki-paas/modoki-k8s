@@ -36,24 +36,24 @@ func addPermissionsContext(ctx context.Context, perms map[string]struct{}) conte
 	return context.WithValue(ctx, PermissionsContext, perms)
 }
 
-func getUserIDContext(ctx context.Context) string {
+func GetUserIDContext(ctx context.Context) string {
 	return ctx.Value(UserIDContext).(string)
 }
 
-func getTargetIDContext(ctx context.Context) string {
+func GetTargetIDContext(ctx context.Context) string {
 	return ctx.Value(TargetIDContext).(string)
 }
 
-func getRolesContext(ctx context.Context) RoleBindings {
+func GetRolesContext(ctx context.Context) RoleBindings {
 	return ctx.Value(RolesContext).(RoleBindings)
 }
 
-func getPermissionsContext(ctx context.Context) (perms map[string]struct{}) {
+func GetPermissionsContext(ctx context.Context) (perms map[string]struct{}) {
 	return ctx.Value(PermissionsContext).(map[string]struct{})
 }
 
 func IsAuthorized(ctx context.Context, required ...*permissions.Permission) error {
-	permsMap := getPermissionsContext(ctx)
+	permsMap := GetPermissionsContext(ctx)
 
 	for i := range required {
 		if _, ok := permsMap[required[i].Name]; !ok {

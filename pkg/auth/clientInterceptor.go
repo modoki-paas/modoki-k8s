@@ -17,15 +17,15 @@ func (ci *ClientInterceptor) addToken(md metadata.MD) {
 }
 
 func (ci *ClientInterceptor) setUserID(ctx context.Context, md metadata.MD) {
-	md.Set(UserIDHeader, getUserIDContext(ctx))
+	md.Set(UserIDHeader, GetUserIDContext(ctx))
 }
 
 func (ci *ClientInterceptor) setTargetID(ctx context.Context, md metadata.MD) {
-	md.Set(UserIDHeader, getTargetIDContext(ctx))
+	md.Set(UserIDHeader, GetTargetIDContext(ctx))
 }
 
 func (ci *ClientInterceptor) setRoles(ctx context.Context, md metadata.MD) {
-	b, _ := json.Marshal(getRolesContext(ctx))
+	b, _ := json.Marshal(GetRolesContext(ctx))
 
 	md.Set(RolesHeader, string(b))
 }
