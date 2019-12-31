@@ -24,6 +24,8 @@ type ServerContext struct {
 	AppClient     api.AppClient
 	UserOrgClient api.UserOrgClient
 	Generators    []*Plugin
+
+	GRPCDialer *grpcutil.GRPCDialer
 }
 
 func (sc *ServerContext) connectDB() error {
@@ -40,7 +42,7 @@ func (sc *ServerContext) connectDB() error {
 func (sc *ServerContext) connectAppClient() error {
 	e := sc.Config.Endpoints.App
 
-	conn, err := grpcutil.Dial(e.Endpoint, e.Insecure)
+	conn, err := sc.GRPCDialer.Dial(e.Endpoint, e.Insecure)
 
 	if err != nil {
 		return xerrors.Errorf("failed to dial grpc server: %w", err)
@@ -52,7 +54,7 @@ func (sc *ServerContext) connectAppClient() error {
 }
 
 func (sc *ServerContext) connectGenerator(name string, endpoint string, insecure, metrics bool) error {
-	conn, err := grpcutil.Dial(endpoint, insecure)
+	conn, err := sc.GRPCDialer.Dial(endpoint, insecure)
 
 	if err != nil {
 		return xerrors.Errorf("failed to dial grpc server: %w", err)
@@ -98,7 +100,7 @@ func (sc *ServerContext) connectGenerators() error {
 func (sc *ServerContext) connectUserOrgClient() error {
 	e := sc.Config.Endpoints.UserOrg
 
-	conn, err := grpcutil.Dial(e.Endpoint, e.Insecure)
+	conn, err := sc.GRPCDialer.Dial(e.Endpoint, e.Insecure)
 
 	if err != nil {
 		return xerrors.Errorf("failed to dial grpc server: %w", err)
@@ -109,26 +111,31 @@ func (sc *ServerContext) connectUserOrgClient() error {
 	return nil
 }
 
-func NewServerContext(cfg *config.Config) (*ServerContext, error) {
+func NewServerContext(cfg *config.Config, envCfg *config.EnvConfig) (*ServerContext, error) {
 	sctx := &ServerContext{}
 
 	sctx.Config = cfg
+	sctx.EnvConfig = envCfg
 
 	if err := sctx.connectDB(); err != nil {
 		return nil, xerrors.Errorf("failed to connect to database: %w", err)
 	}
 
-	if err := sctx.connectAppClient(); err != nil {
-		return nil, xerrors.Errorf("failed to connect to app server: %w", err)
-	}
+	// TODO: Support mode change
+	// if err := sctx.connectAppClient(); err != nil {
+	// 	return nil, xerrors.Errorf("failed to connect to app server: %w", err)
+	// }
 
-	if err := sctx.connectUserOrgClient(); err != nil {
-		return nil, xerrors.Errorf("failed to connect to user_org server: %w", err)
-	}
+	// if err := sctx.connectUserOrgClient(); err != nil {
+	// 	return nil, xerrors.Errorf("failed to connect to user_org server: %w", err)
+	// }
 
 	if err := sctx.connectGenerators(); err != nil {
 		return nil, xerrors.Errorf("failed to connect to generators server: %w", err)
 	}
+
+	// TODO: api key for dialer
+	sctx.GRPCDialer = grpcutil.NewGRPCDialer(envCfg.APIKeys[0])
 
 	return sctx, nil
 }

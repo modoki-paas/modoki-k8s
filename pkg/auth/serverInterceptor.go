@@ -165,8 +165,8 @@ func UnaryServerInterceptor(tokens []string) grpc.UnaryServerInterceptor {
 	}
 }
 
-// StreamingServerInterceptor handles authentication for each call
-func StreamingServerInterceptor(tokens []string) grpc.StreamServerInterceptor {
+// StreamServerInterceptor handles authentication for each call
+func StreamServerInterceptor(tokens []string) grpc.StreamServerInterceptor {
 	ai := &AuthorizerInterceptor{
 		tokens: tokens,
 	}
