@@ -21,9 +21,8 @@ func Test_OperateApply(t *testing.T) {
 	kustomizer.OriginalDir = "../templates"
 
 	resp, err := h.Operate(context.Background(), &modoki.OperateRequest{
-		Id:        "test-id",
-		Kind:      modoki.OperateKind_Apply,
-		Performer: 10,
+		Id:   "test-id",
+		Kind: modoki.OperateKind_Apply,
 		Spec: &modoki.AppSpec{
 			Owner:   "owner-id",
 			Name:    "app-name",
