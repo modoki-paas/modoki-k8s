@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: modoki-apiserver-deployment
+  namespace: modoki
+  labels:
+    app: modoki-apiserver
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: modoki-apiserver
+  template:
+    metadata:
+      labels:
+        app: modoki-apiserver
+    spec:
+      containers:
+        - name: modoki-apiserver
+          imagePullPolicy: Always
+          image: modokipaas/modoki-k8s
+          ports:
+            - containerPort: 443
+          resources:
+            limits: # ここで制限を指定
+              cpu: "1"
+              memory: 100Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: modoki-apiserver-svc
+  namespace: modoki
+spec:
+  selector:
+    app: modoki-apiserver
+  ports:
+    - protocol: TCP
+      port: 443
+      targetPort: 443

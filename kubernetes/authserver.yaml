@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: modoki-authserver-deployment
+  namespace: modoki
+  labels:
+    app: modoki-authserver
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: modoki-authserver
+  template:
+    metadata:
+      labels:
+        app: modoki-authserver
+    spec:
+      containers:
+        - name: modoki-authserver
+          imagePullPolicy: Always
+          image: modokipaas/modoki-authserver
+          ports:
+            - containerPort: 443
+          resources:
+            limits: # ここで制限を指定
+              cpu: "1"
+              memory: 100Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: modoki-authserver-svc
+  namespace: modoki
+spec:
+  selector:
+    app: modoki-authserver
+  ports:
+    - protocol: TCP
+      port: 443
+      targetPort: 443
