@@ -22,15 +22,12 @@ enum OperateKind {
 message OperateRequest {
   string id = 1;
   OperateKind kind = 2;
-  int32 performer = 3;
   AppSpec spec = 4;
-  YAML delete_yaml = 5;
   YAML apply_yaml = 6;
   KubernetesConfig k8s_config = 7;
 }
 
 message OperateResponse {
-  YAML delete_yaml = 1;
   YAML apply_yaml = 2;
 }
 

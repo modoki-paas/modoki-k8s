@@ -41,6 +41,21 @@ func (s *AppServer) Create(ctx context.Context, req *api.AppCreateRequest) (res 
 			return xerrors.Errorf("failed to store app config in db: %w", err)
 		}
 
+		for i := range s.Context.Generators {
+			s.Context.Generators[i].Client.Operate(
+				ctx,
+				&api.OperateRequest{
+					Id:        id,
+					Kind:      api.OperateKind_Apply,
+					Spec:      req.Spec,
+					ApplyYaml: nil,
+					K8SConfig: &api.KubernetesConfig{
+						Namespace: s.Context.Config.Namespace,
+					},
+				},
+			)
+		}
+
 		res = &api.AppCreateResponse{
 			Id:   id,
 			Spec: req.GetSpec(),
