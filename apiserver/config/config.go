@@ -97,4 +97,7 @@ func addDefaultValues(cfg *Config) {
 		cfg.Domain = envCfg.Domain
 	}
 
+	if cfg.DB == "" {
+		cfg.DB = envCfg.DB
+	}
 }

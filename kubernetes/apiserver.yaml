@@ -47,7 +47,6 @@ metadata:
   namespace: modoki
 data:
   apiserver.yaml: |
-    db: modoki-db-svc
     endpoints:
       generator:
         endpoint: modoki-yamler-svc
