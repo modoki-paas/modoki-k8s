@@ -36,30 +36,32 @@ build: apiserver authserver yamler
 .PHONY: all
 all: build docker-all test
 
-.PHONY: docker
-docker:
-	docker build -t $(DOCKER_IMAGE) -f $(DOCKER_DOCKERFILE) .
+define docker
+	docker build -t $1 -f $2 .
+endef
 
-.PHONY: docker-push
-docker-push:
+define docker-push
 	if [ "$(CIRCLE_BRANCH)" = "master" ]; then\
-		docker push $(DOCKER_IMAGE);\
+		docker push $1;\
 	fi
 
-	docker tag $(DOCKER_IMAGE) $(DOCKER_IMAGE):$(CIRCLE_SHA1)
+	docker tag $1 $1:$(CIRCLE_SHA1)
+	docker push $1:$(CIRCLE_SHA1)
+endef
+
 
 .PHONY: docker-api docker-auth docker-yamler
-docker-api: DOCKER_IMAGE=$(DOCKER_APISERVER_IMAGE)
-docker-api: DOCKER_DOCKERFILE=$(DOCKER_APISERVER_DOCKERFILE)
-docker-api: docker docker-push
+docker-api:
+	@$(call docker,$(DOCKER_APISERVER_IMAGE),$(DOCKER_APISERVER_DOCKERFILE))
+	@$(call docker-push,$(DOCKER_APISERVER_IMAGE))
 
-docker-auth: DOCKER_IMAGE=$(DOCKER_AUTHSERVER_IMAGE)
-docker-auth: DOCKER_DOCKERFILE=$(DOCKER_AUTHSERVER_DOCKERFILE)
-docker-auth: docker docker-push
+docker-auth:
+	@$(call docker,$(DOCKER_AUTHSERVER_IMAGE),$(DOCKER_AUTHSERVER_DOCKERFILE))
+	@$(call docker-push,$(DOCKER_AUTHSERVER_IMAGE))
 
-docker-yamler: DOCKER_IMAGE=$(DOCKER_YAMLER_IMAGE)
-docker-yamler: DOCKER_DOCKERFILE=$(DOCKER_YAMLER_DOCKERFILE)
-docker-yamler: docker docker-push
+docker-yamler:
+	@$(call docker,$(DOCKER_YAMLER_IMAGE),$(DOCKER_YAMLER_DOCKERFILE))
+	@$(call docker-push,$(DOCKER_YAMLER_IMAGE))
 
 .PHONY: docker-all
 docker-all: docker-api docker-auth docker-yamler
@@ -67,7 +69,6 @@ docker-all: docker-api docker-auth docker-yamler
 .PHONY: test
 test:
 	go test -race -tags use_external_db -v ./...
-
 
 .PHONY: generate
 generate: clean
