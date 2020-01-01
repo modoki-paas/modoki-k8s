@@ -15,14 +15,14 @@ COPY . /work
 WORKDIR /work
 ENV GO111MODULE=on
 ENV CGO_ENABLED=0
-RUN go build -o /modokid-auth ./authserver
+RUN go build -o /modoki-auth ./authserver
 
 FROM alpine:3.9
 
 COPY --from=tools /usr/local/bin/mysqldef /bin
 COPY --from=tools /usr/local/bin/dockerize /bin
 COPY ./scripts/ /bin/
-COPY --from=builder /modokid-auth /bin
+COPY --from=builder /modoki-auth /bin
 COPY ./schema /schema
 
 ENTRYPOINT [ "/bin/auth-entrypoint.sh" ]

@@ -83,9 +83,11 @@ func addDefaultValues(cfg *Config) {
 	}
 
 	for _, e := range targetEndpoints {
-		if e := *e; e == nil {
-			e.Endpoint = cfg.Address
-			e.Insecure = true
+		if *e == nil {
+			*e = &Endpoint{
+				Endpoint: cfg.Address,
+				Insecure: true,
+			}
 		}
 	}
 
