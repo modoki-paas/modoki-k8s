@@ -25,6 +25,12 @@ spec:
           volumeMounts:
             - mountPath: /etc/modoki
               name: config
+          env:
+            - name: MODOKI_APP_DOMAIN
+              value: apps.tsuzu.xyz
+          envFrom:
+            - secretRef:
+                name: modoki-api-key
           resources:
             limits: # ここで制限を指定
               cpu: "1"

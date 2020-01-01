@@ -42,6 +42,10 @@ func ReadConfig(name string) (*Config, error) {
 }
 
 func addDefaultValues(cfg *Config) {
+	if cfg.AppSecretName == "" {
+		cfg.AppSecretName = "modoki-apps-cert-secret"
+	}
+
 	envCfg := ReadEnv()
 
 	cfg.APIKeys = append(cfg.APIKeys, envCfg.APIKeys...)

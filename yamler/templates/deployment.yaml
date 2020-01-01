@@ -51,4 +51,4 @@ spec:
   tls:
   - hosts:
     - XXX.apps.tsuzu.xyz
-    secretName: apps-tsuzu-xyz-tls
+    secretName: modoki-apps-cert-secret

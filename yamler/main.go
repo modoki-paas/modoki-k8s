@@ -21,7 +21,7 @@ type commandArg struct {
 
 func (arg *commandArg) Init() {
 	flag.BoolVar(&arg.Help, "help", false, "show usage")
-	flag.StringVar(&arg.Config, "config", "/etc/modoki/apiserver.yaml", "path to config file")
+	flag.StringVar(&arg.Config, "config", "/etc/modoki/yamler.yaml", "path to config file")
 
 	flag.Parse()
 

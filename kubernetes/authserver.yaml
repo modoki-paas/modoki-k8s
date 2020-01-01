@@ -21,6 +21,9 @@ spec:
           image: modokipaas/modoki-authserver
           ports:
             - containerPort: 443
+          envFrom:
+            - secretRef:
+                name: modoki-api-key
           resources:
             limits: # ここで制限を指定
               cpu: "1"

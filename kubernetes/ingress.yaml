@@ -10,7 +10,7 @@ spec:
   tls:
     - hosts:
         - apps.tsuzu.xyz
-      secretName: apps-tsuzu-xyz-tls
+      secretName: modoki-apps-cert-secret
   rules:
     - host: apps.tsuzu.xyz
       http:
@@ -19,43 +19,3 @@ spec:
             backend:
               serviceName: modoki-svc
               servicePort: 80
----
-apiVersion: certmanager.k8s.io/v1alpha1
-kind: Issuer
-metadata:
-  name: letsencrypt
-  namespace: modoki
-spec:
-  acme:
-    server: https://acme-v02.api.letsencrypt.org/directory
-    email: example@example.com
-    privateKeySecretRef:
-      name: letsencrypt
-    dns01:
-      providers:
-        - name: cf-dns
-          cloudflare:
-            email: example@example.com
-            apiKeySecretRef:
-              name: cloudflare-api-key
-              key: api-key.txt
----
-apiVersion: certmanager.k8s.io/v1alpha1
-kind: Certificate
-metadata:
-  name: modoki-apps-cert
-  namespace: modoki
-spec:
-  secretName: modoki-apps-cert-secret
-  issuerRef:
-    name: letsencrypt
-  commonName: "*.apps.tsuzu.xyz"
-  dnsNames:
-    - apps.tsuzu.xyz
-  acme:
-    config:
-      - dns01:
-          provider: cf-dns
-        domains:
-          - "*.apps.tsuzu.xyz"
-          - apps.tsuzu.xyz

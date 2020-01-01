@@ -21,10 +21,29 @@ spec:
           image: modokipaas/modoki-yamler
           ports:
             - containerPort: 443
+          volumeMounts:
+            - mountPath: /etc/modoki
+              name: config
+          envFrom:
+            - secretRef:
+                name: modoki-api-key
           resources:
             limits: # ここで制限を指定
               cpu: "1"
               memory: 100Mi
+    volumes:
+      - name: config
+        configMap:
+          name: modoki-yamler-config
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: modoki-yamler-config
+  namespace: modoki
+data:
+  yamler.yaml: |
+    app_secret_name: modoki-apps-cert-secret
 ---
 apiVersion: v1
 kind: Service
