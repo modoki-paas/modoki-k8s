@@ -2,10 +2,11 @@ package handler
 
 import (
 	"context"
-	"github.com/google/go-cmp/cmp"
 	"io/ioutil"
 	"testing"
 
+	"github.com/google/go-cmp/cmp"
+	"github.com/modoki-paas/modoki-k8s/pkg/auth"
 	modoki "github.com/modoki-paas/modoki-k8s/api"
 	"github.com/modoki-paas/modoki-k8s/pkg/kustomizer"
 	"github.com/modoki-paas/modoki-k8s/yamler/config"
@@ -20,13 +21,15 @@ func Test_OperateApply(t *testing.T) {
 
 	kustomizer.OriginalDir = "../templates"
 
-	resp, err := h.Operate(context.Background(), &modoki.OperateRequest{
+	ctx := context.Background()
+
+	ctx = auth.AddTargetIDContext(ctx, "owner-id")
+
+	resp, err := h.Operate(ctx, &modoki.OperateRequest{
 		Id:   "test-id",
+		Domain: "app-name.example.com",
 		Kind: modoki.OperateKind_Apply,
 		Spec: &modoki.AppSpec{
-			Owner:   "owner-id",
-			Name:    "app-name",
-			Domain:  "app-name.example.com",
 			Image:   "image-name",
 			Command: []string{"command1", "command2"},
 			Args:    []string{"arg1", "arg2"},

@@ -129,7 +129,7 @@ func (ai *AuthorizerInterceptor) wrapContext(ctx context.Context) (context.Conte
 		return nil, xerrors.Errorf("unknown user")
 	}
 
-	ctx = addUserIDContext(ctx, id)
+	ctx = AddUserIDContext(ctx, id)
 
 	targetID, ok := ai.getTargetID(md)
 
@@ -137,13 +137,13 @@ func (ai *AuthorizerInterceptor) wrapContext(ctx context.Context) (context.Conte
 		targetID = id
 	}
 
-	ctx = addTargetIDContext(ctx, targetID)
+	ctx = AddTargetIDContext(ctx, targetID)
 
 	roles := ai.getRoles(md)
-	ctx = addRolesContext(ctx, roles)
+	ctx = AddRolesContext(ctx, roles)
 
 	perms := ai.getPermissions(roles, targetID)
-	ctx = addPermissionsContext(ctx, perms)
+	ctx = AddPermissionsContext(ctx, perms)
 
 	return ctx, nil
 }

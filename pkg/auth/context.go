@@ -20,19 +20,19 @@ const (
 	RolesHeader    = "X-Modoki-Roles"
 )
 
-func addUserIDContext(ctx context.Context, id string) context.Context {
+func AddUserIDContext(ctx context.Context, id string) context.Context {
 	return context.WithValue(ctx, UserIDContext, id)
 }
 
-func addTargetIDContext(ctx context.Context, id string) context.Context {
+func AddTargetIDContext(ctx context.Context, id string) context.Context {
 	return context.WithValue(ctx, TargetIDContext, id)
 }
 
-func addRolesContext(ctx context.Context, rb RoleBindings) context.Context {
+func AddRolesContext(ctx context.Context, rb RoleBindings) context.Context {
 	return context.WithValue(ctx, RolesContext, rb)
 }
 
-func addPermissionsContext(ctx context.Context, perms map[string]struct{}) context.Context {
+func AddPermissionsContext(ctx context.Context, perms map[string]struct{}) context.Context {
 	return context.WithValue(ctx, PermissionsContext, perms)
 }
 
