@@ -18,7 +18,7 @@ func ReadEnv() *EnvConfig {
 	db := os.Getenv("MODOKI_DB")
 
 	if db == "" {
-		d := fmt.Sprintf(
+		db = fmt.Sprintf(
 			"mysql://%s:%s@%s/%s?parseTime=true",
 			os.Getenv("DB_USER"),
 			os.Getenv("DB_PASSWORD"),

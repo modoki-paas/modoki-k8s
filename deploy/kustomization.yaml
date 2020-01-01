@@ -1,7 +1,7 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 namespace: modoki
-resources:
+bases:
   - https://github.com/modoki-paas/modoki-k8s/kubernetes
 secretGenerator:
   - name: modoki-api-key
