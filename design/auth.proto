@@ -30,7 +30,6 @@ message CallbackResponse {
 }
 
 message IssueTokenRequest {
-  string owner = 1;
   string name = 2;
 }
 

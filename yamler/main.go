@@ -6,7 +6,9 @@ import (
 	"net"
 	"os"
 
+	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	api "github.com/modoki-paas/modoki-k8s/api"
+	"github.com/modoki-paas/modoki-k8s/pkg/auth"
 	"github.com/modoki-paas/modoki-k8s/yamler/config"
 	"github.com/modoki-paas/modoki-k8s/yamler/handler"
 	"google.golang.org/grpc"
@@ -46,7 +48,15 @@ func main() {
 		log.Fatalf("failed to listen on :80: %v", err)
 	}
 
-	server := grpc.NewServer()
+	server := grpc.NewServer(
+		grpc_middleware.WithUnaryServerChain(
+			auth.UnaryServerInterceptor(cfg.APIKeys),
+		),
+		grpc_middleware.WithStreamServerChain(
+			auth.StreamServerInterceptor(cfg.APIKeys),
+		),
+	)
+
 	api.RegisterGeneratorServer(
 		server,
 		&handler.Handler{

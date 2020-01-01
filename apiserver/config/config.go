@@ -30,9 +30,11 @@ type Endpoints struct {
 
 type Config struct {
 	DB        string    `yaml:"db" json:"db"`
+	Domain    string    `yaml:"domain" json:"domain"`
 	Namespace string    `yaml:"namespace" json:"namespace"`
 	Address   string    `yaml:"address" json:"address"`
 	Endpoints Endpoints `yaml:"endpoints" json:"endpoints"`
+	APIKeys   []string  `yaml:"api_keys" json:"api_keys"`
 }
 
 func ReadConfig(name string) (*Config, error) {
@@ -86,4 +88,13 @@ func addDefaultValues(cfg *Config) {
 			e.Insecure = true
 		}
 	}
+
+	envCfg := ReadEnv()
+
+	cfg.APIKeys = append(cfg.APIKeys, envCfg.APIKeys...)
+
+	if cfg.Domain == "" {
+		cfg.Domain = envCfg.Domain
+	}
+
 }

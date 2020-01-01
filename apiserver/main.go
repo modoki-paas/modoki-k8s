@@ -43,13 +43,7 @@ func main() {
 		panic(err)
 	}
 
-	envCfg, err := config.ReadEnv()
-
-	if err != nil {
-		panic(err)
-	}
-
-	sctx, err := handler.NewServerContext(cfg, envCfg)
+	sctx, err := handler.NewServerContext(cfg)
 
 	if err != nil {
 		log.Fatalf("failed to initialize server context: %+v", err)
@@ -62,10 +56,10 @@ func main() {
 
 	server := grpc.NewServer(
 		grpc_middleware.WithUnaryServerChain(
-			auth.UnaryServerInterceptor(envCfg.APIKeys),
+			auth.UnaryServerInterceptor(cfg.APIKeys),
 		),
 		grpc_middleware.WithStreamServerChain(
-			auth.StreamServerInterceptor(envCfg.APIKeys),
+			auth.StreamServerInterceptor(cfg.APIKeys),
 		),
 	)
 

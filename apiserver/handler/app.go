@@ -2,6 +2,7 @@ package handler
 
 import (
 	"context"
+	"strings"
 
 	"github.com/jmoiron/sqlx"
 	api "github.com/modoki-paas/modoki-k8s/api"
@@ -29,10 +30,21 @@ func (s *AppServer) Create(ctx context.Context, req *api.AppCreateRequest) (res 
 	err = dbutil.Transaction(ctx, s.Context.DB, func(tx *sqlx.Tx) error {
 		store := apps.NewAppStore(tx)
 
+		spec := &api.AppSpec{
+			Image: "nginx",
+		}
+		domain := req.Domain
+
+		if strings.HasPrefix(s.Context.Config.Domain, "*.") {
+			domain = domain + s.Context.Config.Domain
+		} else {
+			domain = domain + s.Context.Config.Domain[2:]
+		}
+
 		app := &types.App{
-			Owner: req.Spec.Owner,
-			Name:  req.Spec.Name,
-			Spec:  (*types.AppSpec)(req.Spec),
+			Owner: auth.GetTargetIDContext(ctx),
+			Name:  req.Domain,
+			Spec:  (*types.AppSpec)(spec),
 		}
 
 		_, id, err := store.AddApp(app)
@@ -41,26 +53,109 @@ func (s *AppServer) Create(ctx context.Context, req *api.AppCreateRequest) (res 
 			return xerrors.Errorf("failed to store app config in db: %w", err)
 		}
 
+		y := &api.YAML{}
 		for i := range s.Context.Generators {
-			s.Context.Generators[i].Client.Operate(
+			res, err := s.Context.Generators[i].Client.Operate(
 				ctx,
 				&api.OperateRequest{
 					Id:   id,
 					Kind: api.OperateKind_Apply,
-					Spec: req.Spec,
-					Yaml: nil,
+					Spec: spec,
+					Yaml: y,
 					K8SConfig: &api.KubernetesConfig{
 						Namespace: s.Context.Config.Namespace,
 					},
 				},
 			)
+
+			if err != nil {
+				if stat, ok := status.FromError(err); ok {
+					switch stat.Code() {
+					case codes.PermissionDenied:
+						return stat.Err()
+					case codes.InvalidArgument:
+						return stat.Err()
+					}
+
+					return status.Error(codes.Internal, "generator error")
+				}
+
+				return status.Error(codes.Internal, "generator failed due to unknown reason")
+			}
+
+			y = res.Yaml
+		}
+
+		res = &api.AppCreateResponse{
+			Id: id,
+		}
+
+		return nil
+	})
+
+	return res, nil
+}
+
+func (s *AppServer) Deploy(ctx context.Context, req *api.AppDeployRequest) (res *api.AppDeployResponse, err error) {
+	if err := auth.IsAuthorized(ctx, permissions.AppUpdate); err != nil {
+		return nil, status.Error(codes.PermissionDenied, err.Error())
+	}
+
+	err = dbutil.Transaction(ctx, s.Context.DB, func(tx *sqlx.Tx) error {
+		/*store := apps.NewAppStore(tx)
+
+		app := &types.App{
+			Owner: auth.GetTargetIDContext(ctx),
+			Name:  req.,
+			Spec:  (*types.AppSpec)(req.Spec),
+		}
+
+		imageutil.GetImageHash(req.Spec.Image)
+
+		_, id, err := store.AddApp(app)
+
+		if err != nil {
+			return xerrors.Errorf("failed to store app config in db: %w", err)
+		}
+
+		y := &api.YAML{}
+		for i := range s.Context.Generators {
+			res, err := s.Context.Generators[i].Client.Operate(
+				ctx,
+				&api.OperateRequest{
+					Id:   id,
+					Kind: api.OperateKind_Apply,
+					Spec: req.Spec,
+					Yaml: y,
+					K8SConfig: &api.KubernetesConfig{
+						Namespace: s.Context.Config.Namespace,
+					},
+				},
+			)
+
+			if err != nil {
+				if stat, ok := status.FromError(err); ok {
+					switch stat.Code() {
+					case codes.PermissionDenied:
+						return stat.Err()
+					case codes.InvalidArgument:
+						return stat.Err()
+					}
+
+					return status.Error(codes.Internal, "generator error")
+				}
+
+				return status.Error(codes.Internal, "generator failed due to unknown reason")
+			}
+
+			y = res.Yaml
 		}
 
 		res = &api.AppCreateResponse{
 			Id:   id,
 			Spec: req.GetSpec(),
 		}
-
+		*/
 		return nil
 	})
 

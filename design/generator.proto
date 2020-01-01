@@ -21,7 +21,8 @@ enum OperateKind {
 
 message OperateRequest {
   string id = 1;
-  OperateKind kind = 2;
+  string domain = 2;
+  OperateKind kind = 3;
   AppSpec spec = 4;
   YAML yaml = 5;
   KubernetesConfig k8s_config = 7;

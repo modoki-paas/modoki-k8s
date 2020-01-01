@@ -8,6 +8,7 @@ import (
 
 	modoki "github.com/modoki-paas/modoki-k8s/api"
 	"github.com/modoki-paas/modoki-k8s/internal/imageutil"
+	"github.com/modoki-paas/modoki-k8s/pkg/auth"
 	"github.com/modoki-paas/modoki-k8s/pkg/kustomizer"
 	"github.com/modoki-paas/modoki-k8s/yamler/config"
 	"golang.org/x/xerrors"
@@ -32,8 +33,8 @@ func setupName(ctx context.Context, cfg *config.Config, y *types.Kustomization, 
 func setupLabels(ctx context.Context, cfg *config.Config, y *types.Kustomization, req *modoki.OperateRequest) (*types.Kustomization, error) {
 	y.CommonLabels = map[string]string{
 		"modoki.tsuzu.xyz/id":     req.Id,
-		"modoki.tsuzu.xyz/owner":  req.Spec.Owner,
-		"modoki.tsuzu.xyz/domain": req.Spec.Domain,
+		"modoki.tsuzu.xyz/owner":  auth.GetTargetIDContext(ctx),
+		"modoki.tsuzu.xyz/domain": req.Domain,
 	}
 
 	return y, nil
@@ -44,12 +45,12 @@ func setupIngress(ctx context.Context, cfg *config.Config, y *types.Kustomizatio
 		{
 			Op:    kustomizer.OpReplace,
 			Path:  "/spec/tls/0/hosts/0",
-			Value: req.Spec.Domain,
+			Value: req.Domain,
 		},
 		{
 			Op:    kustomizer.OpReplace,
 			Path:  "/spec/rules/0/host",
-			Value: req.Spec.Domain,
+			Value: req.Domain,
 		},
 		{
 			Op:    kustomizer.OpReplace,
@@ -114,23 +115,31 @@ func setupPod(ctx context.Context, cfg *config.Config, y *types.Kustomization, r
 		return envs[i].Name < envs[j].Name
 	})
 
-	ingPatches, err := json.Marshal(kustomizer.Patches{
-		{
+	patches := kustomizer.Patches{}
+
+	if len(req.Spec.Command) != 0 {
+		patches = append(patches, kustomizer.Patch{
 			Op:    kustomizer.OpAdd,
 			Path:  "/spec/template/spec/containers/0/command",
 			Value: req.Spec.Command,
-		},
-		{
+		})
+	}
+
+	if len(req.Spec.Args) != 0 {
+		patches = append(patches, kustomizer.Patch{
 			Op:    kustomizer.OpAdd,
 			Path:  "/spec/template/spec/containers/0/args",
 			Value: req.Spec.Args,
-		},
-		{
-			Op:    kustomizer.OpAdd,
-			Path:  "/spec/template/spec/containers/0/env",
-			Value: envs,
-		},
+		})
+	}
+
+	patches = append(patches, kustomizer.Patch{
+		Op:    kustomizer.OpAdd,
+		Path:  "/spec/template/spec/containers/0/env",
+		Value: envs,
 	})
+
+	ingPatches, err := json.Marshal(patches)
 
 	if err != nil {
 		return nil, xerrors.Errorf("failed to encode patches for deployment: %w", err)

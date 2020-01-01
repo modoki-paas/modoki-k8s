@@ -18,8 +18,7 @@ type Plugin struct {
 type ServerContext struct {
 	Config *config.Config
 
-	DB        *sqlx.DB
-	EnvConfig *config.EnvConfig
+	DB *sqlx.DB
 
 	AppClient     api.AppClient
 	UserOrgClient api.UserOrgClient
@@ -111,11 +110,10 @@ func (sc *ServerContext) connectUserOrgClient() error {
 	return nil
 }
 
-func NewServerContext(cfg *config.Config, envCfg *config.EnvConfig) (*ServerContext, error) {
+func NewServerContext(cfg *config.Config) (*ServerContext, error) {
 	sctx := &ServerContext{}
 
 	sctx.Config = cfg
-	sctx.EnvConfig = envCfg
 
 	if err := sctx.connectDB(); err != nil {
 		return nil, xerrors.Errorf("failed to connect to database: %w", err)
@@ -135,7 +133,7 @@ func NewServerContext(cfg *config.Config, envCfg *config.EnvConfig) (*ServerCont
 	}
 
 	// TODO: api key for dialer
-	sctx.GRPCDialer = grpcutil.NewGRPCDialer(envCfg.APIKeys[0])
+	sctx.GRPCDialer = grpcutil.NewGRPCDialer(cfg.APIKeys[0])
 
 	return sctx, nil
 }

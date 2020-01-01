@@ -10,7 +10,8 @@ import (
 )
 
 type Config struct {
-	AppSecretName string `json:"app_secret_name" yaml:"app_secret_name"`
+	AppSecretName string   `json:"app_secret_name" yaml:"app_secret_name"`
+	APIKeys       []string `yaml:"api_keys" json:"api_keys"`
 }
 
 func ReadConfig(name string) (*Config, error) {
@@ -35,5 +36,13 @@ func ReadConfig(name string) (*Config, error) {
 		return nil, xerrors.Errorf("unknown extension: %s", ext)
 	}
 
+	addDefaultValues(&config)
+
 	return &config, nil
+}
+
+func addDefaultValues(cfg *Config) {
+	envCfg := ReadEnv()
+
+	cfg.APIKeys = append(cfg.APIKeys, envCfg.APIKeys...)
 }

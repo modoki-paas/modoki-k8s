@@ -6,13 +6,10 @@ option go_package = "modoki";
 import "google/protobuf/timestamp.proto";
 
 message AppSpec {
-  string owner = 1;
-  string name = 2;
-  string domain = 3; // optional
-  string image = 4;
-  repeated string command = 5;
-  repeated string args = 6;
-  map<string, string> env = 7;
+  string image = 2;
+  repeated string command = 3;
+  repeated string args = 4;
+  map<string, string> env = 5;
 
   map<string, string> annotations = 10;
   map<string, string> labels = 11;
@@ -20,26 +17,31 @@ message AppSpec {
 
 message AppStatus {
   string id = 1;
-  string app_id = 2;
-  string state = 3;
-  google.protobuf.Timestamp started_at = 4;
-  int32 exit_code = 5;
+  string domain = 2;
+  AppSpec spec = 3;
+  string state = 4;
+  google.protobuf.Timestamp started_at = 5;
+  int32 exit_code = 6;
 
   google.protobuf.Timestamp created_at = 10;
   google.protobuf.Timestamp updated_at = 11;
   map<string, string> attributes = 12;
 }
 
-message AppCreateRequest { AppSpec spec = 1; }
+message AppCreateRequest {
+  string domain = 1;
+}
 
-message AppCreateResponse {
+message AppCreateResponse { string id = 1; }
+
+message AppDeployRequest {
   string id = 1;
   AppSpec spec = 2;
 }
 
-message AppApplyRequest { AppSpec spec = 1; }
-
-message AppApplyResponse {}
+message AppDeployResponse {
+  AppStatus status = 1;
+}
 
 message AppDeleteRequest { string id = 1; }
 
@@ -51,6 +53,7 @@ message AppStatusResponse { AppStatus status = 1; }
 
 service App {
   rpc Create(AppCreateRequest) returns (AppCreateResponse);
+  rpc Deploy(AppDeployRequest) returns (AppDeployResponse);
   // rpc Apply(AppApplyRequest) returns (AppApplyResponse);
   // rpc Delete(AppDeleteRequest) returns (AppDeleteResponse);
   // rpc Status(AppStatusRequest) returns (AppStatusResponse);
