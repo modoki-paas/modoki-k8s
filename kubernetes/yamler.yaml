@@ -31,10 +31,10 @@ spec:
             limits: # ここで制限を指定
               cpu: "1"
               memory: 100Mi
-    volumes:
-      - name: config
-        configMap:
-          name: modoki-yamler-config
+      volumes:
+        - name: config
+          configMap:
+            name: modoki-yamler-config
 ---
 apiVersion: v1
 kind: ConfigMap
