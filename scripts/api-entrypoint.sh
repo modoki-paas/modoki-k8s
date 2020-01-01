@@ -27,12 +27,12 @@ done
 
 if [ "$WAIT" = "1" ]; then
     echo "Waiting for db"
-    dockerize -wait tcp://$DB_HOST -timeout 60s
+    dockerize -wait tcp://$DB_HOST:$DB_PORT -timeout 60s
 fi
 
 if [ "$MIGRATION" = "1" ]; then
     echo "Running migration"
-    cat /schema/*.sql | mysqldef --user=$DB_USER --password=$DB_PASSWORD --host=$DB_HOST $DB_DATABASE
+    cat /schema/*.sql | mysqldef --user=$DB_USER --password=$DB_PASSWORD --host=$DB_HOST -P $DB_PORT $DB_DATABASE
 fi
 
 if [ "$QUIT" = "1" ]; then
