@@ -150,5 +150,9 @@ func NewServerContext(cfg *config.Config) (*ServerContext, error) {
 		return nil, xerrors.Errorf("failed to connect to generators server: %w", err)
 	}
 
+	if err := sctx.connectK8S(); err != nil {
+		return nil, xerrors.Errorf("failed to initizlize k8s client: %w", err)
+	}
+
 	return sctx, nil
 }

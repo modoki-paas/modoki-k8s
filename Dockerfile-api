@@ -9,6 +9,10 @@ RUN wget https://github.com/k0kubun/sqldef/releases/download/${SQLDEF_VERSION}/m
     && tar -C /usr/local/bin -xzvf mysqldef_linux_amd64.tar.gz \
     && rm mysqldef_linux_amd64.tar.gz
 
+RUN curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl \
+    && chmod +x kubectl \
+    && mv kubectl /usr/local/bin
+
 FROM golang:1.13 as builder
 
 COPY . /work
@@ -21,6 +25,7 @@ FROM alpine:3.9
 
 COPY --from=tools /usr/local/bin/mysqldef /bin
 COPY --from=tools /usr/local/bin/dockerize /bin
+COPY --from=tools /usr/local/bin/kubectl /bin
 COPY ./scripts/ /bin/
 COPY --from=builder /modoki-api /bin
 COPY ./schema /schema
