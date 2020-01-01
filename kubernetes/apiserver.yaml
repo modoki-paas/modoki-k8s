@@ -31,6 +31,8 @@ spec:
           envFrom:
             - secretRef:
                 name: modoki-api-key
+            - secretRef:
+                name: modoki-db-password
           resources:
             limits: # ここで制限を指定
               cpu: "1"

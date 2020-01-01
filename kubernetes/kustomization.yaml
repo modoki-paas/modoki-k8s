@@ -7,7 +7,3 @@ resources:
   - yamler.yaml
   - ingress.yaml
   - namespace.yaml
-secretGenerator:
-  - name: modoki-api-key
-    env: api-key.txt
-    type: Opaque
