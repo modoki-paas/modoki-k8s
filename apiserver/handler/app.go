@@ -43,7 +43,7 @@ func (s *AppServer) Create(ctx context.Context, req *api.AppCreateRequest) (res 
 
 		app := &types.App{
 			Owner: auth.GetTargetIDContext(ctx),
-			Name:  req.Domain,
+			Name:  domain,
 			Spec:  (*types.AppSpec)(spec),
 		}
 
@@ -58,10 +58,11 @@ func (s *AppServer) Create(ctx context.Context, req *api.AppCreateRequest) (res 
 			res, err := s.Context.Generators[i].Client.Operate(
 				ctx,
 				&api.OperateRequest{
-					Id:   id,
-					Kind: api.OperateKind_Apply,
-					Spec: spec,
-					Yaml: y,
+					Id:     id,
+					Domain: domain,
+					Kind:   api.OperateKind_Apply,
+					Spec:   spec,
+					Yaml:   y,
 					K8SConfig: &api.KubernetesConfig{
 						Namespace: s.Context.Config.Namespace,
 					},
@@ -86,8 +87,13 @@ func (s *AppServer) Create(ctx context.Context, req *api.AppCreateRequest) (res 
 			y = res.Yaml
 		}
 
+		if output, err := s.Context.K8s.Apply(ctx, strings.NewReader(y.Config)); err != nil {
+			return xerrors.Errorf("failed to apply k8s config(message: %s): %w", output, err)
+		}
+
 		res = &api.AppCreateResponse{
-			Id: id,
+			Id:     id,
+			Domain: domain,
 		}
 
 		return nil

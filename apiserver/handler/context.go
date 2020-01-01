@@ -5,6 +5,7 @@ import (
 	api "github.com/modoki-paas/modoki-k8s/api"
 	"github.com/modoki-paas/modoki-k8s/apiserver/config"
 	"github.com/modoki-paas/modoki-k8s/internal/grpcutil"
+	"github.com/modoki-paas/modoki-k8s/internal/k8s"
 	"golang.org/x/xerrors"
 )
 
@@ -23,6 +24,8 @@ type ServerContext struct {
 	AppClient     api.AppClient
 	UserOrgClient api.UserOrgClient
 	Generators    []*Plugin
+
+	K8s *k8s.Client
 
 	GRPCDialer *grpcutil.GRPCDialer
 }
@@ -106,6 +109,18 @@ func (sc *ServerContext) connectUserOrgClient() error {
 	}
 
 	sc.UserOrgClient = api.NewUserOrgClient(conn)
+
+	return nil
+}
+
+func (sc *ServerContext) connectK8S() error {
+	client, err := k8s.NewClient("")
+
+	if err != nil {
+		return xerrors.Errorf("failed to initizlize k8s client: %w", err)
+	}
+
+	sc.K8s = client
 
 	return nil
 }

@@ -32,7 +32,10 @@ message AppCreateRequest {
   string domain = 1;
 }
 
-message AppCreateResponse { string id = 1; }
+message AppCreateResponse {
+  string id = 1;
+  string domain = 2;
+}
 
 message AppDeployRequest {
   string id = 1;
