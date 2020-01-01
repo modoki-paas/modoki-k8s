@@ -10,6 +10,7 @@ import (
 )
 
 type Config struct {
+	Address       string   `yaml:"address" json:"address"`
 	AppSecretName string   `json:"app_secret_name" yaml:"app_secret_name"`
 	APIKeys       []string `yaml:"api_keys" json:"api_keys"`
 }
@@ -42,6 +43,10 @@ func ReadConfig(name string) (*Config, error) {
 }
 
 func addDefaultValues(cfg *Config) {
+	if cfg.Address == "" {
+		cfg.Address = ":443"
+	}
+
 	if cfg.AppSecretName == "" {
 		cfg.AppSecretName = "modoki-apps-cert-secret"
 	}

@@ -43,9 +43,9 @@ func main() {
 		panic(err)
 	}
 
-	listener, err := net.Listen("tcp", ":80")
+	listener, err := net.Listen("tcp", cfg.Address)
 	if err != nil {
-		log.Fatalf("failed to listen on :80: %v", err)
+		log.Fatalf("failed to listen on %s: %v", cfg.Address, err)
 	}
 
 	server := grpc.NewServer(
