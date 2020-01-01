@@ -22,6 +22,6 @@ COPY --from=tools /go/bin/kustomize /bin
 COPY ./scripts/ /bin/
 COPY --from=builder /modoki-yamler /bin
 COPY ./schema /schema
-COPY yamler/templates /
+COPY yamler/templates /templates
 
 ENTRYPOINT [ "/bin/yamler-entrypoint.sh" ]
