@@ -2,6 +2,7 @@ package handler
 
 import (
 	"context"
+	"log"
 	"strings"
 
 	"github.com/jmoiron/sqlx"
@@ -78,8 +79,11 @@ func (s *AppServer) Create(ctx context.Context, req *api.AppCreateRequest) (res 
 						return stat.Err()
 					}
 
+					log.Println(err)
 					return status.Error(codes.Internal, "generator error")
 				}
+
+				log.Println(err)
 
 				return status.Error(codes.Internal, "generator failed due to unknown reason")
 			}
@@ -98,6 +102,10 @@ func (s *AppServer) Create(ctx context.Context, req *api.AppCreateRequest) (res 
 
 		return nil
 	})
+
+	if err != nil {
+		return nil, err
+	}
 
 	return res, nil
 }

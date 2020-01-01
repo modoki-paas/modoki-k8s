@@ -1,4 +1,4 @@
-DB_HOST=modoki-db-svc
+DB_HOST=modoki-db-svc:3306
 DB_USER=root
 DB_DATABASE=modoki
 DB_PASSWORD=very_secure_password
