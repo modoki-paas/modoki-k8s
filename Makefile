@@ -48,19 +48,21 @@ docker-push:
 
 	docker tag $(DOCKER_IMAGE) $(DOCKER_IMAGE):$(CIRCLE_SHA1)
 
+.PHONY: docker-api docker-auth docker-yamler
+docker-api: DOCKER_IMAGE=$(DOCKER_APISERVER_IMAGE)
+docker-api: DOCKER_DOCKERFILE=$(DOCKER_APISERVER_DOCKERFILE)
+docker-api: docker docker-push
+
+docker-auth: DOCKER_IMAGE=$(DOCKER_AUTHSERVER_IMAGE)
+docker-auth: DOCKER_DOCKERFILE=$(DOCKER_AUTHSERVER_DOCKERFILE)
+docker-auth: docker docker-push
+
+docker-yamler: DOCKER_IMAGE=$(DOCKER_YAMLER_IMAGE)
+docker-yamler: DOCKER_DOCKERFILE=$(DOCKER_YAMLER_DOCKERFILE)
+docker-yamler: docker docker-push
+
 .PHONY: docker-all
-docker-all: DOCKER_IMAGE=$(DOCKER_APISERVER_IMAGE)
-docker-all: DOCKER_DOCKERFILE=$(DOCKER_APISERVER_DOCKERFILE)
-docker-all: docker
-docker-all: docker-push
-docker-all: DOCKER_IMAGE=$(DOCKER_YAMLER_IMAGE)
-docker-all: DOCKER_DOCKERFILE=$(DOCKER_YAMLER_DOCKERFILE)
-docker-all: docker
-docker-all: docker-push
-docker-all: DOCKER_IMAGE=$(DOCKER_AUTHSERVER_IMAGE)
-docker-all: DOCKER_DOCKERFILE=$(DOCKER_AUTHSERVER_DOCKERFILE)
-docker-all: docker
-docker-all: docker-push
+docker-all: docker-api docker-auth docker-yamler
 
 .PHONY: test
 test:
