@@ -37,9 +37,9 @@ func (s *AppServer) Create(ctx context.Context, req *api.AppCreateRequest) (res 
 		domain := req.Domain
 
 		if strings.HasPrefix(s.Context.Config.Domain, "*.") {
-			domain = domain + s.Context.Config.Domain[2:]
+			domain = domain + s.Context.Config.Domain[1:]
 		} else {
-			domain = domain + s.Context.Config.Domain
+			domain = domain + "." + s.Context.Config.Domain
 		}
 
 		app := &types.App{
