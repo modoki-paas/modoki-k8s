@@ -14,7 +14,7 @@ jobs:
 
     working_directory: /go/src/github.com/modoki-paas/modoki-k8s
     steps:
-      - setup_remote_docker:
+      - setup_remote_docker
       - checkout
       - run:
           # Our primary container isn't MYSQL so run a sleep command until it's ready.

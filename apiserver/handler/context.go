@@ -130,6 +130,9 @@ func NewServerContext(cfg *config.Config) (*ServerContext, error) {
 
 	sctx.Config = cfg
 
+	// TODO: api key for dialer
+	sctx.GRPCDialer = grpcutil.NewGRPCDialer(cfg.APIKeys[0])
+
 	if err := sctx.connectDB(); err != nil {
 		return nil, xerrors.Errorf("failed to connect to database: %w", err)
 	}
@@ -146,9 +149,6 @@ func NewServerContext(cfg *config.Config) (*ServerContext, error) {
 	if err := sctx.connectGenerators(); err != nil {
 		return nil, xerrors.Errorf("failed to connect to generators server: %w", err)
 	}
-
-	// TODO: api key for dialer
-	sctx.GRPCDialer = grpcutil.NewGRPCDialer(cfg.APIKeys[0])
 
 	return sctx, nil
 }
