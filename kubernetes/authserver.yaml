@@ -18,7 +18,7 @@ spec:
       containers:
         - name: modoki-authserver
           imagePullPolicy: Always
-          image: modokipaas/modoki-authserver
+          image: modokipaas/modoki-auth
           ports:
             - containerPort: 443
           envFrom:
