@@ -54,7 +54,7 @@ data:
   apiserver.yaml: |
     endpoints:
       generator:
-        endpoint: modoki-yamler-svc
+        endpoint: modoki-yamler-svc:443
         insecure: true
 ---
 apiVersion: v1

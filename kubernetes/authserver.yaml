@@ -45,7 +45,7 @@ data:
   authserver.yaml: |
     endpoints:
       user_org:
-        endpoint: modoki-apiserver-svc
+        endpoint: modoki-apiserver-svc:443
         insecure: true
 ---
 apiVersion: v1
