@@ -14,7 +14,8 @@ FROM golang:1.13 as builder
 COPY . /work
 WORKDIR /work
 ENV GO111MODULE=on
-RUN go build -tags netgo -ldflags '-extldflags "-static"' -o /modoki-api ./apiserver
+ENV CGO_ENABLED=0
+RUN go build -o /modoki-api ./apiserver
 
 FROM alpine:3.9
 

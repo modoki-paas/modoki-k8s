@@ -12,7 +12,8 @@ FROM golang:1.13 as builder
 COPY . /work
 WORKDIR /work
 ENV GO111MODULE=on
-RUN go build -tags netgo -ldflags '-extldflags "-static"' -o /modoki-yamler ./yamler
+ENV CGO_ENABLED=0
+RUN go build -o /modoki-yamler ./yamler
 
 FROM debian:10
 
