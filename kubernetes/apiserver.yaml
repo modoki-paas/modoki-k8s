@@ -20,6 +20,9 @@ spec:
         - name: modoki-apiserver
           imagePullPolicy: Always
           image: modokipaas/modoki-k8s
+          args:
+            - -m
+            - -w
           ports:
             - containerPort: 443
           volumeMounts:

@@ -53,7 +53,7 @@ func main() {
 
 	sctx.DB = d
 
-	listener, err := net.Listen("tcp", ":443")
+	listener, err := net.Listen("tcp", cfg.Address)
 	if err != nil {
 		log.Fatalf("failed to listen on :443: %v", err)
 	}

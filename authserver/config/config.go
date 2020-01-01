@@ -19,7 +19,6 @@ type Endpoints struct {
 }
 
 type Config struct {
-	DB        string    `yaml:"db" json:"db"`
 	Address   string    `yaml:"address" json:"address"`
 	Endpoints Endpoints `yaml:"endpoints" json:"endpoints"`
 }

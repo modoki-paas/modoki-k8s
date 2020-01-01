@@ -21,6 +21,9 @@ spec:
           image: modokipaas/modoki-auth
           ports:
             - containerPort: 443
+          volumeMounts:
+            - mountPath: /etc/modoki
+              name: config
           envFrom:
             - secretRef:
                 name: modoki-api-key
@@ -28,6 +31,22 @@ spec:
             limits: # ここで制限を指定
               cpu: "1"
               memory: 100Mi
+      volumes:
+        - name: config
+          configMap:
+            name: modoki-authserver-config
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: modoki-authserver-config
+  namespace: modoki
+data:
+  authserver.yaml: |
+    endpoints:
+      user_org:
+        endpoint: modoki-apiserver-svc
+        insecure: true
 ---
 apiVersion: v1
 kind: Service
