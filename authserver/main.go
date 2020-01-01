@@ -7,7 +7,6 @@ import (
 	"os"
 
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/jmoiron/sqlx"
 	"github.com/modoki-paas/modoki-k8s/authserver/config"
 	"github.com/modoki-paas/modoki-k8s/authserver/handler"
 	"google.golang.org/grpc"
@@ -44,14 +43,6 @@ func main() {
 	}
 
 	sctx.Config = cfg
-
-	d, err := sqlx.Open("mysql", cfg.DB)
-
-	if err != nil {
-		panic(err)
-	}
-
-	sctx.DB = d
 
 	listener, err := net.Listen("tcp", cfg.Address)
 	if err != nil {
