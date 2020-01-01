@@ -10,3 +10,6 @@ secretGenerator:
   - name: modoki-db-secret
     env: db.txt
     type: Opaque
+
+generatorOptions:
+  disableNameSuffixHash: true

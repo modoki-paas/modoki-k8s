@@ -32,7 +32,7 @@ spec:
             - secretRef:
                 name: modoki-api-key
             - secretRef:
-                name: modoki-db-password
+                name: modoki-db-secret
           resources:
             limits: # ここで制限を指定
               cpu: "1"
