@@ -2,6 +2,7 @@ package handler
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"strings"
 
@@ -9,6 +10,7 @@ import (
 	api "github.com/modoki-paas/modoki-k8s/api"
 	"github.com/modoki-paas/modoki-k8s/apiserver/store/apps"
 	"github.com/modoki-paas/modoki-k8s/internal/dbutil"
+	"github.com/modoki-paas/modoki-k8s/internal/imageutil"
 	"github.com/modoki-paas/modoki-k8s/pkg/auth"
 	"github.com/modoki-paas/modoki-k8s/pkg/rbac/permissions"
 	"github.com/modoki-paas/modoki-k8s/pkg/types"
@@ -116,17 +118,33 @@ func (s *AppServer) Deploy(ctx context.Context, req *api.AppDeployRequest) (res 
 	}
 
 	err = dbutil.Transaction(ctx, s.Context.DB, func(tx *sqlx.Tx) error {
-		/*store := apps.NewAppStore(tx)
+		store := apps.NewAppStore(tx)
 
-		app := &types.App{
-			Owner: auth.GetTargetIDContext(ctx),
-			Name:  req.,
-			Spec:  (*types.AppSpec)(req.Spec),
+		app, err := store.FindAppByID(req.Id)
+
+		if err != nil {
+			return status.Error(codes.Unknown, "unknown app")
 		}
 
-		imageutil.GetImageHash(req.Spec.Image)
+		if app.Owner != auth.GetTargetIDContext(ctx) {
+			return status.Error(codes.Unknown, "unknown app")
+		}
 
-		_, id, err := store.AddApp(app)
+		ow, err := imageutil.ParseOverwrite(req.Spec.Image, true)
+
+		if err != nil {
+			return status.Error(codes.InvalidArgument, fmt.Sprintf("image name format error: %v", err))
+		}
+
+		hash, err := imageutil.GetImageHash(req.Spec.Image)
+
+		if err != nil {
+			return status.Error(codes.InvalidArgument, fmt.Sprintf("failed to get hash of images: %v", err))
+		}
+
+		req.Spec.Image = fmt.Sprintf("%s@sha256:%s", ow.Name, hash)
+
+		err = store.UpdateApp(app.SeqID, (*types.AppSpec)(req.Spec))
 
 		if err != nil {
 			return xerrors.Errorf("failed to store app config in db: %w", err)
@@ -137,7 +155,7 @@ func (s *AppServer) Deploy(ctx context.Context, req *api.AppDeployRequest) (res 
 			res, err := s.Context.Generators[i].Client.Operate(
 				ctx,
 				&api.OperateRequest{
-					Id:   id,
+					Id:   app.ID,
 					Kind: api.OperateKind_Apply,
 					Spec: req.Spec,
 					Yaml: y,
@@ -165,11 +183,19 @@ func (s *AppServer) Deploy(ctx context.Context, req *api.AppDeployRequest) (res 
 			y = res.Yaml
 		}
 
-		res = &api.AppCreateResponse{
-			Id:   id,
-			Spec: req.GetSpec(),
+		res = &api.AppDeployResponse{
+			Status: &api.AppStatus{
+				Id:        app.ID,
+				Domain:    app.Name,
+				Spec:      req.Spec,
+				State:     "deploying",
+				StartedAt: nil,
+				ExitCode:  0,
+				CreatedAt: nil,
+				UpdatedAt: nil,
+			},
 		}
-		*/
+
 		return nil
 	})
 

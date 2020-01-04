@@ -46,10 +46,24 @@ func (ss *AppStore) AddApp(s *types.App) (seqID int, id string, err error) {
 	return int(id64), s.ID, nil
 }
 
+func (ss *AppStore) UpdateApp(seq int, s *types.AppSpec) error {
+	_, err := ss.db.ExecContext(
+		context.Background(),
+		`UPDATE apps SET spec=? WHERE seq=?`,
+		s, seq,
+	)
+
+	if err != nil {
+		return xerrors.Errorf("failed to update app in db: %w", err)
+	}
+
+	return nil
+}
+
 func (ss *AppStore) GetApp(seq int) (*types.App, error) {
 	var app types.App
 	err := ss.db.
-		QueryRowxContext(context.Background(), "SELECT * FROM apps WHERE seq=?", seq).
+		QueryRowxContext(context.Background(), "SELECT * FROM apps WHERE seq=? FOR UPDATE", seq).
 		StructScan(&app)
 
 	if err != nil {
@@ -62,7 +76,7 @@ func (ss *AppStore) GetApp(seq int) (*types.App, error) {
 func (ss *AppStore) FindAppByID(id string) (*types.App, error) {
 	var app types.App
 	err := ss.db.
-		QueryRowxContext(context.Background(), "SELECT * FROM apps WHERE id=?", id).
+		QueryRowxContext(context.Background(), "SELECT * FROM apps WHERE id=? FOR UPDATE", id).
 		StructScan(&app)
 
 	if err != nil {
