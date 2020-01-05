@@ -183,6 +183,10 @@ func (s *AppServer) Deploy(ctx context.Context, req *api.AppDeployRequest) (res 
 			y = res.Yaml
 		}
 
+		if output, err := s.Context.K8s.Apply(ctx, strings.NewReader(y.Config)); err != nil {
+			return xerrors.Errorf("failed to apply k8s config(message: %s): %w", output, err)
+		}
+
 		res = &api.AppDeployResponse{
 			Status: &api.AppStatus{
 				Id:        app.ID,
