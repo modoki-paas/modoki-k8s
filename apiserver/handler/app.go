@@ -5,11 +5,13 @@ import (
 	"fmt"
 	"log"
 	"strings"
+	"time"
 
 	"github.com/jmoiron/sqlx"
 	api "github.com/modoki-paas/modoki-k8s/api"
 	"github.com/modoki-paas/modoki-k8s/apiserver/store/apps"
 	"github.com/modoki-paas/modoki-k8s/internal/dbutil"
+	"github.com/modoki-paas/modoki-k8s/internal/grpcutil"
 	"github.com/modoki-paas/modoki-k8s/internal/imageutil"
 	"github.com/modoki-paas/modoki-k8s/pkg/auth"
 	"github.com/modoki-paas/modoki-k8s/pkg/rbac/permissions"
@@ -189,19 +191,24 @@ func (s *AppServer) Deploy(ctx context.Context, req *api.AppDeployRequest) (res 
 
 		res = &api.AppDeployResponse{
 			Status: &api.AppStatus{
-				Id:        app.ID,
-				Domain:    app.Name,
-				Spec:      req.Spec,
-				State:     "deploying",
-				StartedAt: nil,
-				ExitCode:  0,
-				CreatedAt: nil,
-				UpdatedAt: nil,
+				Id:         app.ID,
+				Domain:     app.Name,
+				Spec:       req.Spec,
+				State:      "deploying",
+				StartedAt:  grpcutil.GRPCTimestamp(app.UpdatedAt), // TODO: Fix timestamp
+				ExitCode:   0,
+				CreatedAt:  grpcutil.GRPCTimestamp(app.CreatedAt),
+				UpdatedAt:  grpcutil.GRPCTimestamp(time.Now()), // TODO: Fix timestamp
+				Attributes: map[string]string{},
 			},
 		}
 
 		return nil
 	})
+
+	if err != nil {
+		return nil, err
+	}
 
 	return res, nil
 }
