@@ -157,10 +157,11 @@ func (s *AppServer) Deploy(ctx context.Context, req *api.AppDeployRequest) (res 
 			res, err := s.Context.Generators[i].Client.Operate(
 				ctx,
 				&api.OperateRequest{
-					Id:   app.ID,
-					Kind: api.OperateKind_Apply,
-					Spec: req.Spec,
-					Yaml: y,
+					Id:     app.ID,
+					Domain: app.Name,
+					Kind:   api.OperateKind_Apply,
+					Spec:   req.Spec,
+					Yaml:   y,
 					K8SConfig: &api.KubernetesConfig{
 						Namespace: s.Context.Config.Namespace,
 					},
