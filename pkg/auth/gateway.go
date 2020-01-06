@@ -2,6 +2,7 @@ package auth
 
 import (
 	"context"
+	"log"
 	"strings"
 
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
@@ -50,12 +51,20 @@ func (ai *GatewayAuthorizerInterceptor) wrapContext(ctx context.Context) (contex
 
 	tk := ai.getTokenFromHeader(md)
 
+	if tk == "" {
+		return nil, status.Error(codes.Unauthenticated, "authorization header missing")
+	}
+
 	vt, err := ai.tokenClient.ValidateToken(ctx, &api.ValidateTokenRequest{
 		Token: tk,
 	})
 
 	if err != nil {
 		if stat, ok := status.FromError(err); ok {
+			if stat.Code() == codes.NotFound {
+				return nil, status.Error(codes.Unauthenticated, "invalid token")
+			}
+
 			return nil, stat.Err()
 		}
 
@@ -85,14 +94,26 @@ func (ai *GatewayAuthorizerInterceptor) wrapContext(ctx context.Context) (contex
 		TargetId: targetID,
 	})
 
+	if err != nil {
+		if stat, ok := status.FromError(err); !ok {
+			return nil, xerrors.Errorf("failed to get role binding: %w", err)
+		} else if stat.Code() != codes.NotFound {
+			return nil, stat.Err()
+		}
+		// continue if role binding is not found
+	}
+
 	ctx = AddUserIDContext(ctx, performer.User.UserId)
 
 	ctx = AddTargetIDContext(ctx, targetID)
 
 	roles := RoleBindings(map[string]string{
-		"*":      performer.User.SystemRoleName,
-		targetID: rb.Role,
+		"*": performer.User.SystemRoleName,
 	})
+
+	if rb != nil && rb.Role != "" {
+		roles[targetID] = rb.Role
+	}
 
 	ctx = AddRolesContext(ctx, roles)
 
@@ -113,6 +134,11 @@ func UnaryGatewayServerInterceptor(tokenClient api.TokenClient, userOrgClient ap
 		ctx, err := ai.wrapContext(ctx)
 
 		if err != nil {
+			if stat, ok := status.FromError(err); ok {
+				return nil, stat.Err()
+			}
+			log.Println(err)
+
 			return nil, status.Error(codes.PermissionDenied, err.Error())
 		}
 
