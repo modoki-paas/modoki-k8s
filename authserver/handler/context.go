@@ -3,6 +3,7 @@ package handler
 import (
 	api "github.com/modoki-paas/modoki-k8s/api"
 	"github.com/modoki-paas/modoki-k8s/authserver/config"
+	"github.com/modoki-paas/modoki-k8s/internal/connector"
 	"github.com/modoki-paas/modoki-k8s/internal/grpcutil"
 	"golang.org/x/xerrors"
 )
@@ -15,33 +16,31 @@ type ServerContext struct {
 	UserOrgClient api.UserOrgClient
 	TokenClient   api.TokenClient
 
-	GRPCDialer *grpcutil.GRPCDialer
+	Connector *connector.Connector
 }
 
 func (sc *ServerContext) connectAppClient() error {
 	e := sc.Config.Endpoints.App
 
-	conn, err := sc.GRPCDialer.Dial(e.Endpoint, e.Insecure)
+	var err error
+	sc.AppClient, err = sc.Connector.ConnectAppClient(e.Endpoint, e.Insecure)
 
 	if err != nil {
-		return xerrors.Errorf("failed to dial grpc server: %w", err)
+		return xerrors.Errorf("failed to dial app server: %w", err)
 	}
-
-	sc.AppClient = api.NewAppClient(conn)
 
 	return nil
 }
 
 func (sc *ServerContext) connectUserOrgClient() error {
-	e := sc.Config.Endpoints.UserOrg
+	e := sc.Config.Endpoints.App
 
-	conn, err := sc.GRPCDialer.Dial(e.Endpoint, e.Insecure)
+	var err error
+	sc.UserOrgClient, err = sc.Connector.ConnectUserOrgClient(e.Endpoint, e.Insecure)
 
 	if err != nil {
-		return xerrors.Errorf("failed to dial grpc server: %w", err)
+		return xerrors.Errorf("failed to dial user/org server: %w", err)
 	}
-
-	sc.UserOrgClient = api.NewUserOrgClient(conn)
 
 	return nil
 }
@@ -49,13 +48,12 @@ func (sc *ServerContext) connectUserOrgClient() error {
 func (sc *ServerContext) connectTokenClient() error {
 	e := sc.Config.Endpoints.UserOrg
 
-	conn, err := sc.GRPCDialer.Dial(e.Endpoint, e.Insecure)
+	var err error
+	sc.TokenClient, err = sc.Connector.ConnectTokenClient(e.Endpoint, e.Insecure)
 
 	if err != nil {
-		return xerrors.Errorf("failed to dial grpc server: %w", err)
+		return xerrors.Errorf("failed to dial token server: %w", err)
 	}
-
-	sc.TokenClient = api.NewTokenClient(conn)
 
 	return nil
 }
@@ -66,7 +64,7 @@ func NewServerContext(cfg *config.Config) (*ServerContext, error) {
 	sctx.Config = cfg
 
 	// TODO: api key for dialer
-	sctx.GRPCDialer = grpcutil.NewGRPCDialer(cfg.APIKeys[0])
+	sctx.Connector = connector.NewConnector(grpcutil.NewGRPCDialer(cfg.APIKeys[0]))
 
 	if err := sctx.connectAppClient(); err != nil {
 		return nil, xerrors.Errorf("failed to connect to app server: %w", err)

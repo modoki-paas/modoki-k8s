@@ -8,11 +8,20 @@ import (
 
 type GRPCDialer struct {
 	token string
+
+	StreamClientInterceptors []grpc.StreamClientInterceptor
+	UnaryClientInterceptors  []grpc.UnaryClientInterceptor
 }
 
 func NewGRPCDialer(token string) *GRPCDialer {
 	return &GRPCDialer{
 		token: token,
+		StreamClientInterceptors: []grpc.StreamClientInterceptor{
+			auth.StreamClientInterceptor(token),
+		},
+		UnaryClientInterceptors: []grpc.UnaryClientInterceptor{
+			auth.UnaryClientInterceptor(token),
+		},
 	}
 }
 
@@ -26,10 +35,10 @@ func (gd *GRPCDialer) Dial(endpoint string, insecure bool) (*grpc.ClientConn, er
 	opts = append(
 		opts,
 		grpc.WithChainStreamInterceptor(
-			auth.StreamClientInterceptor(gd.token),
+			gd.StreamClientInterceptors...,
 		),
 		grpc.WithChainUnaryInterceptor(
-			auth.UnaryClientInterceptor(gd.token),
+			gd.UnaryClientInterceptors...,
 		),
 	)
 

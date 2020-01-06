@@ -5,6 +5,7 @@ go 1.12
 require (
 	github.com/DATA-DOG/go-sqlmock v1.3.3
 	github.com/cs3238-tsuzu/sqlx-selector/v2 v2.1.0
+	github.com/docker/docker v1.4.2-0.20190924003213-a8608b5b67c7
 	github.com/go-sql-driver/mysql v1.4.1
 	github.com/golang/protobuf v1.3.2
 	github.com/google/go-cmp v0.3.1

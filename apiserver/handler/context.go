@@ -4,6 +4,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	api "github.com/modoki-paas/modoki-k8s/api"
 	"github.com/modoki-paas/modoki-k8s/apiserver/config"
+	"github.com/modoki-paas/modoki-k8s/internal/connector"
 	"github.com/modoki-paas/modoki-k8s/internal/grpcutil"
 	"github.com/modoki-paas/modoki-k8s/internal/k8s"
 	"golang.org/x/xerrors"
@@ -27,7 +28,7 @@ type ServerContext struct {
 
 	K8s *k8s.Client
 
-	GRPCDialer *grpcutil.GRPCDialer
+	Connector *connector.Connector
 }
 
 func (sc *ServerContext) connectDB() error {
@@ -41,28 +42,12 @@ func (sc *ServerContext) connectDB() error {
 	return nil
 }
 
-func (sc *ServerContext) connectAppClient() error {
-	e := sc.Config.Endpoints.App
-
-	conn, err := sc.GRPCDialer.Dial(e.Endpoint, e.Insecure)
-
-	if err != nil {
-		return xerrors.Errorf("failed to dial grpc server: %w", err)
-	}
-
-	sc.AppClient = api.NewAppClient(conn)
-
-	return nil
-}
-
 func (sc *ServerContext) connectGenerator(name string, endpoint string, insecure, metrics bool) error {
-	conn, err := sc.GRPCDialer.Dial(endpoint, insecure)
+	generator, err := sc.Connector.ConnectGenerator(endpoint, insecure)
 
 	if err != nil {
-		return xerrors.Errorf("failed to dial grpc server: %w", err)
+		return xerrors.Errorf("failed to dial generator server(%s): %w", name, err)
 	}
-
-	generator := api.NewGeneratorClient(conn)
 
 	sc.Generators = append(sc.Generators, &Plugin{
 		Name:    name,
@@ -99,16 +84,28 @@ func (sc *ServerContext) connectGenerators() error {
 	return nil
 }
 
-func (sc *ServerContext) connectUserOrgClient() error {
-	e := sc.Config.Endpoints.UserOrg
+func (sc *ServerContext) connectAppClient() error {
+	e := sc.Config.Endpoints.App
 
-	conn, err := sc.GRPCDialer.Dial(e.Endpoint, e.Insecure)
+	var err error
+	sc.AppClient, err = sc.Connector.ConnectAppClient(e.Endpoint, e.Insecure)
 
 	if err != nil {
-		return xerrors.Errorf("failed to dial grpc server: %w", err)
+		return xerrors.Errorf("failed to dial app server: %w", err)
 	}
 
-	sc.UserOrgClient = api.NewUserOrgClient(conn)
+	return nil
+}
+
+func (sc *ServerContext) connectUserOrgClient() error {
+	e := sc.Config.Endpoints.App
+
+	var err error
+	sc.UserOrgClient, err = sc.Connector.ConnectUserOrgClient(e.Endpoint, e.Insecure)
+
+	if err != nil {
+		return xerrors.Errorf("failed to dial user/org server: %w", err)
+	}
 
 	return nil
 }
@@ -131,7 +128,7 @@ func NewServerContext(cfg *config.Config) (*ServerContext, error) {
 	sctx.Config = cfg
 
 	// TODO: api key for dialer
-	sctx.GRPCDialer = grpcutil.NewGRPCDialer(cfg.APIKeys[0])
+	sctx.Connector = connector.NewConnector(grpcutil.NewGRPCDialer(cfg.APIKeys[0]))
 
 	if err := sctx.connectDB(); err != nil {
 		return nil, xerrors.Errorf("failed to connect to database: %w", err)

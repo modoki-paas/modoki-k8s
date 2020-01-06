@@ -121,9 +121,10 @@ func UnaryGatewayServerInterceptor(tokenClient api.TokenClient, userOrgClient ap
 }
 
 // StreamGatewayServerInterceptor handles authentication for each call
-func StreamGatewayServerInterceptor(tokens []string) grpc.StreamServerInterceptor {
-	ai := &AuthorizerInterceptor{
-		tokens: tokens,
+func StreamGatewayServerInterceptor(tokenClient api.TokenClient, userOrgClient api.UserOrgClient) grpc.StreamServerInterceptor {
+	ai := &GatewayAuthorizerInterceptor{
+		tokenClient:   tokenClient,
+		userOrgClient: userOrgClient,
 	}
 
 	return func(srv interface{}, stream grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
