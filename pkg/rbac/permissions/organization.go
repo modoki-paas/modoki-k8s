@@ -25,5 +25,8 @@ var (
 	// OrgMemberList -> list members in a organization
 	OrgMemberList = NewPermission("org:v1alpha1:member_list", NamespaceOrg)
 
+	// UserOrgGetRoleBinding -> get role bindings for user/org
+	UserOrgGetRoleBinding = NewPermission("userorg:v1alpha1:get_role_binding")
+
 	OrgPermissions = []*Permission{OrgCreate, OrgList, OrgListAll, OrgDelete, OrgUpdate, OrgMemberManagement, OrgMemberList}
 )

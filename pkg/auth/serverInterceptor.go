@@ -2,11 +2,9 @@ package auth
 
 import (
 	"context"
-	"encoding/json"
 	"strings"
 
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
-	"github.com/modoki-paas/modoki-k8s/pkg/rbac/roles"
 	"golang.org/x/xerrors"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -57,61 +55,6 @@ func (ai *AuthorizerInterceptor) getTargetID(md metadata.MD) (id string, ok bool
 	return arr[0], true
 }
 
-func (ai *AuthorizerInterceptor) getRoles(md metadata.MD) RoleBindings {
-	arr := md.Get(RolesHeader)
-
-	if len(arr) == 0 {
-		return nil
-	}
-
-	var rb RoleBindings
-	if err := json.Unmarshal([]byte(arr[0]), &rb); err != nil {
-		return nil
-	}
-
-	return rb
-}
-
-func (ai *AuthorizerInterceptor) getPermissions(rb RoleBindings, targetID string) (permMap map[string]struct{}) {
-	if rb == nil {
-		return nil
-	}
-
-	perms := []string{}
-
-	systemRoleName, ok := rb["*"]
-
-	if ok {
-		systemRole := roles.FindSystemRole(systemRoleName)
-
-		if systemRole != nil {
-			for i := range systemRole.Permissions {
-				perms = append(perms, systemRole.Permissions[i].Name)
-			}
-		}
-	}
-
-	roleName, ok := rb[targetID]
-
-	if ok {
-		role := roles.FindRole(roleName)
-
-		if role != nil {
-			for i := range role.Permissions {
-				perms = append(perms, role.Permissions[i].Name)
-			}
-		}
-	}
-
-	permMap = map[string]struct{}{}
-
-	for i := range perms {
-		permMap[perms[i]] = struct{}{}
-	}
-
-	return permMap
-}
-
 func (ai *AuthorizerInterceptor) wrapContext(ctx context.Context) (context.Context, error) {
 	md, ok := metadata.FromIncomingContext(ctx)
 
@@ -139,10 +82,10 @@ func (ai *AuthorizerInterceptor) wrapContext(ctx context.Context) (context.Conte
 
 	ctx = AddTargetIDContext(ctx, targetID)
 
-	roles := ai.getRoles(md)
+	roles := getRoles(md)
 	ctx = AddRolesContext(ctx, roles)
 
-	perms := ai.getPermissions(roles, targetID)
+	perms := getPermissions(roles, targetID)
 	ctx = AddPermissionsContext(ctx, perms)
 
 	return ctx, nil

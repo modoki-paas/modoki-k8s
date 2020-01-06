@@ -7,6 +7,7 @@ var (
 		"auth",
 		permissions.UserCreate, permissions.UserGetAll, permissions.UserDelete, permissions.UserGet, permissions.UserUpdate,
 		permissions.OrgCreate, permissions.OrgList, permissions.OrgListAll, permissions.OrgDelete, permissions.OrgUpdate, permissions.OrgMemberManagement, permissions.OrgMemberList,
+		permissions.UserOrgGetRoleBinding,
 		permissions.TokenIssue, permissions.TokenValidate,
 	)
 

@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 
+	"github.com/modoki-paas/modoki-k8s/pkg/rbac/roles"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 )
@@ -64,6 +65,36 @@ func StreamClientInterceptor(token string) grpc.StreamClientInterceptor {
 
 	return func(ctx context.Context, desc *grpc.StreamDesc, cc *grpc.ClientConn, method string, streamer grpc.Streamer, opts ...grpc.CallOption) (grpc.ClientStream, error) {
 		ctx = ci.wrapContext(ctx)
+
+		return streamer(ctx, desc, cc, method, opts...)
+	}
+}
+
+// PerformerOverwritingUnaryClientInterceptor calls other service explicitly as the specified user with system role
+func PerformerOverwritingUnaryClientInterceptor(userID string, systemRole *roles.SystemRole) grpc.UnaryClientInterceptor {
+	return func(ctx context.Context, method string, req, reply interface{}, cc *grpc.ClientConn, invoker grpc.UnaryInvoker, opts ...grpc.CallOption) error {
+		rb := RoleBindings(map[string]string{
+			"*": systemRole.Name,
+		})
+
+		ctx = AddUserIDContext(ctx, userID)
+		ctx = AddRolesContext(ctx, rb)
+		ctx = AddPermissionsContext(ctx, getPermissions(rb, ""))
+
+		return invoker(ctx, method, req, reply, cc, opts...)
+	}
+}
+
+// PerformerOverwritingStreamClientInterceptor calls other service explicitly as the specified user with system role
+func PerformerOverwritingStreamClientInterceptor(userID string, systemRole *roles.SystemRole) grpc.StreamClientInterceptor {
+	return func(ctx context.Context, desc *grpc.StreamDesc, cc *grpc.ClientConn, method string, streamer grpc.Streamer, opts ...grpc.CallOption) (grpc.ClientStream, error) {
+		rb := RoleBindings(map[string]string{
+			"*": systemRole.Name,
+		})
+
+		ctx = AddUserIDContext(ctx, userID)
+		ctx = AddRolesContext(ctx, rb)
+		ctx = AddPermissionsContext(ctx, getPermissions(rb, ""))
 
 		return streamer(ctx, desc, cc, method, opts...)
 	}

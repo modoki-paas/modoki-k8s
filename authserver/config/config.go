@@ -15,12 +15,15 @@ type Endpoint struct {
 }
 
 type Endpoints struct {
+	App     *Endpoint `yaml:"app" json:"app"`
 	UserOrg *Endpoint `yaml:"user_org" json:"user_org"`
+	Token   *Endpoint `yaml:"token" json:"token"`
 }
 
 type Config struct {
 	Address   string    `yaml:"address" json:"address"`
 	Endpoints Endpoints `yaml:"endpoints" json:"endpoints"`
+	APIKeys   []string  `yaml:"api_keys" json:"api_keys"`
 }
 
 func ReadConfig(name string) (*Config, error) {
@@ -67,4 +70,9 @@ func addDefaultValues(cfg *Config) {
 			}
 		}
 	}
+
+	envCfg := ReadEnv()
+
+	cfg.APIKeys = append(cfg.APIKeys, envCfg.APIKeys...)
+
 }

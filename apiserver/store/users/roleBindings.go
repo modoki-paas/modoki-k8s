@@ -71,6 +71,10 @@ func (s *RoleBindingsStore) GetRoleBinding(userSeqID, targetSeqID int) (*roles.R
 	).Scan(&roleName)
 
 	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, ErrUnknownRoleBinding
+		}
+
 		return nil, xerrors.Errorf("failed to get role binding from db: %w", err)
 	}
 

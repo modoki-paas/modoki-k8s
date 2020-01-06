@@ -54,6 +54,8 @@ It has these top-level messages:
 	OrganizationInviteUserResponse
 	OrganizationListUserRequest
 	OrganizationListUserResponse
+	GetRoleBindingRequest
+	GetRoleBindingResponse
 */
 package modoki
 

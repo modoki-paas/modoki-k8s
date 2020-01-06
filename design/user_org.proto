@@ -20,42 +20,25 @@ message Organization {
   string name = 3;
 }
 
-message UserAddRequest {
-  User user = 1;
-}
+message UserAddRequest { User user = 1; }
 
-message UserAddResponse {
-  User user = 1;
-}
+message UserAddResponse { User user = 1; }
 
-message UserDeleteRequest {
-  string id = 1;
-}
+message UserDeleteRequest { string id = 1; }
 
 message UserDeleteResponse {}
 
-message UserFindByIDRequest {
-  string user_id = 1;
-}
+message UserFindByIDRequest { string user_id = 1; }
 
-message UserFindByIDResponse {
-  User user = 1;
-}
+message UserFindByIDResponse { User user = 1; }
 
-message OrganizationAddRequest {
-  Organization organization = 1;
-}
+message OrganizationAddRequest { Organization organization = 1; }
 
-message OrganizationAddResponse {
-  Organization organization = 1;
-}
+message OrganizationAddResponse { Organization organization = 1; }
 
-message OrganizationDeleteRequest {
-  string id = 1;
-}
+message OrganizationDeleteRequest { string id = 1; }
 
-message OrganizationDeleteResponse {
-}
+message OrganizationDeleteResponse {}
 
 message OrganizationInviteUserRequest {
   string user_id = 1;
@@ -63,16 +46,18 @@ message OrganizationInviteUserRequest {
   string role_name = 3;
 }
 
-message OrganizationInviteUserResponse {
+message OrganizationInviteUserResponse {}
+
+message OrganizationListUserRequest { string id = 1; }
+
+message OrganizationListUserResponse { repeated User organizations = 1; }
+
+message GetRoleBindingRequest {
+  string user_id = 1;
+  string target_id = 2;
 }
 
-message OrganizationListUserRequest {
-  string id = 1;
-}
-
-message OrganizationListUserResponse {
-  repeated User organizations = 1;
-}
+message GetRoleBindingResponse { string role = 1; }
 
 service UserOrg {
   rpc UserAdd(UserAddRequest) returns (UserAddResponse);
@@ -80,7 +65,12 @@ service UserOrg {
   rpc UserFindByID(UserFindByIDRequest) returns (UserFindByIDResponse);
 
   rpc OrganizationAdd(OrganizationAddRequest) returns (OrganizationAddResponse);
-  rpc OrganizationDelete(OrganizationDeleteRequest) returns (OrganizationDeleteResponse);
-  rpc OrganizationInviteUser(OrganizationInviteUserRequest) returns (OrganizationInviteUserResponse);
-  rpc OrganizationListUser(OrganizationListUserRequest) returns(OrganizationListUserResponse);  
+  rpc OrganizationDelete(OrganizationDeleteRequest)
+      returns (OrganizationDeleteResponse);
+  rpc OrganizationInviteUser(OrganizationInviteUserRequest)
+      returns (OrganizationInviteUserResponse);
+  rpc OrganizationListUser(OrganizationListUserRequest)
+      returns (OrganizationListUserResponse);
+
+  rpc GetRoleBinding(GetRoleBindingRequest) returns (GetRoleBindingResponse);
 }
