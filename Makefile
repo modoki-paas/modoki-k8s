@@ -34,7 +34,7 @@ yamler:
 build: apiserver authserver yamler
 
 .PHONY: all
-all: build docker-all test
+all: build test docker-all
 
 define docker
 	docker build -t $1 -f $2 .
