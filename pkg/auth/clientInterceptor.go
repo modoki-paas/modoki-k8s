@@ -77,6 +77,10 @@ func PerformerOverwritingUnaryClientInterceptor(userID string, systemRole *roles
 			"*": systemRole.Name,
 		})
 
+		if ctx.Value(TargetIDContext) == nil {
+			ctx = AddTargetIDContext(ctx, userID)
+		}
+
 		ctx = AddUserIDContext(ctx, userID)
 		ctx = AddRolesContext(ctx, rb)
 		ctx = AddPermissionsContext(ctx, getPermissions(rb, ""))
@@ -91,6 +95,10 @@ func PerformerOverwritingStreamClientInterceptor(userID string, systemRole *role
 		rb := RoleBindings(map[string]string{
 			"*": systemRole.Name,
 		})
+
+		if ctx.Value(TargetIDContext) == nil {
+			ctx = AddTargetIDContext(ctx, userID)
+		}
 
 		ctx = AddUserIDContext(ctx, userID)
 		ctx = AddRolesContext(ctx, rb)

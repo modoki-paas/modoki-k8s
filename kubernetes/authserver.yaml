@@ -28,7 +28,7 @@ spec:
             - secretRef:
                 name: modoki-api-key
           resources:
-            limits: # ここで制限を指定
+            limits:
               cpu: "1"
               memory: 100Mi
       volumes:
