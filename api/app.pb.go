@@ -8,6 +8,7 @@ It is generated from these files:
 	app.proto
 	auth.proto
 	generator.proto
+	token.proto
 	user_org.proto
 
 It has these top-level messages:
@@ -27,14 +28,16 @@ It has these top-level messages:
 	SignOutResponse
 	CallbackRequest
 	CallbackResponse
-	IssueTokenRequest
-	IssueTokenResponse
 	KubernetesConfig
 	YAML
 	OperateRequest
 	OperateResponse
 	MetricsRequest
 	MetricsResponse
+	IssueTokenRequest
+	IssueTokenResponse
+	ValidateTokenRequest
+	ValidateTokenResponse
 	User
 	Organization
 	UserAddRequest

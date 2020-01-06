@@ -1,11 +1,13 @@
 CREATE TABLE tokens (
     seq INTEGER AUTO_INCREMENT NOT NULL PRIMARY KEY,
+    id VARCHAR(512) NOT NULL, 
     token VARCHAR(512) NOT NULL UNIQUE,
-    owner INTEGER NOT NULL,
-    author INTEGER NOT NULL,
+    owner VARCHAR(128) NOT NULL,
+    author VARCHAR(128) NOT NULL,
     created_at timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 ALTER TABLE tokens ADD INDEX owner_index(owner);
 ALTER TABLE tokens ADD INDEX author_index(author);
+ALTER TABLE tokens ADD UNIQUE INDEX id_owner_index(owner, id);

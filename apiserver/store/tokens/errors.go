@@ -1,0 +1,8 @@
+package tokens
+
+import "golang.org/x/xerrors"
+
+var (
+	// ErrTokenIDDuplicates means token names duplicate
+	ErrTokenIDDuplicates = xerrors.New("token names duplicate")
+)

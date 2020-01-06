@@ -1,0 +1,21 @@
+syntax = "proto3";
+package modoki;
+
+option go_package = "modoki";
+
+message IssueTokenRequest { string id = 2; }
+
+message IssueTokenResponse { string token = 1; }
+
+message ValidateTokenRequest { string token = 1; }
+
+message ValidateTokenResponse {
+  string id = 1;
+  string user_id = 2;
+  string created_by = 3;
+}
+
+service Token {
+  rpc IssueToken(IssueTokenRequest) returns (IssueTokenResponse);
+  rpc ValidateToken(ValidateTokenRequest) returns (ValidateTokenResponse);
+}

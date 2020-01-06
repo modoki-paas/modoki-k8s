@@ -6,9 +6,10 @@ import (
 
 type Token struct {
 	SeqID     int       `db:"seq"`
+	ID        string    `db:"id"`
 	Token     string    `db:"token"`
-	Owner     int       `db:"owner"`
-	Author    int       `db:"author"`
+	Owner     string    `db:"owner"`
+	Author    string    `db:"author"`
 	CreatedAt time.Time `db:"created_at"`
 	UpdatedAt time.Time `db:"updated_at"`
 }
