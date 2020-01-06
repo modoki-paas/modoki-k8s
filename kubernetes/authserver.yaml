@@ -44,7 +44,13 @@ metadata:
 data:
   authserver.yaml: |
     endpoints:
+      app:
+        endpoint: modoki-apiserver-svc:443
+        insecure: true
       user_org:
+        endpoint: modoki-apiserver-svc:443
+        insecure: true
+      token:
         endpoint: modoki-apiserver-svc:443
         insecure: true
 ---
