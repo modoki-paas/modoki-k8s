@@ -54,7 +54,7 @@ func (ss *TokenStore) AddToken(s *types.Token) (seq int, token string, err error
 func (ss *TokenStore) GetToken(seq int) (*types.Token, error) {
 	var token types.Token
 	err := ss.db.
-		QueryRowxContext(context.Background(), "SELECT * FROM Tokens WHERE seq=? FOR UPDATE", seq).
+		QueryRowxContext(context.Background(), "SELECT * FROM tokens WHERE seq=? FOR UPDATE", seq).
 		StructScan(&token)
 
 	if err != nil {
@@ -67,7 +67,7 @@ func (ss *TokenStore) GetToken(seq int) (*types.Token, error) {
 func (ss *TokenStore) FindTokenByID(owner string, id string) (*types.Token, error) {
 	var token types.Token
 	err := ss.db.
-		QueryRowxContext(context.Background(), "SELECT * FROM Tokens WHERE owner=? AND id=? FOR UPDATE", owner, id).
+		QueryRowxContext(context.Background(), "SELECT * FROM tokens WHERE owner=? AND id=? FOR UPDATE", owner, id).
 		StructScan(&token)
 
 	if err != nil {
@@ -80,7 +80,7 @@ func (ss *TokenStore) FindTokenByID(owner string, id string) (*types.Token, erro
 func (ss *TokenStore) FindTokenByToken(token string) (*types.Token, error) {
 	var res types.Token
 	err := ss.db.
-		QueryRowxContext(context.Background(), "SELECT * FROM Tokens WHERE token=? FOR UPDATE", token).
+		QueryRowxContext(context.Background(), "SELECT * FROM tokens WHERE token=? FOR UPDATE", token).
 		StructScan(&res)
 
 	if err != nil {
