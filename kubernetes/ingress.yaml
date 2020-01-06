@@ -17,5 +17,5 @@ spec:
         paths:
           - path: /
             backend:
-              serviceName: modoki-svc
+              serviceName: modoki-authserver-svc
               servicePort: 80
