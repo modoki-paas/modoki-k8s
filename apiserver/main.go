@@ -63,6 +63,7 @@ func main() {
 		),
 	)
 
+	api.RegisterTokenServer(server, &handler.TokenServer{Context: sctx})
 	api.RegisterAppServer(server, &handler.AppServer{Context: sctx})
 	api.RegisterUserOrgServer(server, &handler.UserOrgServer{Context: sctx})
 

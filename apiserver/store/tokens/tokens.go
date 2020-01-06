@@ -2,6 +2,7 @@ package tokens
 
 import (
 	"context"
+	"database/sql"
 
 	"github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
@@ -84,6 +85,9 @@ func (ss *TokenStore) FindTokenByToken(token string) (*types.Token, error) {
 		StructScan(&res)
 
 	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, ErrUnknownToken
+		}
 		return nil, xerrors.Errorf("failed to retrieve Token: %w", err)
 	}
 
