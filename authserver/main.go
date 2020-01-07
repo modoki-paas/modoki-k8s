@@ -75,6 +75,7 @@ func initGRPCServer(sctx *handler.ServerContext) (*grpc.Server, error) {
 		),
 	)
 
+	api.RegisterUserOrgServer(server, &handler.UserOrgServer{Context: sctx})
 	api.RegisterTokenServer(server, &handler.TokenServer{Context: sctx})
 	api.RegisterAppServer(server, &handler.AppServer{Context: sctx})
 
