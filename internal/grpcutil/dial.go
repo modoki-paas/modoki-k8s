@@ -1,9 +1,12 @@
 package grpcutil
 
 import (
+	"crypto/tls"
+
 	"github.com/modoki-paas/modoki-k8s/pkg/auth"
 	"github.com/modoki-paas/modoki-k8s/pkg/rbac/roles"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 )
 
 type GRPCDialer struct {
@@ -30,6 +33,9 @@ func (gd *GRPCDialer) Dial(endpoint string, insecure bool) (*grpc.ClientConn, er
 
 	if insecure {
 		opts = append(opts, grpc.WithInsecure())
+	} else {
+		h2creds := credentials.NewTLS(&tls.Config{NextProtos: []string{"h2"}})
+		opts = append(opts, grpc.WithTransportCredentials(h2creds))
 	}
 
 	opts = append(
