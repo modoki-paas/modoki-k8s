@@ -21,6 +21,7 @@ spec:
           image: modokipaas/modoki-auth
           ports:
             - containerPort: 443
+              name: grpc
           volumeMounts:
             - mountPath: /etc/modoki
               name: config
@@ -63,6 +64,6 @@ spec:
   selector:
     app: modoki-authserver
   ports:
-    - protocol: TCP
-      port: 443
+    - port: 443
       targetPort: 443
+      name: grpc

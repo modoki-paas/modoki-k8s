@@ -19,4 +19,4 @@ spec:
           - path: /
             backend:
               serviceName: modoki-authserver-svc
-              servicePort: 443
+              servicePort: grpc
