@@ -36,7 +36,7 @@ func (s *AppServer) Create(ctx context.Context, req *api.AppCreateRequest) (res 
 		store := apps.NewAppStore(tx)
 
 		spec := &api.AppSpec{
-			Image: "nginx",
+			Image: "modokipaas/no-app:latest",
 		}
 		domain := req.Domain
 
