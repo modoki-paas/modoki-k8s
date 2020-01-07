@@ -3,6 +3,7 @@ package auth
 import (
 	"context"
 	"strings"
+	"log"
 
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	"golang.org/x/xerrors"
@@ -98,6 +99,7 @@ func UnaryServerInterceptor(tokens []string) grpc.UnaryServerInterceptor {
 	}
 
 	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
+		log.Println(info)
 		ctx, err := ai.wrapContext(ctx)
 
 		if err != nil {

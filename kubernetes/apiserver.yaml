@@ -31,6 +31,10 @@ spec:
           env:
             - name: MODOKI_APP_DOMAIN
               value: apps.tsuzu.xyz
+            - name: GRPC_GO_LOG_VERBOSITY_LEVEL
+              value: "99"
+            - name: GRPC_GO_LOG_SEVERITY_LEVEL
+              value: info
           envFrom:
             - secretRef:
                 name: modoki-api-key
@@ -66,8 +70,7 @@ spec:
   selector:
     app: modoki-apiserver
   ports:
-    - protocol: TCP
-      port: 443
+    - port: 443
       targetPort: 443
 ---
 apiVersion: v1
