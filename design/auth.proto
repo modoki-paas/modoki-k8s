@@ -19,7 +19,7 @@ message CallbackRequest {
 
 message CallbackResponse {}
 
-service Authority {
+service Auth {
   rpc SignIn(SignInRequest) returns (SignInResponse);
   rpc SignOut(SignOutRequest) returns (SignOutResponse);
   rpc Callback(CallbackRequest) returns (CallbackResponse);
