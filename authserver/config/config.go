@@ -20,10 +20,19 @@ type Endpoints struct {
 	Token   *Endpoint `yaml:"token" json:"token"`
 }
 
+type OpenIDConnect struct {
+	ClientID     string   `yaml:"client_id" json:"client_id"`
+	ClientSecret string   `yaml:"client_id" json:"client_id"`
+	Scopes       []string `yaml:"scopes" json:"scopes"`
+	RedirectURL  string   `yaml:"redirect_url" json:"redirect_url"`
+	ProviderURL  string   `yaml:"provider_url" json:"provider_url"`
+}
+
 type Config struct {
-	Address   string    `yaml:"address" json:"address"`
-	Endpoints Endpoints `yaml:"endpoints" json:"endpoints"`
-	APIKeys   []string  `yaml:"api_keys" json:"api_keys"`
+	Address   string        `yaml:"address" json:"address"`
+	Endpoints Endpoints     `yaml:"endpoints" json:"endpoints"`
+	APIKeys   []string      `yaml:"api_keys" json:"api_keys"`
+	OIDC      OpenIDConnect `yaml:"oidc" json:"oidc"`
 }
 
 func ReadConfig(name string) (*Config, error) {
@@ -77,4 +86,19 @@ func addDefaultValues(cfg *Config) {
 
 	cfg.APIKeys = append(cfg.APIKeys, envCfg.APIKeys...)
 
+	if cfg.OIDC.ClientID == "" {
+		cfg.OIDC.ClientID = envCfg.ClientID
+	}
+	if cfg.OIDC.ClientSecret == "" {
+		cfg.OIDC.ClientSecret = envCfg.ClientSecret
+	}
+
+	cfg.OIDC.Scopes = append(cfg.OIDC.Scopes, envCfg.OpenIDConnect.Scopes...)
+
+	if cfg.OIDC.RedirectURL == "" {
+		cfg.OIDC.RedirectURL = envCfg.RedirectURL
+	}
+	if cfg.OIDC.ProviderURL == "" {
+		cfg.OIDC.ProviderURL = envCfg.ProviderURL
+	}
 }

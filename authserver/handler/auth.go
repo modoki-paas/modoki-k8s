@@ -7,6 +7,7 @@ import (
 )
 
 type AuthServer struct {
+	Context *ServerContext
 }
 
 func (s *AuthServer) SignIn(ctx context.Context, in *modoki.SignInRequest) (*modoki.SignInResponse, error) {
