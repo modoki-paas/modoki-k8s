@@ -1,6 +1,6 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
-namespace: modoki
+namespace: modoki2
 bases:
   - ../kubernetes
 secretGenerator:
@@ -13,3 +13,28 @@ secretGenerator:
 
 generatorOptions:
   disableNameSuffixHash: true
+
+patchesJson6902:
+  - target:
+      group: extensions
+      version: v1beta1
+      kind: Ingress
+      name: modoki-ingress
+    patch: |
+      - op: replace
+        path: /spec/tls/0/hosts/0
+        value: foobar.tsuzu.xyz
+      - op: replace
+        path: /spec/rules/0/host
+        value: foobar.tsuzu.xyz
+      - op: replace
+        path: /spec/tls/0/secretName
+        value: modoki-apps-cert-secret
+
+vars:
+  - name: MODOKI_APP_DOMAIN
+    objref:
+      group: extensions
+      version: v1beta1
+      kind: Ingress
+      name: modoki-ingress

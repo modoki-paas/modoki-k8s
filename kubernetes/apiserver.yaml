@@ -30,7 +30,7 @@ spec:
               name: config
           env:
             - name: MODOKI_APP_DOMAIN
-              value: apps.tsuzu.xyz
+              value: $(MODOKI_APP_DOMAIN)
             - name: GRPC_GO_LOG_VERBOSITY_LEVEL
               value: "99"
             - name: GRPC_GO_LOG_SEVERITY_LEVEL
