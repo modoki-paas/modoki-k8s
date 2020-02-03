@@ -2,8 +2,8 @@ package auth
 
 import (
 	"context"
-	"strings"
 	"log"
+	"strings"
 
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	"golang.org/x/xerrors"

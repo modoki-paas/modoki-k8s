@@ -5,16 +5,18 @@ option go_package = "modoki";
 
 message SignInRequest {}
 
-message SignInResponse { string redirect_uri = 1; }
+message SignInResponse {
+  string redirect_uri = 1;
+  string state = 2;
+}
 
 message SignOutRequest {}
 
 message SignOutResponse {}
 
 message CallbackRequest {
-  string access_token = 1;
-  string id_token = 2;
-  string state = 3;
+  string code = 1;
+  string state = 2;
 }
 
 message CallbackResponse {}

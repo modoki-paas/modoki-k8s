@@ -21,3 +21,12 @@ func (s *AuthServer) SignOut(_ context.Context, _ *modoki.SignOutRequest) (*modo
 func (s *AuthServer) Callback(_ context.Context, _ *modoki.CallbackRequest) (*modoki.CallbackResponse, error) {
 	panic("not implemented")
 }
+
+func (s *AuthServer) IsPrivate(method string) bool {
+	switch method {
+	case "modoki.Auth/SignIn", "modoki.Auth/Callback":
+		return false
+	default:
+		return true
+	}
+}

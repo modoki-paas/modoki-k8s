@@ -2,7 +2,6 @@ package auth
 
 import (
 	"context"
-	"log"
 	"strings"
 
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
@@ -13,6 +12,10 @@ import (
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 )
+
+type IsPrivateService interface {
+	IsPrivate(method string) bool
+}
 
 type GatewayAuthorizerInterceptor struct {
 	tokenClient   api.TokenClient
@@ -131,13 +134,16 @@ func UnaryGatewayServerInterceptor(tokenClient api.TokenClient, userOrgClient ap
 	}
 
 	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
+		if ips, ok := info.Server.(IsPrivateService); ok && !ips.IsPrivate(info.FullMethod) {
+			return handler(ctx, req)
+		}
+
 		ctx, err := ai.wrapContext(ctx)
 
 		if err != nil {
 			if stat, ok := status.FromError(err); ok {
 				return nil, stat.Err()
 			}
-			log.Println(err)
 
 			return nil, status.Error(codes.PermissionDenied, err.Error())
 		}
@@ -154,11 +160,19 @@ func StreamGatewayServerInterceptor(tokenClient api.TokenClient, userOrgClient a
 	}
 
 	return func(srv interface{}, stream grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
+		if ips, ok := srv.(IsPrivateService); ok && !ips.IsPrivate(info.FullMethod) {
+			return handler(srv, stream)
+		}
+
 		newStream := grpc_middleware.WrapServerStream(stream)
 
 		ctx, err := ai.wrapContext(stream.Context())
 
 		if err != nil {
+			if stat, ok := status.FromError(err); ok {
+				return stat.Err()
+			}
+
 			return status.Error(codes.PermissionDenied, err.Error())
 		}
 
