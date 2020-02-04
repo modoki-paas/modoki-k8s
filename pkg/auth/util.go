@@ -7,6 +7,12 @@ import (
 	"google.golang.org/grpc/metadata"
 )
 
+// IsPrivateService should be implemented for public services(default: private)
+type IsPrivateService interface {
+	// IsPrivate should return true for public services
+	IsPrivate(method string) bool
+}
+
 func getRoles(md metadata.MD) RoleBindings {
 	arr := md.Get(RolesHeader)
 

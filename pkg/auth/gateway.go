@@ -13,10 +13,6 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-type IsPrivateService interface {
-	IsPrivate(method string) bool
-}
-
 type GatewayAuthorizerInterceptor struct {
 	tokenClient   api.TokenClient
 	userOrgClient api.UserOrgClient
