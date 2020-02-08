@@ -38,3 +38,5 @@ vars:
       version: v1beta1
       kind: Ingress
       name: modoki-ingress
+    fieldref:
+      fieldpath: spec.rules[0].host

@@ -81,7 +81,7 @@ func (author *Authenticator) Callback(ctx context.Context, expectedState, actual
 }
 
 // Login generates state and redirect url to IdP
-func (author *Authenticator) Login(ctx context.Context, salt string) (redirectURL, state string, err error) {
+func (author *Authenticator) Login(ctx context.Context) (redirectURL, state string, err error) {
 	state, err = tokenutil.GenerateRandomToken()
 
 	if err != nil {

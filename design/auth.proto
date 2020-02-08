@@ -17,9 +17,12 @@ message SignOutResponse {}
 message CallbackRequest {
   string code = 1;
   string state = 2;
+  string expected_state = 3;
 }
 
-message CallbackResponse {}
+message CallbackResponse {
+  string token = 1;
+}
 
 service Auth {
   rpc SignIn(SignInRequest) returns (SignInResponse);

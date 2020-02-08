@@ -70,20 +70,27 @@ func StreamClientInterceptor(token string) grpc.StreamClientInterceptor {
 	}
 }
 
+// OverwritePerfomerContext overwrites context to call API
+func OverwritePerfomerContext(ctx context.Context, userID, targetID string, systemRole *roles.SystemRole) context.Context {
+	rb := RoleBindings(map[string]string{
+		"*": systemRole.Name,
+	})
+
+	if ctx.Value(TargetIDContext) == nil {
+		ctx = AddTargetIDContext(ctx, targetID)
+	}
+
+	ctx = AddUserIDContext(ctx, userID)
+	ctx = AddRolesContext(ctx, rb)
+	ctx = AddPermissionsContext(ctx, getPermissions(rb, ""))
+
+	return ctx
+}
+
 // PerformerOverwritingUnaryClientInterceptor calls other service explicitly as the specified user with system role
 func PerformerOverwritingUnaryClientInterceptor(userID string, systemRole *roles.SystemRole) grpc.UnaryClientInterceptor {
 	return func(ctx context.Context, method string, req, reply interface{}, cc *grpc.ClientConn, invoker grpc.UnaryInvoker, opts ...grpc.CallOption) error {
-		rb := RoleBindings(map[string]string{
-			"*": systemRole.Name,
-		})
-
-		if ctx.Value(TargetIDContext) == nil {
-			ctx = AddTargetIDContext(ctx, userID)
-		}
-
-		ctx = AddUserIDContext(ctx, userID)
-		ctx = AddRolesContext(ctx, rb)
-		ctx = AddPermissionsContext(ctx, getPermissions(rb, ""))
+		ctx = OverwritePerfomerContext(ctx, userID, userID, systemRole)
 
 		return invoker(ctx, method, req, reply, cc, opts...)
 	}
@@ -92,17 +99,7 @@ func PerformerOverwritingUnaryClientInterceptor(userID string, systemRole *roles
 // PerformerOverwritingStreamClientInterceptor calls other service explicitly as the specified user with system role
 func PerformerOverwritingStreamClientInterceptor(userID string, systemRole *roles.SystemRole) grpc.StreamClientInterceptor {
 	return func(ctx context.Context, desc *grpc.StreamDesc, cc *grpc.ClientConn, method string, streamer grpc.Streamer, opts ...grpc.CallOption) (grpc.ClientStream, error) {
-		rb := RoleBindings(map[string]string{
-			"*": systemRole.Name,
-		})
-
-		if ctx.Value(TargetIDContext) == nil {
-			ctx = AddTargetIDContext(ctx, userID)
-		}
-
-		ctx = AddUserIDContext(ctx, userID)
-		ctx = AddRolesContext(ctx, rb)
-		ctx = AddPermissionsContext(ctx, getPermissions(rb, ""))
+		ctx = OverwritePerfomerContext(ctx, userID, userID, systemRole)
 
 		return streamer(ctx, desc, cc, method, opts...)
 	}
