@@ -2,7 +2,6 @@ package handler
 
 import (
 	"context"
-	"log"
 	"time"
 
 	modoki "github.com/modoki-paas/modoki-k8s/api"
@@ -98,9 +97,8 @@ func (s *AuthServer) Callback(ctx context.Context, req *modoki.CallbackRequest) 
 }
 
 func (s *AuthServer) IsPrivate(method string) bool {
-	log.Println("method: ", method)
 	switch method {
-	case "modoki.Auth/SignIn", "modoki.Auth/Callback":
+	case "/modoki.Auth/SignIn", "/modoki.Auth/Callback":
 		return false
 	default:
 		return true
