@@ -42,7 +42,7 @@ func (s *AuthServer) SignOut(_ context.Context, _ *modoki.SignOutRequest) (*modo
 
 func (s *AuthServer) Callback(ctx context.Context, req *modoki.CallbackRequest) (*modoki.CallbackResponse, error) {
 	oidcConfig := s.Context.Config.OIDC
-	author, err := oidc.NewAuthenticator(ctx, oidcConfig.ClientID, oidcConfig.ClientSecret, oidcConfig.RedirectURL, oidcConfig.RedirectURL, oidcConfig.Scopes)
+	author, err := oidc.NewAuthenticator(ctx, oidcConfig.ClientID, oidcConfig.ClientSecret, oidcConfig.RedirectURL, oidcConfig.ProviderURL, oidcConfig.Scopes)
 
 	if err != nil {
 		return nil, status.Error(codes.Internal, "failed to initialize OpenID Connect authenticator")
