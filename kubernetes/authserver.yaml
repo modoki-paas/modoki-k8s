@@ -33,6 +33,8 @@ spec:
           envFrom:
             - secretRef:
                 name: modoki-api-key
+            - secretRef:
+                name: modoki-oidc-secret
           resources:
             limits:
               cpu: "1"

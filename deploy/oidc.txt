@@ -1,0 +1,5 @@
+OIDC_CLIENT_ID=91MFFBxTY2bqGReXKG9Uf6GxAfUKgrDR
+OIDC_CLIENT_SECRET=3iUV5MoEg4gvRsHX0KyvGSCVTAebDmNUpOfw8ifMq_dM-h7FZlhnQrC-WisAC8ZO
+OIDC_SCOPES=openid,profile
+OIDC_REDIRECT_URL=https://apps.misw.jp/callback
+OIDC_PROVIDER_URL=https://misw.auth0.com/
