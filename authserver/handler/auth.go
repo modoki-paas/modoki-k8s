@@ -18,7 +18,7 @@ type AuthServer struct {
 
 func (s *AuthServer) SignIn(ctx context.Context, in *modoki.SignInRequest) (*modoki.SignInResponse, error) {
 	oidcConfig := s.Context.Config.OIDC
-	auth, err := oidc.NewAuthenticator(ctx, oidcConfig.ClientID, oidcConfig.ClientSecret, oidcConfig.RedirectURL, oidcConfig.RedirectURL, oidcConfig.Scopes)
+	auth, err := oidc.NewAuthenticator(ctx, oidcConfig.ClientID, oidcConfig.ClientSecret, oidcConfig.RedirectURL, oidcConfig.ProviderURL, oidcConfig.Scopes)
 
 	if err != nil {
 		return nil, status.Error(codes.Internal, "failed to initialize OpenID Connect authenticator")
