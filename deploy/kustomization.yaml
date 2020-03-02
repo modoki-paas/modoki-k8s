@@ -10,6 +10,9 @@ secretGenerator:
   - name: modoki-db-secret
     env: db.txt
     type: Opaque
+  - name: modoki-oidc-secret
+    env: oidc.txt
+    type: Opaque
 
 generatorOptions:
   disableNameSuffixHash: true
