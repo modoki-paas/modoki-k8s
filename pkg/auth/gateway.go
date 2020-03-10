@@ -2,15 +2,18 @@ package auth
 
 import (
 	"context"
-	"strings"
 
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	api "github.com/modoki-paas/modoki-k8s/api"
 	"golang.org/x/xerrors"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
+)
+
+var (
+	// ErrUnauthenticated returns an error when authentication failed
+	ErrUnauthenticated = xerrors.Errorf("unauthenticated")
 )
 
 type GatewayAuthorizerInterceptor struct {
@@ -18,53 +21,27 @@ type GatewayAuthorizerInterceptor struct {
 	userOrgClient api.UserOrgClient
 }
 
-// getTokenFromHeader gets a token from header
-func (ai *GatewayAuthorizerInterceptor) getTokenFromHeader(md metadata.MD) string {
-	headers := md.Get("Authorization")
+// AuthenticatedMetadata represents data retrieved from the access token
+type AuthenticatedMetadata struct {
+	UserID string
+	Roles  RoleBindings
 
-	if len(headers) == 0 {
-		return ""
-	}
-
-	key := strings.TrimPrefix(headers[0], "Bearer ")
-
-	return key
+	TargetID             string
+	PermissionsForTarget map[string]struct{}
 }
 
-func (ai *GatewayAuthorizerInterceptor) getTargetID(md metadata.MD) (id string, ok bool) {
-	arr := md.Get(TargetIDHeader)
-
-	if len(arr) == 0 {
-		return "", false
-	}
-
-	return arr[0], true
-}
-
-func (ai *GatewayAuthorizerInterceptor) wrapContext(ctx context.Context) (context.Context, error) {
-	md, ok := metadata.FromIncomingContext(ctx)
-
-	if !ok {
-		return nil, xerrors.Errorf("unauthorized: metadata missing")
-	}
-
-	tk := ai.getTokenFromHeader(md)
-
-	if tk == "" {
-		return nil, status.Error(codes.Unauthenticated, "authorization header missing")
-	}
-
+// GetAuthenticatedMetadata returns all metadata to authorize users
+func (ai *GatewayAuthorizerInterceptor) GetAuthenticatedMetadata(ctx context.Context, tk, targetID string) (*AuthenticatedMetadata, error) {
 	vt, err := ai.tokenClient.ValidateToken(ctx, &api.ValidateTokenRequest{
 		Token: tk,
 	})
 
 	if err != nil {
 		if stat, ok := status.FromError(err); ok {
-			if stat.Code() == codes.NotFound {
-				return nil, status.Error(codes.Unauthenticated, "invalid token")
+			switch stat.Code() {
+			case codes.NotFound:
+				return nil, ErrUnauthenticated
 			}
-
-			return nil, stat.Err()
 		}
 
 		return nil, xerrors.Errorf("failed to validate token: %w", err)
@@ -75,16 +52,10 @@ func (ai *GatewayAuthorizerInterceptor) wrapContext(ctx context.Context) (contex
 	})
 
 	if err != nil {
-		if stat, ok := status.FromError(err); ok {
-			return nil, stat.Err()
-		}
-
 		return nil, xerrors.Errorf("failed to validate token: %w", err)
 	}
 
-	targetID, ok := ai.getTargetID(md)
-
-	if !ok {
+	if targetID == "" {
 		targetID = performer.User.UserId
 	}
 
@@ -99,12 +70,8 @@ func (ai *GatewayAuthorizerInterceptor) wrapContext(ctx context.Context) (contex
 		} else if stat.Code() != codes.NotFound {
 			return nil, stat.Err()
 		}
-		// continue if role binding is not found
+		// continue even if role binding is not found
 	}
-
-	ctx = AddUserIDContext(ctx, performer.User.UserId)
-
-	ctx = AddTargetIDContext(ctx, targetID)
 
 	roles := RoleBindings(map[string]string{
 		"*": performer.User.SystemRoleName,
@@ -114,10 +81,35 @@ func (ai *GatewayAuthorizerInterceptor) wrapContext(ctx context.Context) (contex
 		roles[targetID] = rb.Role
 	}
 
-	ctx = AddRolesContext(ctx, roles)
-
 	perms := getPermissions(roles, targetID)
-	ctx = AddPermissionsContext(ctx, perms)
+
+	return &AuthenticatedMetadata{
+		UserID: performer.User.UserId,
+		Roles:  roles,
+
+		TargetID:             targetID,
+		PermissionsForTarget: perms,
+	}, nil
+}
+
+func (ai *GatewayAuthorizerInterceptor) wrapContext(ctx context.Context) (context.Context, error) {
+	token := GetToken(ctx)
+	targetID := GetTargetID(ctx)
+
+	md, err := ai.GetAuthenticatedMetadata(ctx, token, targetID)
+
+	if xerrors.Is(err, ErrUnauthenticated) {
+		return nil, status.Error(codes.Unauthenticated, "token is missing or invalid")
+	}
+
+	if err != nil {
+		return nil, status.Error(codes.Unauthenticated, "unauthorized")
+	}
+
+	ctx = AddUserIDContext(ctx, md.UserID)
+	ctx = AddTargetIDContext(ctx, targetID)
+	ctx = AddRolesContext(ctx, md.Roles)
+	ctx = AddPermissionsContext(ctx, md.PermissionsForTarget)
 
 	return ctx, nil
 }
