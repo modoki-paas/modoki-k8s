@@ -7,8 +7,6 @@ import (
 	"github.com/google/martian/log"
 	"github.com/modoki-paas/modoki-k8s/pkg/auth"
 	"golang.org/x/xerrors"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 
 	core "github.com/envoyproxy/go-control-plane/envoy/api/v2/core"
 	extauth "github.com/envoyproxy/go-control-plane/envoy/service/auth/v2"
@@ -47,8 +45,6 @@ func (ea *ExtAuthZ) Check(ctx context.Context, req *extauth.CheckRequest) (*exta
 				},
 			},
 		}, nil
-
-		return nil, status.Error(codes.Unauthenticated, "the token is missing or invalid")
 	}
 
 	if err != nil {
