@@ -6,16 +6,11 @@ import (
 	"net"
 	"os"
 
+	extauth "github.com/envoyproxy/go-control-plane/envoy/service/auth/v2"
 	_ "github.com/go-sql-driver/mysql"
-	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	api "github.com/modoki-paas/modoki-k8s/api"
 	"github.com/modoki-paas/modoki-k8s/authserver/config"
 	"github.com/modoki-paas/modoki-k8s/authserver/handler"
-	"github.com/modoki-paas/modoki-k8s/internal/connector"
-	"github.com/modoki-paas/modoki-k8s/internal/grpcutil"
-	"github.com/modoki-paas/modoki-k8s/pkg/auth"
-	"github.com/modoki-paas/modoki-k8s/pkg/rbac/roles"
-	"golang.org/x/xerrors"
 	"google.golang.org/grpc"
 )
 
@@ -40,45 +35,13 @@ func (arg *commandArg) Init() {
 func initGRPCServer(sctx *handler.ServerContext) (*grpc.Server, error) {
 	cfg := sctx.Config
 
-	dialer := grpcutil.NewGRPCDialer(cfg.APIKeys[0])
-
-	dialer.UnaryClientInterceptors = append(
-		[]grpc.UnaryClientInterceptor{auth.PerformerOverwritingUnaryClientInterceptor("authserver", roles.SystemAuth)},
-		dialer.UnaryClientInterceptors...,
-	)
-
-	dialer.StreamClientInterceptors = append(
-		[]grpc.StreamClientInterceptor{auth.PerformerOverwritingStreamClientInterceptor("authserver", roles.SystemAuth)},
-		dialer.StreamClientInterceptors...,
-	)
-
-	connector := connector.NewConnector(dialer)
-
-	userOrg, err := connector.ConnectUserOrgClient(cfg.Endpoints.UserOrg.Endpoint, cfg.Endpoints.UserOrg.Insecure)
-
-	if err != nil {
-		return nil, xerrors.Errorf("failed to initialize user/org client for gateway: %w", err)
-	}
-
-	token, err := connector.ConnectTokenClient(cfg.Endpoints.Token.Endpoint, cfg.Endpoints.Token.Insecure)
-
-	if err != nil {
-		return nil, xerrors.Errorf("failed to initialize user/org client for gateway: %w", err)
-	}
-
-	server := grpc.NewServer(
-		grpc_middleware.WithUnaryServerChain(
-			auth.UnaryGatewayServerInterceptor(token, userOrg),
-		),
-		grpc_middleware.WithStreamServerChain(
-			auth.StreamGatewayServerInterceptor(token, userOrg),
-		),
-	)
+	server := grpc.NewServer()
 
 	api.RegisterUserOrgServer(server, &handler.UserOrgServer{Context: sctx})
 	api.RegisterTokenServer(server, &handler.TokenServer{Context: sctx})
 	api.RegisterAppServer(server, &handler.AppServer{Context: sctx})
 	api.RegisterAuthServer(server, &handler.AuthServer{Context: sctx})
+	extauth.RegisterAuthorizationServer(server, &handler.ExtAuthZ{Context: sctx})
 
 	return server, nil
 }

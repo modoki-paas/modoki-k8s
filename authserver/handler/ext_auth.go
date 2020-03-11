@@ -18,7 +18,7 @@ import (
 )
 
 type ExtAuthZ struct {
-	gai     auth.GatewayAuthorizerInterceptor
+	GA      auth.GatewayAuthorizer
 	Context *ServerContext
 }
 
@@ -31,7 +31,7 @@ func (ea *ExtAuthZ) Check(ctx context.Context, req *extauth.CheckRequest) (*exta
 
 	targetHeader := req.Attributes.Request.Http.Headers[strings.ToLower(auth.TargetIDHeader)]
 
-	md, err := ea.gai.GetAuthenticatedMetadata(ctx, token, targetHeader)
+	md, err := ea.GA.GetAuthenticatedMetadata(ctx, token, targetHeader)
 
 	if xerrors.Is(err, auth.ErrUnauthenticated) {
 		return &extauth.CheckResponse{
