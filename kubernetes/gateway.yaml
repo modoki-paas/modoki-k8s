@@ -1,0 +1,162 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: modoki-ingress-gateway-deployment
+  namespace: modoki
+  labels:
+    app: modoki-ingress-gateway
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: modoki-ingress-gateway
+  template:
+    metadata:
+      labels:
+        app: modoki-ingress-gateway
+    spec:
+      serviceAccountName: modoki-apiserver-sa
+      containers:
+        - name: modoki-apiserver
+          imagePullPolicy: Always
+          image: modokipaas/modoki-k8s
+          args:
+            - -m
+            - -w
+          ports:
+            - containerPort: 443
+          volumeMounts:
+            - mountPath: /etc/modoki
+              name: config
+          env:
+            - name: MODOKI_APP_DOMAIN
+              value: $(MODOKI_APP_DOMAIN)
+            - name: GRPC_GO_LOG_VERBOSITY_LEVEL
+              value: "99"
+            - name: GRPC_GO_LOG_SEVERITY_LEVEL
+              value: info
+          envFrom:
+            - secretRef:
+                name: modoki-api-key
+            - secretRef:
+                name: modoki-db-secret
+          resources:
+            limits:
+              cpu: "1"
+              memory: 100Mi
+      volumes:
+        - name: config
+          configMap:
+            name: modoki-apiserver-config
+---
+apiVersion: apps/v1
+kind: ConfigMap
+data:
+  ext_authz.yaml: |
+    admin:
+      access_log_path: /dev/stdout
+      address:
+        socket_address:
+          address: 127.0.0.1
+          port_value: 9000
+
+    node:
+      cluster: service_greeter
+      id: test-id
+
+    static_resources:
+      listeners:
+      - name: listener_0
+        address:
+          socket_address: { address: 0.0.0.0, port_value: 8080 }
+
+        filter_chains:
+        - filters:
+          - name: envoy.http_connection_manager
+            typed_config:  
+              "@type": type.googleapis.com/envoy.config.filter.network.http_connection_manager.v2.HttpConnectionManager
+              stat_prefix: ingress_http
+              codec_type: AUTO
+              route_config:
+                name: local_route
+                virtual_hosts:
+                - name: local_service
+                  domains: ["*"]
+                  routes:
+                  - match:
+                      prefix: "/"
+                    route:
+                      host_rewrite: server.domain.com
+                      cluster: service_backend
+                    request_headers_to_add:
+                      - header:
+                          key: x-custom-to-backend
+                          value: value-for-backend-from-envoy
+                    per_filter_config:
+                      envoy.ext_authz:
+                        check_settings:
+                          context_extensions:
+                            x-forwarded-host: original-host-as-context  
+                                              
+              http_filters:  
+              - name: envoy.lua
+                config:
+                  inline_code: |
+                    function envoy_on_request(request_handle)
+                      request_handle:logInfo('>>> LUA envoy_on_request Called')
+                      --buf = request_handle:body()
+                      --bufbytes = buf:getBytes(0, buf:length())
+                      --request_handle:logInfo(bufbytes)
+                    end
+                    
+                    function envoy_on_response(response_handle)
+                      response_handle:logInfo('>>> LUA envoy_on_response Called')
+                      response_handle:headers():add("X-Custom-Header-From-LUA", "bar")
+                    end
+                  
+              - name: envoy.ext_authz
+                config:
+                  grpc_service:
+                    envoy_grpc:
+                      cluster_name: ext-authz
+                    timeout: 0.5s
+                      
+              - name: envoy.router
+
+      clusters:
+      - name: service_backend
+        connect_timeout: 2s
+        type: STRICT_DNS
+        dns_lookup_family: V4_ONLY
+        lb_policy: ROUND_ROBIN
+        hosts:
+        - socket_address:
+            address: 127.0.0.1
+            port_value: 11000
+      - name: ext-authz
+        type: static
+        http2_protocol_options: {}
+        load_assignment:
+          cluster_name: ext-authz
+          endpoints:
+          - lb_endpoints:
+            - endpoint:
+                address:
+                  socket_address:
+                    address: 127.0.0.1
+                    port_value: 50051
+        common_lb_config:
+          healthy_panic_threshold:
+            value: 50.0   
+        health_checks:
+          - timeout: 1s
+            interval: 5s
+            interval_jitter: 1s
+            no_traffic_interval: 5s
+            unhealthy_threshold: 1
+            healthy_threshold: 3
+            grpc_health_check:
+              service_name: "envoy.service.auth.v2alpha.Authorization"
+              authority: "server.domain.com"
+
+        connect_timeout: 0.25s
