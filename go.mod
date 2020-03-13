@@ -12,7 +12,7 @@ require (
 	github.com/google/go-cmp v0.3.1
 	github.com/google/go-containerregistry v0.0.0-20191218175032-34fb8ff33bed
 	github.com/grpc-ecosystem/go-grpc-middleware v1.1.0
-	github.com/heetch/confita v0.9.0 // indirect
+	github.com/heetch/confita v0.9.0
 	github.com/jmoiron/sqlx v1.2.0
 	github.com/otiai10/copy v1.0.2
 	github.com/pquerna/cachecontrol v0.0.0-20180517163645-1555304b9b35 // indirect
