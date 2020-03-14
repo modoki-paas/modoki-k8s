@@ -20,19 +20,11 @@ type Endpoints struct {
 }
 
 type OpenIDConnect struct {
-<<<<<<< HEAD
-	ClientID     string   `yaml:"client_id" json:"client_id"`
-	ClientSecret string   `yaml:"client_secret" json:"client_secret"`
-	Scopes       []string `yaml:"scopes" json:"scopes"`
-	RedirectURL  string   `yaml:"redirect_url" json:"redirect_url"`
-	ProviderURL  string   `yaml:"provider_url" json:"provider_url"`
-=======
 	ClientID     string   `yaml:"client_id" json:"client_id" config:"oidc-client-id"`
 	ClientSecret string   `yaml:"client_id" json:"client_id" config:"oidc-client-secret"`
 	Scopes       []string `yaml:"scopes" json:"scopes" config:"oidc-scopes"`
 	RedirectURL  string   `yaml:"redirect_url" json:"redirect_url" config:"oidc-redirect-url"`
 	ProviderURL  string   `yaml:"provider_url" json:"provider_url" config:"oidc-provider-url"`
->>>>>>> origin/master
 }
 
 type Config struct {
