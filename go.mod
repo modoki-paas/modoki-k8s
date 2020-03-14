@@ -5,7 +5,6 @@ go 1.12
 require (
 	github.com/DATA-DOG/go-sqlmock v1.3.3
 	github.com/coreos/go-oidc v2.1.0+incompatible
-	github.com/cs3238-tsuzu/sqlx-selector/v2 v2.1.0
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/docker/docker v1.4.2-0.20190924003213-a8608b5b67c7
 	github.com/envoyproxy/go-control-plane v0.9.4
@@ -16,6 +15,7 @@ require (
 	github.com/google/go-containerregistry v0.0.0-20191218175032-34fb8ff33bed
 	github.com/google/martian v2.1.0+incompatible
 	github.com/grpc-ecosystem/go-grpc-middleware v1.1.0
+	github.com/heetch/confita v0.9.0
 	github.com/jmoiron/sqlx v1.2.0
 	github.com/otiai10/copy v1.0.2
 	github.com/pquerna/cachecontrol v0.0.0-20180517163645-1555304b9b35 // indirect

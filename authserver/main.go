@@ -1,10 +1,8 @@
 package main
 
 import (
-	"flag"
 	"log"
 	"net"
-	"os"
 
 	extauth "github.com/envoyproxy/go-control-plane/envoy/service/auth/v2"
 	_ "github.com/go-sql-driver/mysql"
@@ -13,24 +11,6 @@ import (
 	"github.com/modoki-paas/modoki-k8s/authserver/handler"
 	"google.golang.org/grpc"
 )
-
-type commandArg struct {
-	Config string
-	Help   bool
-}
-
-func (arg *commandArg) Init() {
-	flag.BoolVar(&arg.Help, "help", false, "show usage")
-	flag.StringVar(&arg.Config, "config", "/etc/modoki/authserver.yaml", "path to config file")
-
-	flag.Parse()
-
-	if arg.Help {
-		flag.Usage()
-
-		os.Exit(1)
-	}
-}
 
 func initGRPCServer(sctx *handler.ServerContext) (*grpc.Server, error) {
 	server := grpc.NewServer()
@@ -42,11 +22,7 @@ func initGRPCServer(sctx *handler.ServerContext) (*grpc.Server, error) {
 }
 
 func main() {
-
-	carg := &commandArg{}
-	carg.Init()
-
-	cfg, err := config.ReadConfig(carg.Config)
+	cfg, err := config.ReadConfig()
 
 	if err != nil {
 		panic(err)
