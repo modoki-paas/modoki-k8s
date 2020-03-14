@@ -1,10 +1,8 @@
 package main
 
 import (
-	"flag"
 	"log"
 	"net"
-	"os"
 
 	_ "github.com/go-sql-driver/mysql"
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
@@ -18,24 +16,6 @@ import (
 	"golang.org/x/xerrors"
 	"google.golang.org/grpc"
 )
-
-type commandArg struct {
-	Config string
-	Help   bool
-}
-
-func (arg *commandArg) Init() {
-	flag.BoolVar(&arg.Help, "help", false, "show usage")
-	flag.StringVar(&arg.Config, "config", "/etc/modoki/authserver.yaml", "path to config file")
-
-	flag.Parse()
-
-	if arg.Help {
-		flag.Usage()
-
-		os.Exit(1)
-	}
-}
 
 func initGRPCServer(sctx *handler.ServerContext) (*grpc.Server, error) {
 	cfg := sctx.Config
@@ -84,11 +64,7 @@ func initGRPCServer(sctx *handler.ServerContext) (*grpc.Server, error) {
 }
 
 func main() {
-
-	carg := &commandArg{}
-	carg.Init()
-
-	cfg, err := config.ReadConfig(carg.Config)
+	cfg, err := config.ReadConfig()
 
 	if err != nil {
 		panic(err)
