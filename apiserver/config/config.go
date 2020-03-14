@@ -17,7 +17,7 @@ type Endpoint struct {
 type Plugin struct {
 	Name       string `yaml:"name" json:"name"`
 	MetricsAPI bool   `yaml:"metrics_api" json:"metrics_api"`
-	*Endpoint
+	Endpoint   `yaml:",inline" json:",inline"`
 }
 
 type Endpoints struct {
@@ -42,7 +42,7 @@ type Config struct {
 	Namespace string    `yaml:"namespace" json:"namespace" config:"modoki-namespace"`
 	Address   string    `yaml:"address" json:"address" config:"modoki-address"`
 	Endpoints Endpoints `yaml:"endpoints" json:"endpoints" config:"-"`
-	APIKeys   []string  `yaml:"api_keys" json:"api_keys" config:"modoki-app-key"` // TODO: Rename to modoki-api-keys
+	APIKeys   []string  `yaml:"api_keys" json:"api_keys" config:"modoki-api-key"` // TODO: Rename to modoki-api-keys
 
 	DBElements dbElements `yaml:"-" json:"-"`
 }
@@ -80,14 +80,11 @@ func ReadConfig() (*Config, error) {
 	}
 
 	for i := range cfg.Endpoints.Plugins {
-		ep := cfg.Endpoints.Plugins[i].Endpoint
-		if ep == nil {
-			ep = &Endpoint{}
-			cfg.Endpoints.Plugins[i].Endpoint = ep
+		ep := &cfg.Endpoints.Plugins[i].Endpoint
+		if ep.Endpoint == "" {
+			ep.Endpoint = ":443"
+			ep.Insecure = true
 		}
-
-		ep.Endpoint = ":443"
-		ep.Insecure = true
 	}
 
 	if cfg.DB == "" {

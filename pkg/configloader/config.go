@@ -15,8 +15,8 @@ import (
 
 // ReadConfig is a common implementation to load config
 func ReadConfig(ctx context.Context, name string, out interface{}) error {
-	yamlName := fmt.Sprintf("/etc/modoki/%s.yaml", name)
-	jsonName := fmt.Sprintf("/etc/modoki/%s.json", name)
+	yamlName := fmt.Sprintf("%s.yaml", name)
+	jsonName := fmt.Sprintf("%s.json", name)
 
 	bs := []backend.Backend{
 		env.NewBackend(),
