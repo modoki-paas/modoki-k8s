@@ -2,6 +2,7 @@ package config
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/modoki-paas/modoki-k8s/pkg/configloader"
@@ -27,6 +28,14 @@ type Endpoints struct {
 	Plugins []Plugin `yaml:"plugins" json:"plugins"`
 }
 
+type dbElements struct {
+	User     string `config:"db-user"`
+	Password string `config:"db-password"`
+	Host     string `config:"db-host"`
+	Port     string `config:"db-port"`
+	Database string `config:"db-database"`
+}
+
 type Config struct {
 	DB        string    `yaml:"db" json:"db" config:"modoki-db"`
 	Domain    string    `yaml:"domain" json:"domain" config:"modoki-app-domain"`
@@ -34,6 +43,8 @@ type Config struct {
 	Address   string    `yaml:"address" json:"address" config:"modoki-address"`
 	Endpoints Endpoints `yaml:"endpoints" json:"endpoints" config:"-"`
 	APIKeys   []string  `yaml:"api_keys" json:"api_keys" config:"modoki-app-key"` // TODO: Rename to modoki-api-keys
+
+	DBElements dbElements `yaml:"-" json:"-"`
 }
 
 var (
@@ -66,6 +77,29 @@ func ReadConfig() (*Config, error) {
 
 	if err := configloader.ReadConfig(ctx, "apiserver", &cfg); err != nil {
 		return nil, xerrors.Errorf("failed to load config: %w", err)
+	}
+
+	for i := range cfg.Endpoints.Plugins {
+		ep := cfg.Endpoints.Plugins[i].Endpoint
+		if ep == nil {
+			ep = &Endpoint{}
+			cfg.Endpoints.Plugins[i].Endpoint = ep
+		}
+
+		ep.Endpoint = ":443"
+		ep.Insecure = true
+	}
+
+	if cfg.DB == "" {
+		elm := cfg.DBElements
+		cfg.DB = fmt.Sprintf(
+			"%s:%s@tcp(%s:%s)/%s?parseTime=true",
+			elm.User,
+			elm.Password,
+			elm.Host,
+			elm.Port,
+			elm.Database,
+		)
 	}
 
 	return &cfg, nil
