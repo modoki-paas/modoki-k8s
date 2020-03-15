@@ -15,44 +15,36 @@ spec:
       labels:
         app: modoki-ingress-gateway
     spec:
-      serviceAccountName: modoki-apiserver-sa
       containers:
         - name: modoki-apiserver
-          imagePullPolicy: Always
-          image: modokipaas/modoki-k8s
+          image: envoyproxy/envoy:latest
+          imagePullPolicy: IfNotPresent
+          volumeMounts:
+            - name: envoy-config
+              mountPath: /etc/envoy
+          command:
+            - "/usr/local/bin/envoy"
           args:
-            - -m
-            - -w
+            - "--config-path /etc/envoy/envoy.yaml"
           ports:
             - containerPort: 443
-          volumeMounts:
-            - mountPath: /etc/modoki
-              name: config
-          env:
-            - name: MODOKI_APP_DOMAIN
-              value: $(MODOKI_APP_DOMAIN)
-            - name: GRPC_GO_LOG_VERBOSITY_LEVEL
-              value: "99"
-            - name: GRPC_GO_LOG_SEVERITY_LEVEL
-              value: info
-          envFrom:
-            - secretRef:
-                name: modoki-api-key
-            - secretRef:
-                name: modoki-db-secret
+            - containerPort: 9000
+
           resources:
             limits:
               cpu: "1"
               memory: 100Mi
       volumes:
-        - name: config
+        - name: envoy-config
           configMap:
-            name: modoki-apiserver-config
+            name: envoy-config
 ---
 apiVersion: apps/v1
 kind: ConfigMap
+metadata:
+  name: envoy-config
 data:
-  ext_authz.yaml: |
+  envoy.yaml: |
     admin:
       access_log_path: /dev/stdout
       address:
@@ -60,15 +52,11 @@ data:
           address: 127.0.0.1
           port_value: 9000
 
-    node:
-      cluster: service_greeter
-      id: test-id
-
     static_resources:
       listeners:
       - name: listener_0
         address:
-          socket_address: { address: 0.0.0.0, port_value: 8080 }
+          socket_address: { address: 0.0.0.0, port_value: 443 }
 
         filter_chains:
         - filters:
@@ -80,83 +68,84 @@ data:
               route_config:
                 name: local_route
                 virtual_hosts:
-                - name: local_service
+                - name: app_backend
                   domains: ["*"]
                   routes:
                   - match:
-                      prefix: "/"
+                      prefix: "/modoki.App/"
                     route:
-                      host_rewrite: server.domain.com
-                      cluster: service_backend
-                    request_headers_to_add:
-                      - header:
-                          key: x-custom-to-backend
-                          value: value-for-backend-from-envoy
+                      cluster: apiserver_backend
+                - name: userorg_backend
+                  domains: ["*"]
+                  routes:
+                  - match:
+                      prefix: "/modoki.UserOrg/"
+                    route:
+                      cluster: apiserver_backend
+                - name: token_backend
+                  domains: ["*"]
+                  routes:
+                  - match:
+                      prefix: "/modoki.Token/"
+                    route:
+                      cluster: apiserver_backend
+                - name: authserver_backend
+                  domains: ["*"]
+                  routes:
+                  - match:
+                      prefix: "/modoki.Auth/"
+                    route:
+                      cluster: authserver_backend
                     per_filter_config:
                       envoy.ext_authz:
-                        check_settings:
-                          context_extensions:
-                            x-forwarded-host: original-host-as-context  
-                                              
+                        disabled: true
               http_filters:  
-              - name: envoy.lua
-                config:
-                  inline_code: |
-                    function envoy_on_request(request_handle)
-                      request_handle:logInfo('>>> LUA envoy_on_request Called')
-                      --buf = request_handle:body()
-                      --bufbytes = buf:getBytes(0, buf:length())
-                      --request_handle:logInfo(bufbytes)
-                    end
-                    
-                    function envoy_on_response(response_handle)
-                      response_handle:logInfo('>>> LUA envoy_on_response Called')
-                      response_handle:headers():add("X-Custom-Header-From-LUA", "bar")
-                    end
-                  
               - name: envoy.ext_authz
                 config:
                   grpc_service:
                     envoy_grpc:
-                      cluster_name: ext-authz
+                      cluster_name: authserver_backend
                     timeout: 0.5s
                       
               - name: envoy.router
 
       clusters:
-      - name: service_backend
-        connect_timeout: 2s
-        type: STRICT_DNS
-        dns_lookup_family: V4_ONLY
-        lb_policy: ROUND_ROBIN
-        hosts:
-        - socket_address:
-            address: 127.0.0.1
-            port_value: 11000
-      - name: ext-authz
+      - name: apiserver_backend
         type: static
         http2_protocol_options: {}
+        connect_timeout: 0.25s
         load_assignment:
-          cluster_name: ext-authz
+          cluster_name: apiserver_backend
           endpoints:
           - lb_endpoints:
             - endpoint:
                 address:
                   socket_address:
-                    address: 127.0.0.1
-                    port_value: 50051
-        common_lb_config:
-          healthy_panic_threshold:
-            value: 50.0   
-        health_checks:
-          - timeout: 1s
-            interval: 5s
-            interval_jitter: 1s
-            no_traffic_interval: 5s
-            unhealthy_threshold: 1
-            healthy_threshold: 3
-            grpc_health_check:
-              service_name: "envoy.service.auth.v2alpha.Authorization"
-              authority: "server.domain.com"
+                    address: modoki-apiserver-svc
+                    port_value: 443
 
+      - name: authserver_backend
+        type: static
+        http2_protocol_options: {}
         connect_timeout: 0.25s
+        load_assignment:
+          cluster_name: authserver_backend
+          endpoints:
+          - lb_endpoints:
+            - endpoint:
+                address:
+                  socket_address:
+                    address: modoki-authserver-svc
+                    port_value: 443
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: modoki-ingress-gateway-svc
+  namespace: modoki
+spec:
+  selector:
+    app: modoki-ingress-gateway
+  ports:
+    - port: 443
+      targetPort: 443
