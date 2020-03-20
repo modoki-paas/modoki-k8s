@@ -6,7 +6,7 @@ on:
     branches: [ master ]
 
 jobs:
-  build:
+  apiserver:
     runs-on: ubuntu-latest
 
     steps:
@@ -22,6 +22,12 @@ jobs:
         tag_with_ref: true
         tag_with_sha: true
 
+  authserver:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
     - name: Build Docker Image for Auth Server
       uses: docker/build-push-action@v1
       with:
@@ -31,6 +37,12 @@ jobs:
         dockerfile: Dockerfile-auth
         tag_with_ref: true
         tag_with_sha: true
+
+  yamler:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
 
     - name: Build Docker Image for YAMLer
       uses: docker/build-push-action@v1
