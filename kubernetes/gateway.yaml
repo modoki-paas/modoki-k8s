@@ -68,40 +68,33 @@ data:
               route_config:
                 name: local_route
                 virtual_hosts:
-                - name: app_backend
+                - name: modoki_backend
                   domains: ["*"]
                   routes:
                   - match:
                       prefix: "/modoki.App/"
                     route:
                       cluster: apiserver_backend
-                - name: userorg_backend
-                  domains: ["*"]
-                  routes:
                   - match:
                       prefix: "/modoki.UserOrg/"
                     route:
                       cluster: apiserver_backend
-                - name: token_backend
-                  domains: ["*"]
-                  routes:
                   - match:
                       prefix: "/modoki.Token/"
                     route:
                       cluster: apiserver_backend
-                - name: authserver_backend
-                  domains: ["*"]
-                  routes:
                   - match:
                       prefix: "/modoki.Auth/"
                     route:
                       cluster: authserver_backend
-                    per_filter_config:
+                    typed_per_filter_config:
                       envoy.ext_authz:
+                        "@type": type.googleapis.com/envoy.config.filter.http.ext_authz.v2.ExtAuthzPerRoute
                         disabled: true
               http_filters:  
               - name: envoy.ext_authz
-                config:
+                typed_config:
+                  "@type": type.googleapis.com/envoy.config.filter.http.ext_authz.v2.ExtAuthz
                   grpc_service:
                     envoy_grpc:
                       cluster_name: authserver_backend
@@ -111,7 +104,7 @@ data:
 
       clusters:
       - name: apiserver_backend
-        type: static
+        type: STRICT_DNS
         http2_protocol_options: {}
         connect_timeout: 0.25s
         load_assignment:
@@ -125,7 +118,7 @@ data:
                     port_value: 443
 
       - name: authserver_backend
-        type: static
+        type: STRICT_DNS
         http2_protocol_options: {}
         connect_timeout: 0.25s
         load_assignment:
