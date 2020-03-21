@@ -7,3 +7,4 @@ resources:
   - yamler.yaml
   - ingress.yaml
   - namespace.yaml
+  - gateway.yaml
