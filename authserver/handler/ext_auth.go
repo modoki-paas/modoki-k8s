@@ -6,6 +6,7 @@ import (
 
 	"github.com/google/martian/log"
 	"github.com/modoki-paas/modoki-k8s/pkg/auth"
+	"github.com/modoki-paas/modoki-k8s/pkg/rbac/roles"
 	"golang.org/x/xerrors"
 
 	core "github.com/envoyproxy/go-control-plane/envoy/api/v2/core"
@@ -28,6 +29,8 @@ func (ea *ExtAuthZ) Check(ctx context.Context, req *extauth.CheckRequest) (*exta
 	token := strings.TrimPrefix(authzHeader, "Bearer ")
 
 	targetHeader := req.Attributes.Request.Http.Headers[strings.ToLower(auth.TargetIDHeader)]
+
+	ctx = auth.OverwritePerfomerContext(ctx, "authserver", "authserver", roles.SystemAuth)
 
 	md, err := ea.GA.GetAuthenticatedMetadata(ctx, token, targetHeader)
 
