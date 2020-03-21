@@ -19,6 +19,13 @@ type GatewayAuthorizer struct {
 	userOrgClient api.UserOrgClient
 }
 
+func NewGatewayAuthorizer(tokenClient api.TokenClient, userOrgClient api.UserOrgClient) *GatewayAuthorizer {
+	return &GatewayAuthorizer{
+		tokenClient:   tokenClient,
+		userOrgClient: userOrgClient,
+	}
+}
+
 // AuthenticatedMetadata represents data retrieved from the access token
 type AuthenticatedMetadata struct {
 	UserID string

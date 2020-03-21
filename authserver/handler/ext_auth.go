@@ -16,7 +16,7 @@ import (
 )
 
 type ExtAuthZ struct {
-	GA      auth.GatewayAuthorizer
+	GA      *auth.GatewayAuthorizer
 	Context *ServerContext
 }
 

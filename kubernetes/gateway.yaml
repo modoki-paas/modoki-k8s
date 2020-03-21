@@ -16,7 +16,7 @@ spec:
         app: modoki-ingress-gateway
     spec:
       containers:
-        - name: modoki-apiserver
+        - name: modoki-ingress-gateway
           image: envoyproxy/envoy:latest
           imagePullPolicy: IfNotPresent
           volumeMounts:
@@ -26,6 +26,7 @@ spec:
             - "/usr/local/bin/envoy"
           args:
             - "--config-path /etc/envoy/envoy.yaml"
+            - "--base-id 1"
           ports:
             - containerPort: 443
             - containerPort: 9000

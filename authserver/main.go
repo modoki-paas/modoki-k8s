@@ -9,6 +9,7 @@ import (
 	api "github.com/modoki-paas/modoki-k8s/api"
 	"github.com/modoki-paas/modoki-k8s/authserver/config"
 	"github.com/modoki-paas/modoki-k8s/authserver/handler"
+	"github.com/modoki-paas/modoki-k8s/pkg/auth"
 	"google.golang.org/grpc"
 )
 
@@ -16,7 +17,9 @@ func initGRPCServer(sctx *handler.ServerContext) (*grpc.Server, error) {
 	server := grpc.NewServer()
 
 	api.RegisterAuthServer(server, &handler.AuthServer{Context: sctx})
-	extauth.RegisterAuthorizationServer(server, &handler.ExtAuthZ{Context: sctx})
+	extauth.RegisterAuthorizationServer(server, &handler.ExtAuthZ{
+		GA:      auth.NewGatewayAuthorizer(sctx.TokenClient, sctx.UserOrgClient),
+		Context: sctx})
 
 	return server, nil
 }
