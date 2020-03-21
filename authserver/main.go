@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"net"
+	"runtime/debug"
 
 	extauth "github.com/envoyproxy/go-control-plane/envoy/service/auth/v2"
 	_ "github.com/go-sql-driver/mysql"
@@ -17,7 +18,7 @@ import (
 )
 
 func recoveryFunc(p interface{}) error {
-	log.Printf("server paniced: %+v\n", p)
+	log.Printf("server paniced: %+v(trace: %s)", p, string(debug.Stack()))
 
 	return grpc.Errorf(codes.Internal, "internal error")
 }
