@@ -13,7 +13,7 @@ require (
 	github.com/google/go-cmp v0.3.1
 	github.com/google/go-containerregistry v0.0.0-20191218175032-34fb8ff33bed
 	github.com/google/martian v2.1.0+incompatible
-	github.com/grpc-ecosystem/go-grpc-middleware v1.1.0
+	github.com/grpc-ecosystem/go-grpc-middleware v1.2.0
 	github.com/heetch/confita v0.9.0
 	github.com/jmoiron/sqlx v1.2.0
 	github.com/otiai10/copy v1.0.2
