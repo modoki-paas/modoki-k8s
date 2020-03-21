@@ -54,6 +54,7 @@ spec:
   selector:
     app: modoki-yamler
   ports:
-    - protocol: TCP
+    - name: grpc-main
+      protocol: TCP
       port: 443
       targetPort: 443

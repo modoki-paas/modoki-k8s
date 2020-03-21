@@ -71,6 +71,6 @@ spec:
   selector:
     app: modoki-authserver
   ports:
-    - port: 443
+    - name: grpc-main
+      port: 443
       targetPort: 443
-      name: grpc

@@ -141,5 +141,6 @@ spec:
   selector:
     app: modoki-ingress-gateway
   ports:
-    - port: 443
+    - name: grpc-main
+      port: 443
       targetPort: 443

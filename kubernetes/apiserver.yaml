@@ -70,7 +70,8 @@ spec:
   selector:
     app: modoki-apiserver
   ports:
-    - port: 443
+    - name: grpc-main
+      port: 443
       targetPort: 443
 ---
 apiVersion: v1
