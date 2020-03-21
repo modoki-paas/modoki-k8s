@@ -2,9 +2,10 @@ package handler
 
 import (
 	"context"
+	"encoding/json"
+	"log"
 	"strings"
 
-	"github.com/google/martian/log"
 	"github.com/modoki-paas/modoki-k8s/pkg/auth"
 	"github.com/modoki-paas/modoki-k8s/pkg/rbac/roles"
 	"golang.org/x/xerrors"
@@ -51,7 +52,7 @@ func (ea *ExtAuthZ) Check(ctx context.Context, req *extauth.CheckRequest) (*exta
 	}
 
 	if err != nil {
-		log.Errorf("authentication failed: %+v", err)
+		log.Printf("authentication failed: %+v", err)
 
 		return &extauth.CheckResponse{
 			Status: &rpcstatus.Status{
@@ -68,7 +69,7 @@ func (ea *ExtAuthZ) Check(ctx context.Context, req *extauth.CheckRequest) (*exta
 		}, nil
 	}
 
-	return &extauth.CheckResponse{
+	resp := &extauth.CheckResponse{
 		Status: &rpcstatus.Status{
 			Code: int32(rpc.OK),
 		},
@@ -102,5 +103,11 @@ func (ea *ExtAuthZ) Check(ctx context.Context, req *extauth.CheckRequest) (*exta
 				},
 			},
 		},
-	}, nil
+	}
+
+	b, _ := json.MarshalIndent(resp, "", "  ")
+
+	log.Println(string(b))
+
+	return resp, nil
 }
