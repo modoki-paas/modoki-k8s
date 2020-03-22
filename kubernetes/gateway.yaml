@@ -1,0 +1,146 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: modoki-ingress-gateway-deployment
+  namespace: modoki
+  labels:
+    app: modoki-ingress-gateway
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: modoki-ingress-gateway
+  template:
+    metadata:
+      labels:
+        app: modoki-ingress-gateway
+    spec:
+      containers:
+        - name: modoki-ingress-gateway
+          image: envoyproxy/envoy:latest
+          imagePullPolicy: IfNotPresent
+          volumeMounts:
+            - name: envoy-config
+              mountPath: /etc/envoy
+          command:
+            - "/usr/local/bin/envoy"
+          args:
+            - "--config-path /etc/envoy/envoy.yaml"
+            - "--base-id 1"
+          ports:
+            - containerPort: 443
+            - containerPort: 9000
+
+          resources:
+            limits:
+              cpu: "1"
+              memory: 100Mi
+      volumes:
+        - name: envoy-config
+          configMap:
+            name: envoy-config
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: envoy-config
+data:
+  envoy.yaml: |
+    admin:
+      access_log_path: /dev/stdout
+      address:
+        socket_address:
+          address: 127.0.0.1
+          port_value: 9000
+
+    static_resources:
+      listeners:
+      - name: listener_0
+        address:
+          socket_address: { address: 0.0.0.0, port_value: 443 }
+
+        filter_chains:
+        - filters:
+          - name: envoy.http_connection_manager
+            typed_config:  
+              "@type": type.googleapis.com/envoy.config.filter.network.http_connection_manager.v2.HttpConnectionManager
+              stat_prefix: ingress_http
+              codec_type: AUTO
+              route_config:
+                name: local_route
+                virtual_hosts:
+                - name: modoki_backend
+                  domains: ["*"]
+                  routes:
+                  - match:
+                      prefix: "/modoki.App/"
+                    route:
+                      cluster: apiserver_backend
+                  - match:
+                      prefix: "/modoki.UserOrg/"
+                    route:
+                      cluster: apiserver_backend
+                  - match:
+                      prefix: "/modoki.Token/"
+                    route:
+                      cluster: apiserver_backend
+                  - match:
+                      prefix: "/modoki.Auth/"
+                    route:
+                      cluster: authserver_backend
+                    typed_per_filter_config:
+                      envoy.ext_authz:
+                        "@type": type.googleapis.com/envoy.config.filter.http.ext_authz.v2.ExtAuthzPerRoute
+                        disabled: true
+              http_filters:  
+              - name: envoy.ext_authz
+                typed_config:
+                  "@type": type.googleapis.com/envoy.config.filter.http.ext_authz.v2.ExtAuthz
+                  grpc_service:
+                    envoy_grpc:
+                      cluster_name: authserver_backend
+                    timeout: 0.5s
+                      
+              - name: envoy.router
+
+      clusters:
+      - name: apiserver_backend
+        type: STRICT_DNS
+        http2_protocol_options: {}
+        connect_timeout: 0.25s
+        load_assignment:
+          cluster_name: apiserver_backend
+          endpoints:
+          - lb_endpoints:
+            - endpoint:
+                address:
+                  socket_address:
+                    address: modoki-apiserver-svc
+                    port_value: 443
+
+      - name: authserver_backend
+        type: STRICT_DNS
+        http2_protocol_options: {}
+        connect_timeout: 0.25s
+        load_assignment:
+          cluster_name: authserver_backend
+          endpoints:
+          - lb_endpoints:
+            - endpoint:
+                address:
+                  socket_address:
+                    address: modoki-authserver-svc
+                    port_value: 443
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: modoki-ingress-gateway-svc
+  namespace: modoki
+spec:
+  selector:
+    app: modoki-ingress-gateway
+  ports:
+    - name: grpc-main
+      port: 443
+      targetPort: 443

@@ -2,69 +2,51 @@ package auth
 
 import (
 	"context"
-	"strings"
 
-	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	api "github.com/modoki-paas/modoki-k8s/api"
 	"golang.org/x/xerrors"
-	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 )
 
-type GatewayAuthorizerInterceptor struct {
+var (
+	// ErrUnauthenticated returns an error when authentication failed
+	ErrUnauthenticated = xerrors.Errorf("unauthenticated")
+)
+
+type GatewayAuthorizer struct {
 	tokenClient   api.TokenClient
 	userOrgClient api.UserOrgClient
 }
 
-// getTokenFromHeader gets a token from header
-func (ai *GatewayAuthorizerInterceptor) getTokenFromHeader(md metadata.MD) string {
-	headers := md.Get("Authorization")
-
-	if len(headers) == 0 {
-		return ""
+func NewGatewayAuthorizer(tokenClient api.TokenClient, userOrgClient api.UserOrgClient) *GatewayAuthorizer {
+	return &GatewayAuthorizer{
+		tokenClient:   tokenClient,
+		userOrgClient: userOrgClient,
 	}
-
-	key := strings.TrimPrefix(headers[0], "Bearer ")
-
-	return key
 }
 
-func (ai *GatewayAuthorizerInterceptor) getTargetID(md metadata.MD) (id string, ok bool) {
-	arr := md.Get(TargetIDHeader)
+// AuthenticatedMetadata represents data retrieved from the access token
+type AuthenticatedMetadata struct {
+	UserID string
+	Roles  RoleBindings
 
-	if len(arr) == 0 {
-		return "", false
-	}
-
-	return arr[0], true
+	TargetID             string
+	PermissionsForTarget map[string]struct{}
 }
 
-func (ai *GatewayAuthorizerInterceptor) wrapContext(ctx context.Context) (context.Context, error) {
-	md, ok := metadata.FromIncomingContext(ctx)
-
-	if !ok {
-		return nil, xerrors.Errorf("unauthorized: metadata missing")
-	}
-
-	tk := ai.getTokenFromHeader(md)
-
-	if tk == "" {
-		return nil, status.Error(codes.Unauthenticated, "authorization header missing")
-	}
-
+// GetAuthenticatedMetadata returns all metadata to authorize users
+func (ai *GatewayAuthorizer) GetAuthenticatedMetadata(ctx context.Context, tk, targetID string) (*AuthenticatedMetadata, error) {
 	vt, err := ai.tokenClient.ValidateToken(ctx, &api.ValidateTokenRequest{
 		Token: tk,
 	})
 
 	if err != nil {
 		if stat, ok := status.FromError(err); ok {
-			if stat.Code() == codes.NotFound {
-				return nil, status.Error(codes.Unauthenticated, "invalid token")
+			switch stat.Code() {
+			case codes.NotFound:
+				return nil, ErrUnauthenticated
 			}
-
-			return nil, stat.Err()
 		}
 
 		return nil, xerrors.Errorf("failed to validate token: %w", err)
@@ -75,16 +57,10 @@ func (ai *GatewayAuthorizerInterceptor) wrapContext(ctx context.Context) (contex
 	})
 
 	if err != nil {
-		if stat, ok := status.FromError(err); ok {
-			return nil, stat.Err()
-		}
-
 		return nil, xerrors.Errorf("failed to validate token: %w", err)
 	}
 
-	targetID, ok := ai.getTargetID(md)
-
-	if !ok {
+	if targetID == "" {
 		targetID = performer.User.UserId
 	}
 
@@ -99,12 +75,8 @@ func (ai *GatewayAuthorizerInterceptor) wrapContext(ctx context.Context) (contex
 		} else if stat.Code() != codes.NotFound {
 			return nil, stat.Err()
 		}
-		// continue if role binding is not found
+		// continue even if role binding is not found
 	}
-
-	ctx = AddUserIDContext(ctx, performer.User.UserId)
-
-	ctx = AddTargetIDContext(ctx, targetID)
 
 	roles := RoleBindings(map[string]string{
 		"*": performer.User.SystemRoleName,
@@ -114,66 +86,13 @@ func (ai *GatewayAuthorizerInterceptor) wrapContext(ctx context.Context) (contex
 		roles[targetID] = rb.Role
 	}
 
-	ctx = AddRolesContext(ctx, roles)
-
 	perms := getPermissions(roles, targetID)
-	ctx = AddPermissionsContext(ctx, perms)
 
-	return ctx, nil
-}
+	return &AuthenticatedMetadata{
+		UserID: performer.User.UserId,
+		Roles:  roles,
 
-// UnaryGatewayServerInterceptor handles authentication for each call
-func UnaryGatewayServerInterceptor(tokenClient api.TokenClient, userOrgClient api.UserOrgClient) grpc.UnaryServerInterceptor {
-	ai := &GatewayAuthorizerInterceptor{
-		tokenClient:   tokenClient,
-		userOrgClient: userOrgClient,
-	}
-
-	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
-		if ips, ok := info.Server.(IsPrivateService); ok && !ips.IsPrivate(info.FullMethod) {
-			return handler(ctx, req)
-		}
-
-		ctx, err := ai.wrapContext(ctx)
-
-		if err != nil {
-			if stat, ok := status.FromError(err); ok {
-				return nil, stat.Err()
-			}
-
-			return nil, status.Error(codes.PermissionDenied, err.Error())
-		}
-
-		return handler(ctx, req)
-	}
-}
-
-// StreamGatewayServerInterceptor handles authentication for each call
-func StreamGatewayServerInterceptor(tokenClient api.TokenClient, userOrgClient api.UserOrgClient) grpc.StreamServerInterceptor {
-	ai := &GatewayAuthorizerInterceptor{
-		tokenClient:   tokenClient,
-		userOrgClient: userOrgClient,
-	}
-
-	return func(srv interface{}, stream grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
-		if ips, ok := srv.(IsPrivateService); ok && !ips.IsPrivate(info.FullMethod) {
-			return handler(srv, stream)
-		}
-
-		newStream := grpc_middleware.WrapServerStream(stream)
-
-		ctx, err := ai.wrapContext(stream.Context())
-
-		if err != nil {
-			if stat, ok := status.FromError(err); ok {
-				return stat.Err()
-			}
-
-			return status.Error(codes.PermissionDenied, err.Error())
-		}
-
-		newStream.WrappedContext = ctx
-
-		return handler(srv, newStream)
-	}
+		TargetID:             targetID,
+		PermissionsForTarget: perms,
+	}, nil
 }
