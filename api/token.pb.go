@@ -3,13 +3,14 @@
 
 package modoki
 
-import proto "github.com/golang/protobuf/proto"
-import fmt "fmt"
-import math "math"
-
 import (
-	context "golang.org/x/net/context"
+	context "context"
+	fmt "fmt"
+	proto "github.com/golang/protobuf/proto"
 	grpc "google.golang.org/grpc"
+	codes "google.golang.org/grpc/codes"
+	status "google.golang.org/grpc/status"
+	math "math"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -17,14 +18,43 @@ var _ = proto.Marshal
 var _ = fmt.Errorf
 var _ = math.Inf
 
+// This is a compile-time assertion to ensure that this generated file
+// is compatible with the proto package it is being compiled against.
+// A compilation error at this line likely means your copy of the
+// proto package needs to be updated.
+const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
+
 type IssueTokenRequest struct {
-	Id string `protobuf:"bytes,2,opt,name=id" json:"id,omitempty"`
+	Id                   string   `protobuf:"bytes,2,opt,name=id,proto3" json:"id,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *IssueTokenRequest) Reset()                    { *m = IssueTokenRequest{} }
-func (m *IssueTokenRequest) String() string            { return proto.CompactTextString(m) }
-func (*IssueTokenRequest) ProtoMessage()               {}
-func (*IssueTokenRequest) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{0} }
+func (m *IssueTokenRequest) Reset()         { *m = IssueTokenRequest{} }
+func (m *IssueTokenRequest) String() string { return proto.CompactTextString(m) }
+func (*IssueTokenRequest) ProtoMessage()    {}
+func (*IssueTokenRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_3aff0bcd502840ab, []int{0}
+}
+
+func (m *IssueTokenRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_IssueTokenRequest.Unmarshal(m, b)
+}
+func (m *IssueTokenRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_IssueTokenRequest.Marshal(b, m, deterministic)
+}
+func (m *IssueTokenRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_IssueTokenRequest.Merge(m, src)
+}
+func (m *IssueTokenRequest) XXX_Size() int {
+	return xxx_messageInfo_IssueTokenRequest.Size(m)
+}
+func (m *IssueTokenRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_IssueTokenRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_IssueTokenRequest proto.InternalMessageInfo
 
 func (m *IssueTokenRequest) GetId() string {
 	if m != nil {
@@ -34,13 +64,36 @@ func (m *IssueTokenRequest) GetId() string {
 }
 
 type IssueTokenResponse struct {
-	Token string `protobuf:"bytes,1,opt,name=token" json:"token,omitempty"`
+	Token                string   `protobuf:"bytes,1,opt,name=token,proto3" json:"token,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *IssueTokenResponse) Reset()                    { *m = IssueTokenResponse{} }
-func (m *IssueTokenResponse) String() string            { return proto.CompactTextString(m) }
-func (*IssueTokenResponse) ProtoMessage()               {}
-func (*IssueTokenResponse) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{1} }
+func (m *IssueTokenResponse) Reset()         { *m = IssueTokenResponse{} }
+func (m *IssueTokenResponse) String() string { return proto.CompactTextString(m) }
+func (*IssueTokenResponse) ProtoMessage()    {}
+func (*IssueTokenResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_3aff0bcd502840ab, []int{1}
+}
+
+func (m *IssueTokenResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_IssueTokenResponse.Unmarshal(m, b)
+}
+func (m *IssueTokenResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_IssueTokenResponse.Marshal(b, m, deterministic)
+}
+func (m *IssueTokenResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_IssueTokenResponse.Merge(m, src)
+}
+func (m *IssueTokenResponse) XXX_Size() int {
+	return xxx_messageInfo_IssueTokenResponse.Size(m)
+}
+func (m *IssueTokenResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_IssueTokenResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_IssueTokenResponse proto.InternalMessageInfo
 
 func (m *IssueTokenResponse) GetToken() string {
 	if m != nil {
@@ -50,13 +103,36 @@ func (m *IssueTokenResponse) GetToken() string {
 }
 
 type ValidateTokenRequest struct {
-	Token string `protobuf:"bytes,1,opt,name=token" json:"token,omitempty"`
+	Token                string   `protobuf:"bytes,1,opt,name=token,proto3" json:"token,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *ValidateTokenRequest) Reset()                    { *m = ValidateTokenRequest{} }
-func (m *ValidateTokenRequest) String() string            { return proto.CompactTextString(m) }
-func (*ValidateTokenRequest) ProtoMessage()               {}
-func (*ValidateTokenRequest) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{2} }
+func (m *ValidateTokenRequest) Reset()         { *m = ValidateTokenRequest{} }
+func (m *ValidateTokenRequest) String() string { return proto.CompactTextString(m) }
+func (*ValidateTokenRequest) ProtoMessage()    {}
+func (*ValidateTokenRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_3aff0bcd502840ab, []int{2}
+}
+
+func (m *ValidateTokenRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ValidateTokenRequest.Unmarshal(m, b)
+}
+func (m *ValidateTokenRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ValidateTokenRequest.Marshal(b, m, deterministic)
+}
+func (m *ValidateTokenRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ValidateTokenRequest.Merge(m, src)
+}
+func (m *ValidateTokenRequest) XXX_Size() int {
+	return xxx_messageInfo_ValidateTokenRequest.Size(m)
+}
+func (m *ValidateTokenRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_ValidateTokenRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ValidateTokenRequest proto.InternalMessageInfo
 
 func (m *ValidateTokenRequest) GetToken() string {
 	if m != nil {
@@ -66,15 +142,38 @@ func (m *ValidateTokenRequest) GetToken() string {
 }
 
 type ValidateTokenResponse struct {
-	Id        string `protobuf:"bytes,1,opt,name=id" json:"id,omitempty"`
-	UserId    string `protobuf:"bytes,2,opt,name=user_id,json=userId" json:"user_id,omitempty"`
-	CreatedBy string `protobuf:"bytes,3,opt,name=created_by,json=createdBy" json:"created_by,omitempty"`
+	Id                   string   `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	UserId               string   `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	CreatedBy            string   `protobuf:"bytes,3,opt,name=created_by,json=createdBy,proto3" json:"created_by,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *ValidateTokenResponse) Reset()                    { *m = ValidateTokenResponse{} }
-func (m *ValidateTokenResponse) String() string            { return proto.CompactTextString(m) }
-func (*ValidateTokenResponse) ProtoMessage()               {}
-func (*ValidateTokenResponse) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{3} }
+func (m *ValidateTokenResponse) Reset()         { *m = ValidateTokenResponse{} }
+func (m *ValidateTokenResponse) String() string { return proto.CompactTextString(m) }
+func (*ValidateTokenResponse) ProtoMessage()    {}
+func (*ValidateTokenResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_3aff0bcd502840ab, []int{3}
+}
+
+func (m *ValidateTokenResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ValidateTokenResponse.Unmarshal(m, b)
+}
+func (m *ValidateTokenResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ValidateTokenResponse.Marshal(b, m, deterministic)
+}
+func (m *ValidateTokenResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ValidateTokenResponse.Merge(m, src)
+}
+func (m *ValidateTokenResponse) XXX_Size() int {
+	return xxx_messageInfo_ValidateTokenResponse.Size(m)
+}
+func (m *ValidateTokenResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_ValidateTokenResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ValidateTokenResponse proto.InternalMessageInfo
 
 func (m *ValidateTokenResponse) GetId() string {
 	if m != nil {
@@ -104,32 +203,56 @@ func init() {
 	proto.RegisterType((*ValidateTokenResponse)(nil), "modoki.ValidateTokenResponse")
 }
 
+func init() {
+	proto.RegisterFile("token.proto", fileDescriptor_3aff0bcd502840ab)
+}
+
+var fileDescriptor_3aff0bcd502840ab = []byte{
+	// 228 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0xe2, 0x2e, 0xc9, 0xcf, 0x4e,
+	0xcd, 0xd3, 0x2b, 0x28, 0xca, 0x2f, 0xc9, 0x17, 0x62, 0xcb, 0xcd, 0x4f, 0xc9, 0xcf, 0xce, 0x54,
+	0x52, 0xe6, 0x12, 0xf4, 0x2c, 0x2e, 0x2e, 0x4d, 0x0d, 0x01, 0xc9, 0x05, 0xa5, 0x16, 0x96, 0xa6,
+	0x16, 0x97, 0x08, 0xf1, 0x71, 0x31, 0x65, 0xa6, 0x48, 0x30, 0x29, 0x30, 0x6a, 0x70, 0x06, 0x31,
+	0x65, 0xa6, 0x28, 0x69, 0x71, 0x09, 0x21, 0x2b, 0x2a, 0x2e, 0xc8, 0xcf, 0x2b, 0x4e, 0x15, 0x12,
+	0xe1, 0x62, 0x05, 0x9b, 0x28, 0xc1, 0x08, 0x56, 0x08, 0xe1, 0x28, 0xe9, 0x70, 0x89, 0x84, 0x25,
+	0xe6, 0x64, 0xa6, 0x24, 0x96, 0xa0, 0x9a, 0x89, 0x5d, 0x75, 0x3c, 0x97, 0x28, 0x9a, 0x6a, 0xa8,
+	0xe1, 0x10, 0x27, 0x30, 0xc2, 0x9c, 0x20, 0x24, 0xce, 0xc5, 0x5e, 0x5a, 0x9c, 0x5a, 0x14, 0x0f,
+	0x77, 0x17, 0x1b, 0x88, 0xeb, 0x99, 0x22, 0x24, 0xcb, 0xc5, 0x95, 0x5c, 0x94, 0x9a, 0x58, 0x92,
+	0x9a, 0x12, 0x9f, 0x54, 0x29, 0xc1, 0x0c, 0x96, 0xe3, 0x84, 0x8a, 0x38, 0x55, 0x1a, 0xcd, 0x62,
+	0xe4, 0x62, 0x05, 0x9b, 0x2c, 0xe4, 0xcc, 0xc5, 0x85, 0xf0, 0x84, 0x90, 0xa4, 0x1e, 0x24, 0x00,
+	0xf4, 0x30, 0x7c, 0x2f, 0x25, 0x85, 0x4d, 0x0a, 0xea, 0x2c, 0x1f, 0x2e, 0x5e, 0x14, 0xf7, 0x0a,
+	0xc9, 0xc0, 0x14, 0x63, 0xf3, 0xb4, 0x94, 0x2c, 0x0e, 0x59, 0x88, 0x69, 0x4e, 0x1c, 0x51, 0xd0,
+	0x68, 0x48, 0x62, 0x03, 0xc7, 0x8a, 0x31, 0x20, 0x00, 0x00, 0xff, 0xff, 0x41, 0xc7, 0x9a, 0xe6,
+	0xa4, 0x01, 0x00, 0x00,
+}
+
 // Reference imports to suppress errors if they are not otherwise used.
 var _ context.Context
-var _ grpc.ClientConn
+var _ grpc.ClientConnInterface
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the grpc package it is being compiled against.
-const _ = grpc.SupportPackageIsVersion4
+const _ = grpc.SupportPackageIsVersion6
 
-// Client API for Token service
-
+// TokenClient is the client API for Token service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type TokenClient interface {
 	IssueToken(ctx context.Context, in *IssueTokenRequest, opts ...grpc.CallOption) (*IssueTokenResponse, error)
 	ValidateToken(ctx context.Context, in *ValidateTokenRequest, opts ...grpc.CallOption) (*ValidateTokenResponse, error)
 }
 
 type tokenClient struct {
-	cc *grpc.ClientConn
+	cc grpc.ClientConnInterface
 }
 
-func NewTokenClient(cc *grpc.ClientConn) TokenClient {
+func NewTokenClient(cc grpc.ClientConnInterface) TokenClient {
 	return &tokenClient{cc}
 }
 
 func (c *tokenClient) IssueToken(ctx context.Context, in *IssueTokenRequest, opts ...grpc.CallOption) (*IssueTokenResponse, error) {
 	out := new(IssueTokenResponse)
-	err := grpc.Invoke(ctx, "/modoki.Token/IssueToken", in, out, c.cc, opts...)
+	err := c.cc.Invoke(ctx, "/modoki.Token/IssueToken", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -138,18 +261,28 @@ func (c *tokenClient) IssueToken(ctx context.Context, in *IssueTokenRequest, opt
 
 func (c *tokenClient) ValidateToken(ctx context.Context, in *ValidateTokenRequest, opts ...grpc.CallOption) (*ValidateTokenResponse, error) {
 	out := new(ValidateTokenResponse)
-	err := grpc.Invoke(ctx, "/modoki.Token/ValidateToken", in, out, c.cc, opts...)
+	err := c.cc.Invoke(ctx, "/modoki.Token/ValidateToken", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// Server API for Token service
-
+// TokenServer is the server API for Token service.
 type TokenServer interface {
 	IssueToken(context.Context, *IssueTokenRequest) (*IssueTokenResponse, error)
 	ValidateToken(context.Context, *ValidateTokenRequest) (*ValidateTokenResponse, error)
+}
+
+// UnimplementedTokenServer can be embedded to have forward compatible implementations.
+type UnimplementedTokenServer struct {
+}
+
+func (*UnimplementedTokenServer) IssueToken(ctx context.Context, req *IssueTokenRequest) (*IssueTokenResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method IssueToken not implemented")
+}
+func (*UnimplementedTokenServer) ValidateToken(ctx context.Context, req *ValidateTokenRequest) (*ValidateTokenResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ValidateToken not implemented")
 }
 
 func RegisterTokenServer(s *grpc.Server, srv TokenServer) {
@@ -207,25 +340,4 @@ var _Token_serviceDesc = grpc.ServiceDesc{
 	},
 	Streams:  []grpc.StreamDesc{},
 	Metadata: "token.proto",
-}
-
-func init() { proto.RegisterFile("token.proto", fileDescriptor3) }
-
-var fileDescriptor3 = []byte{
-	// 228 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0xe2, 0x2e, 0xc9, 0xcf, 0x4e,
-	0xcd, 0xd3, 0x2b, 0x28, 0xca, 0x2f, 0xc9, 0x17, 0x62, 0xcb, 0xcd, 0x4f, 0xc9, 0xcf, 0xce, 0x54,
-	0x52, 0xe6, 0x12, 0xf4, 0x2c, 0x2e, 0x2e, 0x4d, 0x0d, 0x01, 0xc9, 0x05, 0xa5, 0x16, 0x96, 0xa6,
-	0x16, 0x97, 0x08, 0xf1, 0x71, 0x31, 0x65, 0xa6, 0x48, 0x30, 0x29, 0x30, 0x6a, 0x70, 0x06, 0x31,
-	0x65, 0xa6, 0x28, 0x69, 0x71, 0x09, 0x21, 0x2b, 0x2a, 0x2e, 0xc8, 0xcf, 0x2b, 0x4e, 0x15, 0x12,
-	0xe1, 0x62, 0x05, 0x9b, 0x28, 0xc1, 0x08, 0x56, 0x08, 0xe1, 0x28, 0xe9, 0x70, 0x89, 0x84, 0x25,
-	0xe6, 0x64, 0xa6, 0x24, 0x96, 0xa0, 0x9a, 0x89, 0x5d, 0x75, 0x3c, 0x97, 0x28, 0x9a, 0x6a, 0xa8,
-	0xe1, 0x10, 0x27, 0x30, 0xc2, 0x9c, 0x20, 0x24, 0xce, 0xc5, 0x5e, 0x5a, 0x9c, 0x5a, 0x14, 0x0f,
-	0x77, 0x17, 0x1b, 0x88, 0xeb, 0x99, 0x22, 0x24, 0xcb, 0xc5, 0x95, 0x5c, 0x94, 0x9a, 0x58, 0x92,
-	0x9a, 0x12, 0x9f, 0x54, 0x29, 0xc1, 0x0c, 0x96, 0xe3, 0x84, 0x8a, 0x38, 0x55, 0x1a, 0xcd, 0x62,
-	0xe4, 0x62, 0x05, 0x9b, 0x2c, 0xe4, 0xcc, 0xc5, 0x85, 0xf0, 0x84, 0x90, 0xa4, 0x1e, 0x24, 0x00,
-	0xf4, 0x30, 0x7c, 0x2f, 0x25, 0x85, 0x4d, 0x0a, 0xea, 0x2c, 0x1f, 0x2e, 0x5e, 0x14, 0xf7, 0x0a,
-	0xc9, 0xc0, 0x14, 0x63, 0xf3, 0xb4, 0x94, 0x2c, 0x0e, 0x59, 0x88, 0x69, 0x4e, 0x1c, 0x51, 0xd0,
-	0x68, 0x48, 0x62, 0x03, 0xc7, 0x8a, 0x31, 0x20, 0x00, 0x00, 0xff, 0xff, 0x41, 0xc7, 0x9a, 0xe6,
-	0xa4, 0x01, 0x00, 0x00,
 }
