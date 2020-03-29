@@ -25,17 +25,19 @@ enum ContainerPhase {
 
 message ContainerStatus {
   ContainerPhase phase = 1;
-  string message = 2;
-  string reason = 3;
-  string image_id = 4;
+  bool ready = 2;
 
-  int32 restart_count = 5;
+  string message = 3;
+  string reason = 4;
+  string image_id = 5;
 
-  int32 exit_code = 6;
-  int32 signal = 7;
+  int32 restart_count = 6;
 
-  google.protobuf.Timestamp started_at = 8;
-  google.protobuf.Timestamp finished_at = 9;
+  int32 exit_code = 7;
+  int32 signal = 8;
+
+  google.protobuf.Timestamp started_at = 9;
+  google.protobuf.Timestamp finished_at = 10;
 }
 
 message AppStatus {
