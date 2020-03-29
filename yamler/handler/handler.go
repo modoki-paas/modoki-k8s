@@ -59,15 +59,23 @@ func (h *Handler) Operate(ctx context.Context, req *modoki.OperateRequest) (*mod
 		return nil, xerrors.Errorf("failed to build yaml config in workspace(message: %s): %w", res, err)
 	}
 
+	stat := req.Status
+
+	if stat != nil {
+		stat.State = "Updating"
+	}
+
 	switch req.Kind {
 	case modoki.OperateKind_Apply:
 		return &modoki.OperateResponse{
-			Yaml: &modoki.YAML{Config: res},
+			Yaml:   &modoki.YAML{Config: res},
+			Status: stat,
 		}, nil
 
 	case modoki.OperateKind_Delete:
 		return &modoki.OperateResponse{
-			Yaml: &modoki.YAML{Config: res},
+			Yaml:   &modoki.YAML{Config: res},
+			Status: stat,
 		}, nil
 
 	default:

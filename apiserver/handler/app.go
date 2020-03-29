@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"strings"
-	"time"
 
 	"github.com/jmoiron/sqlx"
 	api "github.com/modoki-paas/modoki-k8s/api"
@@ -152,6 +151,20 @@ func (s *AppServer) Deploy(ctx context.Context, req *api.AppDeployRequest) (res 
 			return xerrors.Errorf("failed to store app config in db: %w", err)
 		}
 
+		updatedAt, err := store.GetUpdatedTime(app.SeqID)
+
+		if err != nil {
+			return xerrors.Errorf("failed to get updated_at for %s: %w", app.SeqID, err)
+		}
+
+		appStat := &api.AppStatus{
+			Id:        app.ID,
+			Domain:    app.Name,
+			Spec:      req.Spec,
+			CreatedAt: grpcutil.GRPCTimestamp(app.CreatedAt),
+			UpdatedAt: grpcutil.GRPCTimestamp(updatedAt),
+		}
+
 		y := &api.YAML{}
 		for i := range s.Context.Generators {
 			res, err := s.Context.Generators[i].Client.Operate(
@@ -161,6 +174,7 @@ func (s *AppServer) Deploy(ctx context.Context, req *api.AppDeployRequest) (res 
 					Domain: app.Name,
 					Kind:   api.OperateKind_Apply,
 					Spec:   req.Spec,
+					Status: appStat,
 					Yaml:   y,
 					K8SConfig: &api.KubernetesConfig{
 						Namespace: s.Context.Config.Namespace,
@@ -184,6 +198,7 @@ func (s *AppServer) Deploy(ctx context.Context, req *api.AppDeployRequest) (res 
 			}
 
 			y = res.Yaml
+			appStat = res.Status
 		}
 
 		if output, err := s.Context.K8s.Apply(ctx, strings.NewReader(y.Config)); err != nil {
@@ -191,15 +206,7 @@ func (s *AppServer) Deploy(ctx context.Context, req *api.AppDeployRequest) (res 
 		}
 
 		res = &api.AppDeployResponse{
-			Status: &api.AppStatus{
-				Id:         app.ID,
-				Domain:     app.Name,
-				Spec:       req.Spec,
-				State:      "Updating",
-				CreatedAt:  grpcutil.GRPCTimestamp(app.CreatedAt),
-				UpdatedAt:  grpcutil.GRPCTimestamp(time.Now()), // TODO: Fix timestamp
-				Attributes: map[string]string{},
-			},
+			Status: appStat,
 		}
 
 		return nil
