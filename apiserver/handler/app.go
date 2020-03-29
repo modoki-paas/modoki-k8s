@@ -213,3 +213,8 @@ func (s *AppServer) Deploy(ctx context.Context, req *api.AppDeployRequest) (res 
 
 	return res, nil
 }
+
+// Status returns app status
+func (s *AppServer) Status(ctx context.Context, req *api.AppStatusRequest) (res *api.AppStatusResponse, err error) {
+	panic("not implemented")
+}
