@@ -195,9 +195,7 @@ func (s *AppServer) Deploy(ctx context.Context, req *api.AppDeployRequest) (res 
 				Id:         app.ID,
 				Domain:     app.Name,
 				Spec:       req.Spec,
-				State:      "deploying",
-				StartedAt:  grpcutil.GRPCTimestamp(app.UpdatedAt), // TODO: Fix timestamp
-				ExitCode:   0,
+				State:      "Updating",
 				CreatedAt:  grpcutil.GRPCTimestamp(app.CreatedAt),
 				UpdatedAt:  grpcutil.GRPCTimestamp(time.Now()), // TODO: Fix timestamp
 				Attributes: map[string]string{},
