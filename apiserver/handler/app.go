@@ -249,6 +249,8 @@ func (s *AppServer) Status(ctx context.Context, req *api.AppStatusRequest) (res 
 		)
 
 		if err != nil {
+			log.Printf("failed to get metrics: %+v", err)
+
 			if stat, ok := status.FromError(err); ok {
 				switch stat.Code() {
 				case codes.PermissionDenied:
