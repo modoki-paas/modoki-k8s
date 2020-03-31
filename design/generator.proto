@@ -29,7 +29,10 @@ message OperateResponse {
   AppStatus status = 2;
 }
 
-message MetricsRequest { AppStatus status = 1; }
+message MetricsRequest {
+  AppStatus status = 1;
+  KubernetesConfig k8s_config = 2;
+}
 
 message MetricsResponse { AppStatus status = 1; }
 

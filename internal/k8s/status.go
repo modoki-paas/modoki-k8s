@@ -2,6 +2,7 @@ package k8s
 
 import (
 	"context"
+	"fmt"
 	"strings"
 
 	"github.com/golang/protobuf/ptypes/timestamp"
@@ -101,6 +102,31 @@ func (c *Client) Status(ctx context.Context, namespace, deploy, containerName st
 	stat.Containers = make([]*modoki.ContainerStatus, len(pods.Items))
 	for i := range pods.Items {
 		stat.Containers[i] = convertContainerStatus(&pods.Items[i].Status, containerName)
+	}
+
+	var maxReplicas int32
+	if dpl.Spec.Replicas != nil {
+		maxReplicas = *dpl.Spec.Replicas
+	} else {
+		maxReplicas = 1
+	}
+
+	if maxReplicas == stat.Ready {
+		stat.State = fmt.Sprintf("Running(%d/%d)", stat.Ready, maxReplicas)
+	} else {
+		hasError := false
+		for i := range stat.Containers {
+			if !stat.Containers[i].Ready && stat.Containers[i].Reason != "" {
+				hasError = true
+				break
+			}
+		}
+
+		if hasError {
+			stat.State = fmt.Sprintf("Error(%d/%d)", stat.Ready, maxReplicas)
+		} else {
+			stat.State = fmt.Sprintf("Updating(%d/%d)", stat.Ready, maxReplicas)
+		}
 	}
 
 	return stat, nil

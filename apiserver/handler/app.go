@@ -221,5 +221,54 @@ func (s *AppServer) Deploy(ctx context.Context, req *api.AppDeployRequest) (res 
 
 // Status returns app status
 func (s *AppServer) Status(ctx context.Context, req *api.AppStatusRequest) (res *api.AppStatusResponse, err error) {
-	panic("not implemented")
+	store := apps.NewAppStore(s.Context.DB)
+
+	app, err := store.FindAppByID(req.Id)
+
+	if err != nil {
+		return nil, status.Error(codes.Unknown, "unknown app")
+	}
+
+	appStat := &api.AppStatus{
+		Id:        app.ID,
+		Domain:    app.Name,
+		Spec:      (*api.AppSpec)(app.Spec),
+		CreatedAt: grpcutil.GRPCTimestamp(app.CreatedAt),
+		UpdatedAt: grpcutil.GRPCTimestamp(app.UpdatedAt),
+	}
+
+	for i := range s.Context.Generators {
+		res, err := s.Context.Generators[i].Client.Metrics(
+			ctx,
+			&api.MetricsRequest{
+				Status: appStat,
+				K8SConfig: &api.KubernetesConfig{
+					Namespace: s.Context.Config.Namespace,
+				},
+			},
+		)
+
+		if err != nil {
+			if stat, ok := status.FromError(err); ok {
+				switch stat.Code() {
+				case codes.PermissionDenied:
+					return nil, stat.Err()
+				case codes.InvalidArgument:
+					return nil, stat.Err()
+				}
+
+				return nil, status.Error(codes.Internal, "getting metrics error")
+			}
+
+			return nil, status.Error(codes.Internal, "getting metrics failed due to unknown reason")
+		}
+
+		appStat = res.Status
+	}
+
+	res = &api.AppStatusResponse{
+		Status: appStat,
+	}
+
+	return res, nil
 }
