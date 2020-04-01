@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"strings"
-	"time"
 
 	"github.com/jmoiron/sqlx"
 	api "github.com/modoki-paas/modoki-k8s/api"
@@ -152,6 +151,20 @@ func (s *AppServer) Deploy(ctx context.Context, req *api.AppDeployRequest) (res 
 			return xerrors.Errorf("failed to store app config in db: %w", err)
 		}
 
+		updatedAt, err := store.GetUpdatedTime(app.SeqID)
+
+		if err != nil {
+			return xerrors.Errorf("failed to get updated_at for %s: %w", app.SeqID, err)
+		}
+
+		appStat := &api.AppStatus{
+			Id:        app.ID,
+			Domain:    app.Name,
+			Spec:      req.Spec,
+			CreatedAt: grpcutil.GRPCTimestamp(app.CreatedAt),
+			UpdatedAt: grpcutil.GRPCTimestamp(updatedAt),
+		}
+
 		y := &api.YAML{}
 		for i := range s.Context.Generators {
 			res, err := s.Context.Generators[i].Client.Operate(
@@ -161,6 +174,7 @@ func (s *AppServer) Deploy(ctx context.Context, req *api.AppDeployRequest) (res 
 					Domain: app.Name,
 					Kind:   api.OperateKind_Apply,
 					Spec:   req.Spec,
+					Status: appStat,
 					Yaml:   y,
 					K8SConfig: &api.KubernetesConfig{
 						Namespace: s.Context.Config.Namespace,
@@ -184,6 +198,7 @@ func (s *AppServer) Deploy(ctx context.Context, req *api.AppDeployRequest) (res 
 			}
 
 			y = res.Yaml
+			appStat = res.Status
 		}
 
 		if output, err := s.Context.K8s.Apply(ctx, strings.NewReader(y.Config)); err != nil {
@@ -191,17 +206,7 @@ func (s *AppServer) Deploy(ctx context.Context, req *api.AppDeployRequest) (res 
 		}
 
 		res = &api.AppDeployResponse{
-			Status: &api.AppStatus{
-				Id:         app.ID,
-				Domain:     app.Name,
-				Spec:       req.Spec,
-				State:      "deploying",
-				StartedAt:  grpcutil.GRPCTimestamp(app.UpdatedAt), // TODO: Fix timestamp
-				ExitCode:   0,
-				CreatedAt:  grpcutil.GRPCTimestamp(app.CreatedAt),
-				UpdatedAt:  grpcutil.GRPCTimestamp(time.Now()), // TODO: Fix timestamp
-				Attributes: map[string]string{},
-			},
+			Status: appStat,
 		}
 
 		return nil
@@ -209,6 +214,62 @@ func (s *AppServer) Deploy(ctx context.Context, req *api.AppDeployRequest) (res 
 
 	if err != nil {
 		return nil, err
+	}
+
+	return res, nil
+}
+
+// Status returns app status
+func (s *AppServer) Status(ctx context.Context, req *api.AppStatusRequest) (res *api.AppStatusResponse, err error) {
+	store := apps.NewAppStore(s.Context.DB)
+
+	app, err := store.FindAppByID(req.Id)
+
+	if err != nil {
+		return nil, status.Error(codes.Unknown, "unknown app")
+	}
+
+	appStat := &api.AppStatus{
+		Id:        app.ID,
+		Domain:    app.Name,
+		Spec:      (*api.AppSpec)(app.Spec),
+		CreatedAt: grpcutil.GRPCTimestamp(app.CreatedAt),
+		UpdatedAt: grpcutil.GRPCTimestamp(app.UpdatedAt),
+	}
+
+	for i := range s.Context.Generators {
+		res, err := s.Context.Generators[i].Client.Metrics(
+			ctx,
+			&api.MetricsRequest{
+				Status: appStat,
+				K8SConfig: &api.KubernetesConfig{
+					Namespace: s.Context.Config.Namespace,
+				},
+			},
+		)
+
+		if err != nil {
+			log.Printf("failed to get metrics: %+v", err)
+
+			if stat, ok := status.FromError(err); ok {
+				switch stat.Code() {
+				case codes.PermissionDenied:
+					return nil, stat.Err()
+				case codes.InvalidArgument:
+					return nil, stat.Err()
+				}
+
+				return nil, status.Error(codes.Internal, "getting metrics error")
+			}
+
+			return nil, status.Error(codes.Internal, "getting metrics failed due to unknown reason")
+		}
+
+		appStat = res.Status
+	}
+
+	res = &api.AppStatusResponse{
+		Status: appStat,
 	}
 
 	return res, nil

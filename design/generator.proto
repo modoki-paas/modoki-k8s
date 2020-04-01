@@ -5,14 +5,9 @@ option go_package = "modoki";
 
 import "app.proto";
 
+message KubernetesConfig { string namespace = 1; }
 
-message KubernetesConfig {
-  string namespace = 1;
-}
-
-message YAML {
-  string config = 1;
-}
+message YAML { string config = 1; }
 
 enum OperateKind {
   Apply = 0;
@@ -24,21 +19,22 @@ message OperateRequest {
   string domain = 2;
   OperateKind kind = 3;
   AppSpec spec = 4;
-  YAML yaml = 5;
+  AppStatus status = 5;
+  YAML yaml = 6;
   KubernetesConfig k8s_config = 7;
 }
 
 message OperateResponse {
   YAML yaml = 1;
+  AppStatus status = 2;
 }
 
 message MetricsRequest {
-  string id = 1;
+  AppStatus status = 1;
+  KubernetesConfig k8s_config = 2;
 }
 
-message MetricsResponse {
-  AppStatus status = 1;
-}
+message MetricsResponse { AppStatus status = 1; }
 
 service Generator {
   rpc Operate(OperateRequest) returns (OperateResponse);

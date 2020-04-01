@@ -15,22 +15,52 @@ message AppSpec {
   map<string, string> labels = 11;
 }
 
+enum ContainerPhase {
+  Pending = 0;
+  Running = 1;
+  Succeeded = 2;
+  Failed = 3;
+  Unknown = 4;
+}
+
+message ContainerStatus {
+  ContainerPhase phase = 1;
+  bool ready = 2;
+
+  string message = 3;
+  string reason = 4;
+  string image_id = 5;
+
+  int32 restart_count = 6;
+
+  int32 exit_code = 7;
+  int32 signal = 8;
+
+  google.protobuf.Timestamp started_at = 9;
+  google.protobuf.Timestamp finished_at = 10;
+}
+
 message AppStatus {
   string id = 1;
   string domain = 2;
   AppSpec spec = 3;
   string state = 4;
-  google.protobuf.Timestamp started_at = 5;
-  int32 exit_code = 6;
+
+  // number of containers
+  int32 available = 5;
+  int32 ready = 6;
+  int32 existing = 7;
+
+  // internally, one pod has one container for deployed application
+
+  repeated ContainerStatus containers = 8;
 
   google.protobuf.Timestamp created_at = 10;
   google.protobuf.Timestamp updated_at = 11;
   map<string, string> attributes = 12;
 }
 
-message AppCreateRequest {
-  string domain = 1;
-}
+message AppCreateRequest { string domain = 1; }
 
 message AppCreateResponse {
   string id = 1;
@@ -42,9 +72,7 @@ message AppDeployRequest {
   AppSpec spec = 2;
 }
 
-message AppDeployResponse {
-  AppStatus status = 1;
-}
+message AppDeployResponse { AppStatus status = 1; }
 
 message AppDeleteRequest { string id = 1; }
 
@@ -59,5 +87,5 @@ service App {
   rpc Deploy(AppDeployRequest) returns (AppDeployResponse);
   // rpc Apply(AppApplyRequest) returns (AppApplyResponse);
   // rpc Delete(AppDeleteRequest) returns (AppDeleteResponse);
-  // rpc Status(AppStatusRequest) returns (AppStatusResponse);
+  rpc Status(AppStatusRequest) returns (AppStatusResponse);
 }

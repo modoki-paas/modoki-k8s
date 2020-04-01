@@ -2,6 +2,7 @@ package apps
 
 import (
 	"context"
+	"time"
 
 	"github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
@@ -58,6 +59,22 @@ func (ss *AppStore) UpdateApp(seq int, s *types.AppSpec) error {
 	}
 
 	return nil
+}
+
+func (ss *AppStore) GetUpdatedTime(seq int) (time.Time, error) {
+	var t time.Time
+
+	err := ss.db.QueryRowxContext(
+		context.Background(),
+		`SELECT updated_at FROM apps WHERE seq=?`,
+		seq,
+	).Scan(&t)
+
+	if err != nil {
+		return time.Time{}, xerrors.Errorf("failed to update app in db: %w", err)
+	}
+
+	return time.Time{}, nil
 }
 
 func (ss *AppStore) GetApp(seq int) (*types.App, error) {
