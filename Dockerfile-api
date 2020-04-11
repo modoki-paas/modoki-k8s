@@ -1,4 +1,4 @@
-FROM golang:1.13 as tools
+FROM golang:1.14.2 as tools
 ENV DOCKERIZE_VERSION v0.6.1
 RUN wget https://github.com/jwilder/dockerize/releases/download/${DOCKERIZE_VERSION}/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
     && tar -C /usr/local/bin -xzvf dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
@@ -13,7 +13,7 @@ RUN curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s
     && chmod +x kubectl \
     && mv kubectl /usr/local/bin
 
-FROM golang:1.13 as builder
+FROM golang:1.14.2 as builder
 
 COPY . /work
 WORKDIR /work
