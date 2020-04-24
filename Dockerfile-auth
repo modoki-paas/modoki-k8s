@@ -17,7 +17,7 @@ ENV GO111MODULE=on
 ENV CGO_ENABLED=0
 RUN go build -o /modoki-auth ./authserver
 
-FROM alpine:3.9
+FROM alpine:3.11.6
 
 COPY --from=tools /usr/local/bin/mysqldef /bin
 COPY --from=tools /usr/local/bin/dockerize /bin
