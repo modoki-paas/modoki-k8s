@@ -3,7 +3,6 @@ package handler
 import (
 	"context"
 	"fmt"
-	"log"
 	"strings"
 
 	"github.com/jmoiron/sqlx"
@@ -12,6 +11,7 @@ import (
 	"github.com/modoki-paas/modoki-k8s/internal/dbutil"
 	"github.com/modoki-paas/modoki-k8s/internal/grpcutil"
 	"github.com/modoki-paas/modoki-k8s/internal/imageutil"
+	"github.com/modoki-paas/modoki-k8s/internal/log"
 	"github.com/modoki-paas/modoki-k8s/pkg/auth"
 	"github.com/modoki-paas/modoki-k8s/pkg/rbac/permissions"
 	"github.com/modoki-paas/modoki-k8s/pkg/types"
@@ -30,6 +30,8 @@ func (s *AppServer) Create(ctx context.Context, req *api.AppCreateRequest) (res 
 	if err := auth.IsAuthorized(ctx, permissions.AppCreate); err != nil {
 		return nil, status.Error(codes.PermissionDenied, err.Error())
 	}
+
+	logger := log.Extract(ctx)
 
 	err = dbutil.Transaction(ctx, s.Context.DB, func(tx *sqlx.Tx) error {
 		store := apps.NewAppStore(tx)
@@ -57,8 +59,16 @@ func (s *AppServer) Create(ctx context.Context, req *api.AppCreateRequest) (res 
 			return xerrors.Errorf("failed to store app config in db: %w", err)
 		}
 
+		logger := logger.WithFields(log.Fields{
+			"app": app,
+		})
+
 		y := &api.YAML{}
 		for i := range s.Context.Generators {
+			logger := logger.WithFields(log.Fields{
+				"generator": s.Context.Generators[i].Name,
+			})
+
 			res, err := s.Context.Generators[i].Client.Operate(
 				ctx,
 				&api.OperateRequest{
@@ -82,11 +92,12 @@ func (s *AppServer) Create(ctx context.Context, req *api.AppCreateRequest) (res 
 						return stat.Err()
 					}
 
-					log.Println(err)
+					logger.Errorf("failed to generate yaml: %+v", err)
+
 					return status.Error(codes.Internal, "generator error")
 				}
 
-				log.Println(err)
+				logger.Errorf("failed to generate yaml due to unknown reason: %+v", err)
 
 				return status.Error(codes.Internal, "generator failed due to unknown reason")
 			}
@@ -221,6 +232,12 @@ func (s *AppServer) Deploy(ctx context.Context, req *api.AppDeployRequest) (res 
 
 // Status returns app status
 func (s *AppServer) Status(ctx context.Context, req *api.AppStatusRequest) (res *api.AppStatusResponse, err error) {
+	if err := auth.IsAuthorized(ctx, permissions.AppStatus); err != nil {
+		return nil, status.Error(codes.PermissionDenied, err.Error())
+	}
+
+	logger := log.Extract(ctx).WithField("app_id", req.Id)
+
 	store := apps.NewAppStore(s.Context.DB)
 
 	app, err := store.FindAppByID(req.Id)
@@ -249,7 +266,7 @@ func (s *AppServer) Status(ctx context.Context, req *api.AppStatusRequest) (res 
 		)
 
 		if err != nil {
-			log.Printf("failed to get metrics: %+v", err)
+			logger.Printf("failed to get metrics: %+v", err)
 
 			if stat, ok := status.FromError(err); ok {
 				switch stat.Code() {

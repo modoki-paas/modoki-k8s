@@ -2,10 +2,9 @@ package handler
 
 import (
 	"context"
-	"encoding/json"
-	"log"
 	"strings"
 
+	"github.com/modoki-paas/modoki-k8s/internal/log"
 	"github.com/modoki-paas/modoki-k8s/pkg/auth"
 	"github.com/modoki-paas/modoki-k8s/pkg/rbac/roles"
 	"golang.org/x/xerrors"
@@ -26,6 +25,8 @@ var _ extauth.AuthorizationServer = &ExtAuthZ{}
 
 // Check handles requests from ext_authz in Envoy proxy
 func (ea *ExtAuthZ) Check(ctx context.Context, req *extauth.CheckRequest) (*extauth.CheckResponse, error) {
+	logger := log.Extract(ctx)
+
 	authzHeader := req.Attributes.Request.Http.Headers["authorization"]
 	token := strings.TrimPrefix(authzHeader, "Bearer ")
 
@@ -52,7 +53,7 @@ func (ea *ExtAuthZ) Check(ctx context.Context, req *extauth.CheckRequest) (*exta
 	}
 
 	if err != nil {
-		log.Printf("authentication failed: %+v", err)
+		logger.Errorf("authentication failed: %+v", err)
 
 		return &extauth.CheckResponse{
 			Status: &rpcstatus.Status{
@@ -104,10 +105,6 @@ func (ea *ExtAuthZ) Check(ctx context.Context, req *extauth.CheckRequest) (*exta
 			},
 		},
 	}
-
-	b, _ := json.MarshalIndent(resp, "", "  ")
-
-	log.Println(string(b))
 
 	return resp, nil
 }

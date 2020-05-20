@@ -3,13 +3,13 @@ package handler
 import (
 	"context"
 	"fmt"
-	"log"
 
 	"github.com/jmoiron/sqlx"
 	modoki "github.com/modoki-paas/modoki-k8s/api"
 	"github.com/modoki-paas/modoki-k8s/apiserver/store/users"
 	"github.com/modoki-paas/modoki-k8s/internal/dbutil"
 	"github.com/modoki-paas/modoki-k8s/internal/grpcutil"
+	"github.com/modoki-paas/modoki-k8s/internal/log"
 	"github.com/modoki-paas/modoki-k8s/pkg/auth"
 	"github.com/modoki-paas/modoki-k8s/pkg/rbac/permissions"
 	"github.com/modoki-paas/modoki-k8s/pkg/rbac/roles"
@@ -119,6 +119,7 @@ func (s *UserOrgServer) GetRoleBinding(ctx context.Context, in *modoki.GetRoleBi
 	if err := auth.IsAuthorized(ctx, permissions.UserOrgGetRoleBinding); err != nil {
 		return nil, status.Error(codes.PermissionDenied, err.Error())
 	}
+	logger := log.Extract(ctx)
 
 	userStore := users.NewUserStore(s.Context.DB)
 	rbStore := users.NewRoleBindingsStore(s.Context.DB)
@@ -130,7 +131,7 @@ func (s *UserOrgServer) GetRoleBinding(ctx context.Context, in *modoki.GetRoleBi
 			return nil, status.Error(codes.NotFound, "unknown user")
 		}
 
-		log.Println(err)
+		logger.Errorf("failed to find user: %+v", err)
 		return nil, status.Error(codes.Internal, "failed to find user")
 	}
 
@@ -141,7 +142,7 @@ func (s *UserOrgServer) GetRoleBinding(ctx context.Context, in *modoki.GetRoleBi
 			return nil, status.Error(codes.NotFound, "unknown target user")
 		}
 
-		log.Println(err)
+		logger.Errorf("failed to find user: %+v", err)
 		return nil, status.Error(codes.Internal, "failed to find user")
 	}
 
@@ -152,7 +153,7 @@ func (s *UserOrgServer) GetRoleBinding(ctx context.Context, in *modoki.GetRoleBi
 			return nil, status.Error(codes.NotFound, "unknown role binding")
 		}
 
-		log.Println(err)
+		logger.Errorf("failed to find role binding: %+v", err)
 		return nil, status.Error(codes.Internal, "failed to find role binding")
 	}
 

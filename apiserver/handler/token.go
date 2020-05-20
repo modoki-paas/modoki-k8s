@@ -2,12 +2,12 @@ package handler
 
 import (
 	"context"
-	"log"
 
 	"github.com/jmoiron/sqlx"
 	modoki "github.com/modoki-paas/modoki-k8s/api"
 	"github.com/modoki-paas/modoki-k8s/apiserver/store/tokens"
 	"github.com/modoki-paas/modoki-k8s/internal/dbutil"
+	"github.com/modoki-paas/modoki-k8s/internal/log"
 	"github.com/modoki-paas/modoki-k8s/pkg/auth"
 	"github.com/modoki-paas/modoki-k8s/pkg/rbac/permissions"
 	"github.com/modoki-paas/modoki-k8s/pkg/types"
@@ -25,6 +25,7 @@ func (s *TokenServer) IssueToken(ctx context.Context, req *modoki.IssueTokenRequ
 	if err := auth.IsAuthorized(ctx, permissions.TokenIssue); err != nil {
 		return nil, status.Error(codes.PermissionDenied, err.Error())
 	}
+	logger := log.Extract(ctx)
 
 	err = dbutil.Transaction(ctx, s.Context.DB, func(tx *sqlx.Tx) error {
 		store := tokens.NewTokenStore(tx)
@@ -40,7 +41,7 @@ func (s *TokenServer) IssueToken(ctx context.Context, req *modoki.IssueTokenRequ
 				return status.Error(codes.AlreadyExists, "the id already exists")
 			}
 
-			log.Panic(err)
+			logger.Errorf("failed to generate token: %+v", err)
 			return status.Error(codes.Internal, "failed to issue token")
 		}
 
@@ -62,6 +63,7 @@ func (s *TokenServer) ValidateToken(ctx context.Context, req *modoki.ValidateTok
 	if err := auth.IsAuthorized(ctx, permissions.TokenValidate); err != nil {
 		return nil, status.Error(codes.PermissionDenied, err.Error())
 	}
+	logger := log.Extract(ctx)
 
 	err = dbutil.Transaction(ctx, s.Context.DB, func(tx *sqlx.Tx) error {
 		store := tokens.NewTokenStore(tx)
@@ -73,7 +75,7 @@ func (s *TokenServer) ValidateToken(ctx context.Context, req *modoki.ValidateTok
 				return status.Error(codes.NotFound, "unknown token")
 			}
 
-			log.Println(err)
+			logger.Errorf("failed to validate token: %+v", err)
 			return status.Error(codes.Internal, "failed to find token")
 		}
 

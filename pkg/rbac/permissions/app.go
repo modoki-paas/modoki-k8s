@@ -5,6 +5,7 @@ var (
 	AppUpdate = NewPermission("app:v1alpha1:update", NamespaceUser, NamespaceOrg)
 	AppDelete = NewPermission("app:v1alpha1:delete", NamespaceUser, NamespaceOrg)
 	AppList   = NewPermission("app:v1alpha1:list", NamespaceUser, NamespaceOrg)
+	AppStatus = NewPermission("app:v1alpha1:status", NamespaceUser, NamespaceOrg)
 
-	AppPermissions = []*Permission{AppCreate, AppUpdate, AppDelete, AppList}
+	AppPermissions = []*Permission{AppCreate, AppUpdate, AppDelete, AppList, AppStatus}
 )
