@@ -18,6 +18,7 @@ require (
 	github.com/otiai10/copy v1.0.2
 	github.com/pquerna/cachecontrol v0.0.0-20180517163645-1555304b9b35 // indirect
 	github.com/rs/xid v1.2.1
+	github.com/sirupsen/logrus v1.6.0 // indirect
 	golang.org/x/crypto v0.0.0-20200128174031-69ecbb4d6d5d
 	golang.org/x/net v0.0.0-20191209160850-c0dbc17a3553 // indirect
 	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d

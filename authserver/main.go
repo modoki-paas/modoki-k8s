@@ -1,7 +1,6 @@
 package main
 
 import (
-	"log"
 	"net"
 	"runtime/debug"
 
@@ -12,13 +11,16 @@ import (
 	api "github.com/modoki-paas/modoki-k8s/api"
 	"github.com/modoki-paas/modoki-k8s/authserver/config"
 	"github.com/modoki-paas/modoki-k8s/authserver/handler"
+	"github.com/modoki-paas/modoki-k8s/internal/log"
 	"github.com/modoki-paas/modoki-k8s/pkg/auth"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 )
 
+var logger *log.Logger
+
 func recoveryFunc(p interface{}) error {
-	log.Printf("server paniced: %+v(trace: %s)", p, string(debug.Stack()))
+	logger.Printf("server paniced: %+v(trace: %s)", p, string(debug.Stack()))
 
 	return grpc.Errorf(codes.Internal, "internal error")
 }
@@ -30,7 +32,14 @@ func initGRPCServer(sctx *handler.ServerContext) (*grpc.Server, error) {
 	}
 
 	server := grpc.NewServer(
-		grpc_middleware.WithUnaryServerChain(grpc_recovery.UnaryServerInterceptor(opts...)),
+		grpc_middleware.WithUnaryServerChain(
+			grpc_recovery.UnaryServerInterceptor(opts...),
+			logger.UnaryInterceptor(),
+		),
+		grpc_middleware.WithStreamServerChain(
+			grpc_recovery.StreamServerInterceptor(opts...),
+			logger.StreamInterceptor(),
+		),
 	)
 
 	api.RegisterAuthServer(server, &handler.AuthServer{Context: sctx})
@@ -43,6 +52,8 @@ func initGRPCServer(sctx *handler.ServerContext) (*grpc.Server, error) {
 }
 
 func main() {
+	logger := log.New()
+
 	cfg, err := config.ReadConfig()
 
 	if err != nil {
@@ -52,21 +63,21 @@ func main() {
 	sctx, err := handler.NewServerContext(cfg)
 
 	if err != nil {
-		log.Fatalf("failed to init server context: %+v", err)
+		logger.Fatalf("failed to init server context: %+v", err)
 	}
 
 	listener, err := net.Listen("tcp", cfg.Address)
 	if err != nil {
-		log.Fatalf("failed to listen on %s: %+v", cfg.Address, err)
+		logger.Fatalf("failed to listen on %s: %+v", cfg.Address, err)
 	}
 
 	server, err := initGRPCServer(sctx)
 
 	if err != nil {
-		log.Fatalf("failed to init grpc server: %+v", err)
+		logger.Fatalf("failed to init grpc server: %+v", err)
 	}
 
 	if err := server.Serve(listener); err != nil {
-		log.Fatalf("failed to start server on :80: %v", err)
+		logger.Fatalf("failed to start server on :80: %v", err)
 	}
 }
