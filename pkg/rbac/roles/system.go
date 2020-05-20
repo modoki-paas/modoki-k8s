@@ -16,7 +16,7 @@ var (
 		permissions.UserGetAll, permissions.UserDelete, permissions.UserGet, permissions.UserUpdate,
 		permissions.TokenIssue, permissions.TokenDelete,
 		permissions.OrgCreate, permissions.OrgList, permissions.OrgListAll, permissions.OrgDelete, permissions.OrgUpdate, permissions.OrgUpdate,
-		permissions.AppCreate, permissions.AppUpdate, permissions.AppDelete, permissions.AppList,
+		permissions.AppCreate, permissions.AppUpdate, permissions.AppDelete, permissions.AppList, permissions.AppStatus,
 	)
 
 	SystemDeveloper = NewSystemRole(

@@ -2,7 +2,6 @@ package auth
 
 import (
 	"context"
-	"log"
 	"strings"
 
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
@@ -99,7 +98,6 @@ func UnaryServerInterceptor(tokens []string) grpc.UnaryServerInterceptor {
 	}
 
 	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
-		log.Println(info)
 		ctx, err := ai.wrapContext(ctx)
 
 		if err != nil {
