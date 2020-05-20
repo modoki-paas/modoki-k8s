@@ -24,4 +24,8 @@ var (
 		permissions.UserGetAll,
 		permissions.OrgCreate, permissions.OrgList,
 	)
+
+	SystemOrgSelf = NewSystemRole(
+		"system_org_self",
+	)
 )

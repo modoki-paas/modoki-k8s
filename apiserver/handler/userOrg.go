@@ -30,8 +30,8 @@ func (s *UserOrgServer) UserAdd(ctx context.Context, req *modoki.UserAddRequest)
 	}
 
 	err = dbutil.Transaction(ctx, s.Context.DB, func(tx *sqlx.Tx) error {
-		userStore := users.NewUserStore(s.Context.DB)
-		roleBindingStore := users.NewRoleBindingsStore(s.Context.DB)
+		userStore := users.NewUserStore(tx)
+		roleBindingStore := users.NewRoleBindingsStore(tx)
 
 		user := req.User
 
@@ -99,8 +99,56 @@ func (s *UserOrgServer) UserFindByID(ctx context.Context, req *modoki.UserFindBy
 	}, nil
 }
 
-func (s *UserOrgServer) OrganizationAdd(_ context.Context, _ *modoki.OrganizationAddRequest) (*modoki.OrganizationAddResponse, error) {
-	panic("not implemented")
+func (s *UserOrgServer) OrganizationAdd(ctx context.Context, req *modoki.OrganizationAddRequest) (*modoki.OrganizationAddResponse, error) {
+	if err := auth.IsAuthorized(ctx, permissions.OrgCreate); err != nil {
+		return nil, status.Error(codes.PermissionDenied, err.Error())
+	}
+	userStore := users.NewUserStore(s.Context.DB)
+
+	userID := auth.GetUserIDContext(ctx)
+
+	user, err := userStore.FindUserByID(userID)
+
+	if err != nil {
+		return nil, status.Error(codes.Unauthenticated, "unknown user")
+	}
+
+	var res *modoki.OrganizationAddResponse
+	err = dbutil.Transaction(ctx, s.Context.DB, func(tx *sqlx.Tx) error {
+		userStore := users.NewUserStore(tx)
+		roleBindingStore := users.NewRoleBindingsStore(tx)
+
+		org := req.Organization
+
+		seq, err := userStore.AddUser(org.OrgId, org.Name, types.UserOrganization, roles.SystemOrgSelf.Name)
+
+		if err != nil {
+			if err == users.ErrUserIDDuplicates {
+				return status.Error(codes.AlreadyExists, "user id already exists")
+			}
+
+			return status.Error(codes.Internal, fmt.Sprintf("internal error: %s", err.Error()))
+		}
+
+		if _, err := roleBindingStore.RegisterRoleBinding(user.SeqID, seq, roles.OrgAdmin.Name); err != nil {
+			return status.Error(codes.Internal, fmt.Sprintf("internal error: %s", err.Error()))
+		}
+
+		res = &modoki.OrganizationAddResponse{
+			Organization: &modoki.Organization{
+				Id:    int32(seq),
+				OrgId: org.OrgId,
+				Name:  org.Name,
+			},
+		}
+		return nil
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	return res, nil
 }
 
 func (s *UserOrgServer) OrganizationDelete(_ context.Context, _ *modoki.OrganizationDeleteRequest) (*modoki.OrganizationDeleteResponse, error) {

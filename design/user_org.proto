@@ -15,9 +15,8 @@ message User {
 }
 
 message Organization {
-  int32 id = 1;
-  string org_id = 2;
-  string name = 3;
+  string org_id = 1;
+  string name = 2;
 }
 
 message UserAddRequest { User user = 1; }
