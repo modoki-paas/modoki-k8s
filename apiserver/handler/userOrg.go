@@ -136,7 +136,6 @@ func (s *UserOrgServer) OrganizationAdd(ctx context.Context, req *modoki.Organiz
 
 		res = &modoki.OrganizationAddResponse{
 			Organization: &modoki.Organization{
-				Id:    int32(seq),
 				OrgId: org.OrgId,
 				Name:  org.Name,
 			},

@@ -72,7 +72,7 @@ test:
 
 .PHONY: generate
 generate: clean
-	cd ./design && $(PROTOC) --go_out=plugins=grpc:../api *.proto
+	$(PROTOC) --proto_path=./design --go_opt=paths=source_relative --go_out=plugins=grpc:./api ./design/*.proto
 
 .PHONY: clean
 clean:

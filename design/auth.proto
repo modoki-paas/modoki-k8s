@@ -1,7 +1,7 @@
 syntax = "proto3";
 package modoki;
 
-option go_package = "modoki";
+option go_package = "github.com/modoki-paas/modoki-k8s/api;modoki";
 
 message SignInRequest {}
 

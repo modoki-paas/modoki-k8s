@@ -9,8 +9,8 @@ require (
 	github.com/envoyproxy/go-control-plane v0.9.4
 	github.com/go-sql-driver/mysql v1.4.1
 	github.com/gogo/googleapis v1.3.2
-	github.com/golang/protobuf v1.3.3
-	github.com/google/go-cmp v0.3.1
+	github.com/golang/protobuf v1.4.2
+	github.com/google/go-cmp v0.4.0
 	github.com/google/go-containerregistry v0.0.0-20191218175032-34fb8ff33bed
 	github.com/grpc-ecosystem/go-grpc-middleware v1.2.0
 	github.com/heetch/confita v0.9.0
@@ -23,9 +23,10 @@ require (
 	golang.org/x/net v0.0.0-20191209160850-c0dbc17a3553 // indirect
 	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d
 	golang.org/x/sys v0.0.0-20200106162015-b016eb3dc98e // indirect
-	golang.org/x/xerrors v0.0.0-20190717185122-a985d3407aa7
+	golang.org/x/xerrors v0.0.0-20191204190536-9bdfabe68543
 	google.golang.org/genproto v0.0.0-20200310143817-43be25429f5a
 	google.golang.org/grpc v1.27.0
+	google.golang.org/protobuf v1.23.0
 	gopkg.in/square/go-jose.v2 v2.4.1 // indirect
 	gopkg.in/yaml.v2 v2.2.7 // indirect
 	k8s.io/api v0.17.0
