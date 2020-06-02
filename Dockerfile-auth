@@ -1,4 +1,4 @@
-FROM golang:1.14.3 as tools
+FROM golang:1.14.4 as tools
 ENV DOCKERIZE_VERSION v0.6.1
 RUN wget https://github.com/jwilder/dockerize/releases/download/${DOCKERIZE_VERSION}/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
     && tar -C /usr/local/bin -xzvf dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
@@ -9,7 +9,7 @@ RUN wget https://github.com/k0kubun/sqldef/releases/download/${SQLDEF_VERSION}/m
     && tar -C /usr/local/bin -xzvf mysqldef_linux_amd64.tar.gz \
     && rm mysqldef_linux_amd64.tar.gz
 
-FROM golang:1.14.3 as builder
+FROM golang:1.14.4 as builder
 
 COPY . /work
 WORKDIR /work
